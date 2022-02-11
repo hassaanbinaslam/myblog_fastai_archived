@@ -8,8 +8,8 @@
 <meta name="generator" content="Jekyll v4.1.1" />
 <meta property="og:title" content="Python Dictionary - Multiple ways to get items" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="A tutorial showing multiple ways to get items from a Python dictionary." />
-<meta property="og:description" content="A tutorial showing multiple ways to get items from a Python dictionary." />
+<meta name="description" content="A tutorial on multiple ways to get items from a Python dictionary." />
+<meta property="og:description" content="A tutorial on multiple ways to get items from a Python dictionary." />
 <link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/python/2022/02/10/python-dictionary.html" />
 <meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/python/2022/02/10/python-dictionary.html" />
 <meta property="og:site_name" content="Random Thoughts" />
@@ -18,7 +18,7 @@
 <meta name="twitter:card" content="summary" />
 <meta property="twitter:title" content="Python Dictionary - Multiple ways to get items" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-02-10T00:00:00-06:00","datePublished":"2022-02-10T00:00:00-06:00","description":"A tutorial showing multiple ways to get items from a Python dictionary.","headline":"Python Dictionary - Multiple ways to get items","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/python/2022/02/10/python-dictionary.html"},"url":"https://hassaanbinaslam.github.io/myblog/python/2022/02/10/python-dictionary.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-02-10T00:00:00-06:00","datePublished":"2022-02-10T00:00:00-06:00","description":"A tutorial on multiple ways to get items from a Python dictionary.","headline":"Python Dictionary - Multiple ways to get items","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/python/2022/02/10/python-dictionary.html"},"url":"https://hassaanbinaslam.github.io/myblog/python/2022/02/10/python-dictionary.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
 
@@ -88,7 +88,7 @@ window.onload = wrap_img;
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">Python Dictionary - Multiple ways to get items</h1><p class="page-description">A tutorial showing multiple ways to get items from a Python dictionary.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-02-10T00:00:00-06:00" itemprop="datePublished">
+    <h1 class="post-title p-name" itemprop="name headline">Python Dictionary - Multiple ways to get items</h1><p class="page-description">A tutorial on multiple ways to get items from a Python dictionary.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-02-10T00:00:00-06:00" itemprop="datePublished">
         Feb 10, 2022
       </time>
        • <span class="read-time" title="Estimated read time">
@@ -162,7 +162,7 @@ window.onload = wrap_img;
 <h2 id="About">
 <a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
 </h2>
-<p>This notebook is a demonstration of multiple ways with which we can get items from a Python dictionary.</p>
+<p>This notebook demonstrates multiple ways to get items from a Python dictionary.</p>
 
 </div>
 </div>
@@ -315,7 +315,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Squre brackets is the simplest approach to get any item from a dictionary. You can get a value from a dictionary by providing it a key in [] brackets. For example, to get a value of <em>model</em> from <em>car</em></p>
+<p>A square bracket is the simplest approach to getting any item from a dictionary. You can get a value from a dictionary by providing it a <em>key</em> in <code>[]</code> brackets. For example, to get a value of <em>model</em> from a <em>car</em></p>
 
 </div>
 </div>
@@ -446,7 +446,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>An alternate approach could be to use <em>Try-Except</em> block to handle the <em>KeyError</em> exception.</p>
+<p>An alternate approach could be to use a <em>Try-Except</em> block to handle the <em>KeyError</em> exception.</p>
 
 </div>
 </div>
@@ -578,7 +578,7 @@ window.onload = wrap_img;
 <blockquote>
 <p><a href="https://docs.python.org/3/library/stdtypes.html#dict.get">https://docs.python.org/3/library/stdtypes.html#dict.get</a> <br>&gt; <code>get(key[, default])</code></p>
 </blockquote>
-<p>Get function will return the value for <em>key</em> if <em>key</em> is in the dictionary. Otherwise it will return a default value which is <em>None</em>. You can provide your own default value as well.</p>
+<p>Get function will return the value for <em>key</em> if <em>key</em> is in the dictionary. Otherwise, it will return a default value which is <em>None</em>. You can provide your default value as well.</p>
 
 </div>
 </div>
@@ -621,7 +621,7 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Depending on your usecase there can be a <em>confusion</em> with this approach when your item can also have <em>None</em> value. In that case you will not know whether the <em>None</em> value was returned from the dictionary or it was the <em>Get</em> function.</p>
+<p>Depending on your use case there can be <em>confusion</em> with this approach when your item can also have <code>None</code> value. In that case, you will not know whether the <em>None</em> value was returned from the dictionary or it was the <em>Get</em> function.</p>
 
 </div>
 </div>
