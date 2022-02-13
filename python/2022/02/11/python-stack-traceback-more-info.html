@@ -743,7 +743,7 @@ This module provides an easy-to-use interface to work with <code>traceback objec
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#now let uss try our custom exception function and see the ouput</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#now let us try our custom exception function and see the ouput</span>
 <span class="k">try</span><span class="p">:</span>
     <span class="n">get_items_len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
@@ -1054,7 +1054,7 @@ Frame get_items_len in &lt;ipython-input-3-8421f841ba77&gt; at line 11
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Note the last three lines in the above stack trace. It is easy now to see (<em>items</em>) that we received in our function. The item at index <em>i</em> is 333 is also available on which our function crashed. Using our custom function unexpected errors are logged in a format that makes it a lot easier to find and fix the errors. Let's fix our function to handle unexpected integer values</p>
+<p>Note the last three lines in the above stack trace. It is easy now to see (<em>items</em>) that we received in our function. The item at index <em>i</em> is also available (333) on which our function crashed. Using our custom function unexpected errors are logged in a format that makes it a lot easier to find and fix the errors. Let's fix our function to handle unexpected integer values.</p>
 
 </div>
 </div>
