@@ -1,0 +1,1151 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Python - Getting more information from Tracebacks | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Python - Getting more information from Tracebacks" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A tutorial to get more information from Python exception stack traceback." />
+<meta property="og:description" content="A tutorial to get more information from Python exception stack traceback." />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/python/2022/02/11/python-stack-traceback-more-info.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/python/2022/02/11/python-stack-traceback-more-info.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-02-11T00:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Python - Getting more information from Tracebacks" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-02-11T00:00:00-06:00","datePublished":"2022-02-11T00:00:00-06:00","description":"A tutorial to get more information from Python exception stack traceback.","headline":"Python - Getting more information from Tracebacks","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/python/2022/02/11/python-stack-traceback-more-info.html"},"url":"https://hassaanbinaslam.github.io/myblog/python/2022/02/11/python-stack-traceback-more-info.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Python - Getting more information from Tracebacks</h1><p class="page-description">A tutorial to get more information from Python exception stack traceback.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-02-11T00:00:00-06:00" itemprop="datePublished">
+        Feb 11, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      16 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#python">python</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-justify-center">
+          <div class="px-2">
+
+    <a href="https://github.com/hassaanbinaslam/myblog/tree/master/_notebooks/2022-02-11-python-stack-traceback-more-info.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/myblog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/hassaanbinaslam/myblog/master?filepath=_notebooks%2F2022-02-11-python-stack-traceback-more-info.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/myblog/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/hassaanbinaslam/myblog/blob/master/_notebooks/2022-02-11-python-stack-traceback-more-info.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/myblog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+          <div class="px-2">
+  <a href="https://deepnote.com/launch?url=https%3A%2F%2Fgithub.com%2Fhassaanbinaslam%2Fmyblog%2Fblob%2Fmaster%2F_notebooks%2F2022-02-11-python-stack-traceback-more-info.ipynb" target="_blank">
+      <img class="notebook-badge-image" src="/myblog/assets/badges/deepnote.svg" alt="Launch in Deepnote"/>
+  </a>
+</div>
+
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#About">About </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Credit">Credit </a></li>
+<li class="toc-entry toc-h3"><a href="#Environment-Details">Environment Details </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Discussion">Discussion </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Traceback-Module">Traceback Module </a></li>
+<li class="toc-entry toc-h3"><a href="#Traceback-Objects">Traceback Objects </a></li>
+<li class="toc-entry toc-h3"><a href="#Frame-Objects">Frame Objects </a></li>
+<li class="toc-entry toc-h3"><a href="#Code-Objects">Code Objects </a></li>
+<li class="toc-entry toc-h3"><a href="#Visual-representation-of-Traceback,-Frame-and-Code-Objects">Visual representation of Traceback, Frame and Code Objects </a></li>
+<li class="toc-entry toc-h3"><a href="#Custom-fuction-for-additional-exception-info">Custom fuction for additional exception info </a></li>
+</ul>
+</li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-02-11-python-stack-traceback-more-info.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h2>
+<p>This notebook demonstrates what the Python Traceback object is, and how can we get more information out of it to better diagnose exception messages.</p>
+<h3 id="Credit">
+<a class="anchor" href="#Credit" aria-hidden="true"><span class="octicon octicon-link"></span></a>Credit<a class="anchor-link" href="#Credit"> </a>
+</h3>
+<p>This blog post is based on an article originally written in <code>Python Cookbook</code> published by <code>O'Reilly Media, Inc.</code> and released July 2002. In book's chapter 15, there is a section with the title <code>Getting More Information from Tracebacks</code> written by <code>Bryn Keller</code>. An online version of this article is available at <a href="https://www.oreilly.com/library/view/python-cookbook/0596001673/ch14s05.html">https://www.oreilly.com/library/view/python-cookbook/0596001673/ch14s05.html</a>.</p>
+<p>The original article uses Python 2.2, but I have adapted it for Python 3.8. Also, I have added some commentary to give more insights on Python Traceback object.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Environment-Details">
+<a class="anchor" href="#Environment-Details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Environment Details<a class="anchor-link" href="#Environment-Details"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p></p>
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">platform</span> <span class="kn">import</span> <span class="n">python_version</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"python=="</span> <span class="o">+</span> <span class="n">python_version</span><span class="p">())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+    </details>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>python==3.8.5
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Discussion">
+<a class="anchor" href="#Discussion" aria-hidden="true"><span class="octicon octicon-link"></span></a>Discussion<a class="anchor-link" href="#Discussion"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Consider the following toy example where we are getting some data from an external source (an API call, a DB call, etc.), and we need to find the length of individual items provided in the list. We know that items in the list will be of type <code>str</code> so we have used a <code>len()</code> function on it.</p>
+<p>We got an exception when we ran our function on received data, and now we are trying to investigate what caused the error.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p></p>
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># this is intentionally hidden as we don't know about the data received from an external source. </span>
+<span class="n">data</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"1"</span><span class="p">,</span> <span class="s2">"22"</span><span class="p">,</span> <span class="mi">333</span><span class="p">,</span> <span class="s2">"4444"</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+    </details>
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># our toy example function.</span>
+<span class="kn">import</span> <span class="nn">sys</span><span class="o">,</span> <span class="nn">traceback</span>
+
+<span class="k">def</span> <span class="nf">get_items_len</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="sd">"""</span>
+<span class="sd">    this function returns the length of items received in a list.</span>
+<span class="sd">    """</span>
+    <span class="n">items_len</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="n">items</span><span class="p">:</span>
+        <span class="n">items_len</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">items_len</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># let's run our function on "data" received from an external source</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">get_items_len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>None
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Traceback (most recent call last):
+  File "&lt;ipython-input-4-42cd486e1858&gt;", line 4, in &lt;module&gt;
+    get_items_len(data)
+  File "&lt;ipython-input-3-8421f841ba77&gt;", line 11, in get_items_len
+    items_len.append(len(i))
+TypeError: object of type 'int' has no len()
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We got an exception while data processing and the <code>Traceback</code> message gives us some details. It tells us that we have received some data of type <em>integer</em> instead of <em>string</em>, and we are trying to call <em>len()</em> function on it. But we don't know the actual data value that caused the exception, or we don't know the <em>index</em> of the item in the list that caused this error. Depending on the use case, information about the local variables, or input data that caused the error can be crucial in diagnosing the root cause of an error.</p>
+<p>Fortunately, all this information is already available to us in the 'Traceback' object, but there are no built-in methods that give this information directly. Let us try some of the built-in methods on the Traceback object to see the kind of information we could get from it.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># calling traceback module built-in methods</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">get_items_len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"***** Exception *****"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="p">)</span>
+
+    <span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">***** print_tb *****"</span><span class="p">)</span>
+    <span class="n">traceback</span><span class="o">.</span><span class="n">print_tb</span><span class="p">(</span><span class="n">exc_traceback</span><span class="p">,</span> <span class="n">limit</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">***** print_exception *****"</span><span class="p">)</span>
+    <span class="c1"># exc_type below is ignored on 3.5 and later</span>
+    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exception</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="p">,</span>
+                                <span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">***** print_exc *****"</span><span class="p">)</span>
+    <span class="n">traceback</span><span class="o">.</span><span class="n">print_exc</span><span class="p">(</span><span class="n">limit</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">file</span><span class="o">=</span><span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">***** format_exc, first and last line *****"</span><span class="p">)</span>
+    <span class="n">formatted_lines</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span><span class="o">.</span><span class="n">splitlines</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">formatted_lines</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">formatted_lines</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">])</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">***** format_exception *****"</span><span class="p">)</span>
+    <span class="c1"># exc_type below is ignored on 3.5 and later</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_exception</span><span class="p">(</span><span class="n">exc_type</span><span class="p">,</span> <span class="n">exc_value</span><span class="p">,</span>
+                                            <span class="n">exc_traceback</span><span class="p">)))</span>
+                                            
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">***** extract_tb *****"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">extract_tb</span><span class="p">(</span><span class="n">exc_traceback</span><span class="p">)))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">***** format_tb *****"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="nb">repr</span><span class="p">(</span><span class="n">traceback</span><span class="o">.</span><span class="n">format_tb</span><span class="p">(</span><span class="n">exc_traceback</span><span class="p">)))</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">***** tb_lineno *****"</span><span class="p">,</span> <span class="n">exc_traceback</span><span class="o">.</span><span class="n">tb_lineno</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
+</p>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>***** Exception *****
+object of type 'int' has no len()
+
+***** print_tb *****
+  File "&lt;ipython-input-5-b26b26250753&gt;", line 4, in &lt;module&gt;
+    get_items_len(data)
+
+***** print_exception *****
+Traceback (most recent call last):
+  File "&lt;ipython-input-5-b26b26250753&gt;", line 4, in &lt;module&gt;
+    get_items_len(data)
+  File "&lt;ipython-input-3-8421f841ba77&gt;", line 11, in get_items_len
+    items_len.append(len(i))
+TypeError: object of type 'int' has no len()
+
+***** print_exc *****
+Traceback (most recent call last):
+  File "&lt;ipython-input-5-b26b26250753&gt;", line 4, in &lt;module&gt;
+    get_items_len(data)
+  File "&lt;ipython-input-3-8421f841ba77&gt;", line 11, in get_items_len
+    items_len.append(len(i))
+TypeError: object of type 'int' has no len()
+
+***** format_exc, first and last line *****
+Traceback (most recent call last):
+TypeError: object of type 'int' has no len()
+
+***** format_exception *****
+['Traceback (most recent call last):\n', '  File "&lt;ipython-input-5-b26b26250753&gt;", line 4, in &lt;module&gt;\n    get_items_len(data)\n', '  File "&lt;ipython-input-3-8421f841ba77&gt;", line 11, in get_items_len\n    items_len.append(len(i))\n', "TypeError: object of type 'int' has no len()\n"]
+
+***** extract_tb *****
+[&lt;FrameSummary file &lt;ipython-input-5-b26b26250753&gt;, line 4 in &lt;module&gt;&gt;, &lt;FrameSummary file &lt;ipython-input-3-8421f841ba77&gt;, line 11 in get_items_len&gt;]
+
+***** format_tb *****
+['  File "&lt;ipython-input-5-b26b26250753&gt;", line 4, in &lt;module&gt;\n    get_items_len(data)\n', '  File "&lt;ipython-input-3-8421f841ba77&gt;", line 11, in get_items_len\n    items_len.append(len(i))\n']
+
+***** tb_lineno ***** 4
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+    </details>
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>All these methods are useful but we are still short on information about the state of local variables when the system crashed. Before writing our custom function to get variable state, let us spend some time to understand the working of Traceback object.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Traceback-Module">
+<a class="anchor" href="#Traceback-Module" aria-hidden="true"><span class="octicon octicon-link"></span></a>Traceback Module<a class="anchor-link" href="#Traceback-Module"> </a>
+</h3>
+<blockquote>
+<p><a href="https://docs.python.org/3/library/traceback.html">https://docs.python.org/3/library/traceback.html</a>
+This module provides an easy-to-use interface to work with <code>traceback objects</code>. It provides multiple functions that we can use to extract the required information from traceback. So far, we have used methods from this module in the above examples.</p>
+</blockquote>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Traceback-Objects">
+<a class="anchor" href="#Traceback-Objects" aria-hidden="true"><span class="octicon octicon-link"></span></a>Traceback Objects<a class="anchor-link" href="#Traceback-Objects"> </a>
+</h3>
+<blockquote>
+<p><a href="https://docs.python.org/3/reference/datamodel.html">https://docs.python.org/3/reference/datamodel.html</a> <br>&gt; On this page search for term "Traceback objects"</p>
+</blockquote>
+<p>Traceback objects represent a stack trace of an exception. A traceback object is implicitly created when an exception occurs and may also be explicitly created by initializing an instance of class <code>types.TracebackType</code>. <em>traceback</em> object is also an instance of <em>types.TracebackType</em> class. When an exception occurs, a traceback object is initialized for us, and we can obtain it from any of the following two methods.</p>
+<ol>
+<li>It is available as a third item of the tuple returned by sys.exc_info() "<code>(type, value, traceback)</code>"</li>
+<li>It is available as the <code>__traceback__</code> object of the caught exception. "<code>Exception.__traceback__</code>"</li>
+</ol>
+<p>A traceback object is a linked list of nodes, where each node is a <code>Frame object</code>. Frame objects form their own linked list but in the opposite direction of traceback objects. Together they work like a doubly-linked list, and we can use them to move back and forth in the stack trace history. It is the frame objects that hold all the stack's important information. traceback object has some special attributes</p>
+<ul>
+<li>
+<code>tb_next</code> point to the next level in the stack trace (towards the frame where the exception occurred), or <code>None</code> if there is no next level</li>
+<li>
+<code>tb_frame</code> points to the execution frame of the current level</li>
+<li>
+<code>tb_lineno</code> gives the line number where the exception occurred</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># method 1: get traceback object using sys.exc_info()</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">get_items_len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>&lt;traceback object at 0x7fd01545fb00&gt;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># method 2: get traceback object using Exception.__traceback__</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">get_items_len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">e</span><span class="o">.</span><span class="n">__traceback__</span> <span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>&lt;traceback object at 0x7fd01548f700&gt;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If there is no exception in the system, then calling sys.exc_info() will only return <code>None</code> values.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># no exception is generated so sys.exc_info() will return None values.</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">get_items_len</span><span class="p">([</span><span class="s1">'1'</span><span class="p">,</span><span class="s1">'2'</span><span class="p">,</span><span class="s1">'3'</span><span class="p">,</span><span class="s1">'4'</span><span class="p">])</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">2</span><span class="p">])</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Frame-Objects">
+<a class="anchor" href="#Frame-Objects" aria-hidden="true"><span class="octicon octicon-link"></span></a>Frame Objects<a class="anchor-link" href="#Frame-Objects"> </a>
+</h3>
+<blockquote>
+<p><a href="https://docs.python.org/3/reference/datamodel.html">https://docs.python.org/3/reference/datamodel.html</a> <br>&gt; On this page search for term "Frame objects"</p>
+</blockquote>
+<p>Frame objects represent execution frames. It has some special attributes</p>
+<ul>
+<li>
+<code>f_back</code> is a reference to the previous stack frame (towards the caller), or None if this is the bottom stack frame</li>
+<li>
+<code>f_code</code> is the code object being executed in this frame. We will discuss <code>Code Objects</code> in next the section</li>
+<li>
+<code>f_lineno</code> is the current line number of the frame — writing to this from within a trace function jumps to the given line (only for the bottom-most frame). A debugger can implement a Jump command (aka Set Next Statement) by writing to f_lineno. This attribute will give you the line number in the code on which exception occurred</li>
+<li>
+<code>f_locals</code> is a dictionary used to lookup local variables. From this dictionary we can get all the local variables and their state at the time of exception</li>
+<li>
+<code>f_globals</code> is a dictionary for global varaibles</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Code-Objects">
+<a class="anchor" href="#Code-Objects" aria-hidden="true"><span class="octicon octicon-link"></span></a>Code Objects<a class="anchor-link" href="#Code-Objects"> </a>
+</h3>
+<blockquote>
+<p><a href="https://docs.python.org/3/reference/datamodel.html">https://docs.python.org/3/reference/datamodel.html</a> <br>&gt; On this page search for term "Code Objects"</p>
+</blockquote>
+<p>Code objects represent byte-compiled executable Python code or bytecode. Some of its attributes include</p>
+<ul>
+<li>
+<code>co_name</code> gives the function name being executed</li>
+<li>
+<code>co_filename</code> gives the filename from which the code was compiled</li>
+</ul>
+<p>There are many other helpful attributes in this object, and you may read about them from the docs.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Visual-representation-of-Traceback,-Frame-and-Code-Objects">
+<a class="anchor" href="#Visual-representation-of-Traceback,-Frame-and-Code-Objects" aria-hidden="true"><span class="octicon octicon-link"></span></a>Visual representation of Traceback, Frame and Code Objects<a class="anchor-link" href="#Visual-representation-of-Traceback,-Frame-and-Code-Objects"> </a>
+</h3>
+<p><img src="/myblog/images/copied_from_nb/images/2022-02-11-python-traceback.png" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Custom-fuction-for-additional-exception-info">
+<a class="anchor" href="#Custom-fuction-for-additional-exception-info" aria-hidden="true"><span class="octicon octicon-link"></span></a>Custom fuction for additional exception info<a class="anchor-link" href="#Custom-fuction-for-additional-exception-info"> </a>
+</h3>
+<p>Now with this additional information on stack trace objects, let us create a function to get variables state at the time of exception.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<details class="description" open="">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p></p>
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">exc_info_plus</span><span class="p">():</span>
+    <span class="sd">"""</span>
+<span class="sd">    Provides the usual traceback information, followed by a listing of all the</span>
+<span class="sd">    local variables in each frame.</span>
+<span class="sd">    """</span>
+    <span class="n">tb</span> <span class="o">=</span> <span class="n">sys</span><span class="o">.</span><span class="n">exc_info</span><span class="p">()[</span><span class="mi">2</span><span class="p">]</span>
+
+    <span class="c1"># iterate forward to the last (most recent) traceback object.</span>
+    <span class="k">while</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">tb</span><span class="o">.</span><span class="n">tb_next</span><span class="p">:</span>
+            <span class="k">break</span>
+        <span class="n">tb</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">tb_next</span>
+    <span class="n">stack</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># get the most recent traceback frame</span>
+    <span class="n">f</span> <span class="o">=</span> <span class="n">tb</span><span class="o">.</span><span class="n">tb_frame</span>
+
+    <span class="c1"># iterate backwards from recent to oldest traceback frame </span>
+    <span class="k">while</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">stack</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f</span><span class="p">)</span>
+        <span class="n">f</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">f_back</span>
+    
+    <span class="c1"># oldest frame is at the top. reverse it to get the most recent frame at the top.</span>
+    <span class="n">stack</span><span class="o">.</span><span class="n">reverse</span><span class="p">()</span>
+
+    <span class="c1"># get exception information and stack trace entries from most recent traceback object</span>
+    <span class="n">exc_msg</span> <span class="o">=</span> <span class="n">traceback</span><span class="o">.</span><span class="n">format_exc</span><span class="p">()</span>
+
+    <span class="n">exc_msg</span> <span class="o">+=</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">*** Locals by frame, innermost last ***"</span>
+    <span class="k">for</span> <span class="n">frame</span> <span class="ow">in</span> <span class="n">stack</span><span class="p">:</span>
+        <span class="n">exc_msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">Frame </span><span class="si">{</span><span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_name</span><span class="si">}</span><span class="s2"> in </span><span class="si">{</span><span class="n">frame</span><span class="o">.</span><span class="n">f_code</span><span class="o">.</span><span class="n">co_filename</span><span class="si">}</span><span class="s2"> at line </span><span class="si">{</span><span class="n">frame</span><span class="o">.</span><span class="n">f_lineno</span><span class="si">}</span><span class="s2">"</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">frame</span><span class="o">.</span><span class="n">f_locals</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="n">exc_msg</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">"</span><span class="se">\n\t</span><span class="s2"> </span><span class="si">{</span><span class="n">key</span><span class="si">:</span><span class="s2">20</span><span class="si">}</span><span class="s2"> = "</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="n">data</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">value</span><span class="p">)</span>
+                <span class="c1"># limit variable's output to a certain number. You can adjust it as per your requirement.</span>
+                <span class="c1"># But not to remove it as output from large objects (e.g. Pandas DataFrame) can be troublesome. </span>
+                <span class="n">output_limit</span> <span class="o">=</span> <span class="mi">50</span>
+                <span class="n">exc_msg</span> <span class="o">+=</span> <span class="p">(</span><span class="n">data</span><span class="p">[:</span><span class="n">output_limit</span><span class="p">]</span> <span class="o">+</span> <span class="s2">"..."</span><span class="p">)</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="n">output_limit</span> <span class="k">else</span> <span class="n">data</span>
+            <span class="k">except</span><span class="p">:</span>
+                <span class="n">exc_msg</span> <span class="o">+=</span> <span class="s2">"&lt;ERROR WHILE PRINTING VALUE&gt;"</span>
+
+    <span class="k">return</span> <span class="n">exc_msg</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+    </details>
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">#now let uss try our custom exception function and see the ouput</span>
+<span class="k">try</span><span class="p">:</span>
+    <span class="n">get_items_len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+<span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">e</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">exc_info_plus</span><span class="p">())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
+</p>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Traceback (most recent call last):
+  File "&lt;ipython-input-10-521618c72821&gt;", line 4, in &lt;module&gt;
+    get_items_len(data)
+  File "&lt;ipython-input-3-8421f841ba77&gt;", line 11, in get_items_len
+    items_len.append(len(i))
+TypeError: object of type 'int' has no len()
+
+*** Locals by frame, innermost last ***
+Frame _run_module_as_main in /usr/lib/python3.8/runpy.py at line 194
+	 mod_name             = ipykernel_launcher
+	 alter_argv           = 1
+	 mod_spec             = ModuleSpec(name='ipykernel_launcher', loader=&lt;_fro...
+	 code                 = &lt;code object &lt;module&gt; at 0x7fd01c7fe030, file "/us...
+	 main_globals         = {'__name__': '__main__', '__doc__': 'Entry point f...
+Frame _run_code in /usr/lib/python3.8/runpy.py at line 87
+	 code                 = &lt;code object &lt;module&gt; at 0x7fd01c7fe030, file "/us...
+	 run_globals          = {'__name__': '__main__', '__doc__': 'Entry point f...
+	 init_globals         = None
+	 mod_name             = __main__
+	 mod_spec             = ModuleSpec(name='ipykernel_launcher', loader=&lt;_fro...
+	 pkg_name             = 
+	 script_name          = None
+	 loader               = &lt;_frozen_importlib_external.SourceFileLoader objec...
+	 fname                = /usr/local/lib/python3.8/dist-packages/ipykernel_l...
+	 cached               = /usr/local/lib/python3.8/dist-packages/__pycache__...
+Frame &lt;module&gt; in /usr/local/lib/python3.8/dist-packages/ipykernel_launcher.py at line 16
+	 __name__             = __main__
+	 __doc__              = Entry point for launching an IPython kernel.
+
+This...
+	 __package__          = 
+	 __loader__           = &lt;_frozen_importlib_external.SourceFileLoader objec...
+	 __spec__             = ModuleSpec(name='ipykernel_launcher', loader=&lt;_fro...
+	 __annotations__      = {}
+	 __builtins__         = &lt;module 'builtins' (built-in)&gt;
+	 __file__             = /usr/local/lib/python3.8/dist-packages/ipykernel_l...
+	 __cached__           = /usr/local/lib/python3.8/dist-packages/__pycache__...
+	 sys                  = &lt;module 'sys' (built-in)&gt;
+	 app                  = &lt;module 'ipykernel.kernelapp' from '/usr/local/lib...
+Frame launch_instance in /usr/local/lib/python3.8/dist-packages/traitlets/config/application.py at line 845
+	 cls                  = &lt;class 'ipykernel.kernelapp.IPKernelApp'&gt;
+	 argv                 = None
+	 kwargs               = {}
+	 app                  = &lt;ipykernel.kernelapp.IPKernelApp object at 0x7fd01...
+Frame start in /usr/local/lib/python3.8/dist-packages/ipykernel/kernelapp.py at line 612
+	 self                 = &lt;ipykernel.kernelapp.IPKernelApp object at 0x7fd01...
+Frame start in /usr/local/lib/python3.8/dist-packages/tornado/platform/asyncio.py at line 199
+	 self                 = &lt;tornado.platform.asyncio.AsyncIOMainLoop object a...
+	 old_loop             = &lt;_UnixSelectorEventLoop running=True closed=False ...
+Frame run_forever in /usr/lib/python3.8/asyncio/base_events.py at line 570
+	 self                 = &lt;_UnixSelectorEventLoop running=True closed=False ...
+	 old_agen_hooks       = asyncgen_hooks(firstiter=None, finalizer=None)
+Frame _run_once in /usr/lib/python3.8/asyncio/base_events.py at line 1859
+	 self                 = &lt;_UnixSelectorEventLoop running=True closed=False ...
+	 sched_count          = 0
+	 handle               = &lt;Handle IOLoop.add_future.&lt;locals&gt;.&lt;lambda&gt;(&lt;Futur...
+	 timeout              = 0
+	 event_list           = []
+	 end_time             = 102299.21219400101
+	 ntodo                = 2
+	 i                    = 0
+Frame _run in /usr/lib/python3.8/asyncio/events.py at line 81
+	 self                 = &lt;Handle IOLoop.add_future.&lt;locals&gt;.&lt;lambda&gt;(&lt;Futur...
+Frame &lt;lambda&gt; in /usr/local/lib/python3.8/dist-packages/tornado/ioloop.py at line 688
+	 f                    = &lt;Future finished result=(10, 13, &lt;bound method...7...
+	 callback             = &lt;function Runner.handle_yield.&lt;locals&gt;.inner at 0x...
+	 future               = &lt;Future finished result=(10, 13, &lt;bound method...7...
+	 self                 = &lt;tornado.platform.asyncio.AsyncIOMainLoop object a...
+Frame _run_callback in /usr/local/lib/python3.8/dist-packages/tornado/ioloop.py at line 741
+	 self                 = &lt;tornado.platform.asyncio.AsyncIOMainLoop object a...
+	 callback             = functools.partial(&lt;function Runner.handle_yield.&lt;l...
+Frame inner in /usr/local/lib/python3.8/dist-packages/tornado/gen.py at line 814
+	 f                    = None
+	 self                 = &lt;tornado.gen.Runner object at 0x7fd015493820&gt;
+Frame run in /usr/local/lib/python3.8/dist-packages/tornado/gen.py at line 775
+	 self                 = &lt;tornado.gen.Runner object at 0x7fd015493820&gt;
+	 future               = None
+	 exc_info             = None
+	 value                = (10, 13, &lt;bound method Kernel.dispatch_shell of &lt;i...
+Frame process_one in /usr/local/lib/python3.8/dist-packages/ipykernel/kernelbase.py at line 362
+	 self                 = &lt;ipykernel.ipkernel.IPythonKernel object at 0x7fd0...
+	 wait                 = True
+	 priority             = 10
+	 t                    = 13
+	 dispatch             = &lt;bound method Kernel.dispatch_shell of &lt;ipykernel....
+	 args                 = (&lt;zmq.eventloop.zmqstream.ZMQStream object at 0x7f...
+Frame wrapper in /usr/local/lib/python3.8/dist-packages/tornado/gen.py at line 234
+	 args                 = (&lt;ipykernel.ipkernel.IPythonKernel object at 0x7fd...
+	 kwargs               = {}
+	 future               = &lt;Future pending&gt;
+	 ctx_run              = &lt;built-in method run of Context object at 0x7fd015...
+	 result               = &lt;generator object Kernel.dispatch_shell at 0x7fd01...
+	 func                 = &lt;function Kernel.dispatch_shell at 0x7fd018dc73a0&gt;
+Frame dispatch_shell in /usr/local/lib/python3.8/dist-packages/ipykernel/kernelbase.py at line 265
+	 self                 = &lt;ipykernel.ipkernel.IPythonKernel object at 0x7fd0...
+	 stream               = &lt;zmq.eventloop.zmqstream.ZMQStream object at 0x7fd...
+	 msg                  = {'header': {'msg_id': '24c6f063a6074761b147921bd32...
+	 idents               = [b'c22ba404ebb740b881ba75b5855dc8cc']
+	 msg_type             = execute_request
+	 handler              = &lt;bound method Kernel.execute_request of &lt;ipykernel...
+Frame wrapper in /usr/local/lib/python3.8/dist-packages/tornado/gen.py at line 234
+	 args                 = (&lt;ipykernel.ipkernel.IPythonKernel object at 0x7fd...
+	 kwargs               = {}
+	 future               = &lt;Future pending&gt;
+	 ctx_run              = &lt;built-in method run of Context object at 0x7fd015...
+	 result               = &lt;generator object Kernel.execute_request at 0x7fd0...
+	 func                 = &lt;function Kernel.execute_request at 0x7fd018dc7f70...
+Frame execute_request in /usr/local/lib/python3.8/dist-packages/ipykernel/kernelbase.py at line 540
+	 self                 = &lt;ipykernel.ipkernel.IPythonKernel object at 0x7fd0...
+	 stream               = &lt;zmq.eventloop.zmqstream.ZMQStream object at 0x7fd...
+	 ident                = [b'c22ba404ebb740b881ba75b5855dc8cc']
+	 parent               = {'header': {'msg_id': '24c6f063a6074761b147921bd32...
+	 content              = {'code': '#collapse-output\n#now let uss try our c...
+	 code                 = #collapse-output
+#now let uss try our custom excep...
+	 silent               = False
+	 store_history        = True
+	 user_expressions     = {}
+	 allow_stdin          = True
+	 stop_on_error        = True
+	 metadata             = {'started': datetime.datetime(2022, 2, 13, 19, 0, ...
+Frame wrapper in /usr/local/lib/python3.8/dist-packages/tornado/gen.py at line 234
+	 args                 = (&lt;ipykernel.ipkernel.IPythonKernel object at 0x7fd...
+	 kwargs               = {}
+	 future               = &lt;Future pending&gt;
+	 ctx_run              = &lt;built-in method run of Context object at 0x7fd018...
+	 result               = &lt;generator object IPythonKernel.do_execute at 0x7f...
+	 func                 = &lt;function IPythonKernel.do_execute at 0x7fd018d178...
+Frame do_execute in /usr/local/lib/python3.8/dist-packages/ipykernel/ipkernel.py at line 302
+	 self                 = &lt;ipykernel.ipkernel.IPythonKernel object at 0x7fd0...
+	 code                 = #collapse-output
+#now let uss try our custom excep...
+	 silent               = False
+	 store_history        = True
+	 user_expressions     = {}
+	 allow_stdin          = True
+	 reply_content        = {}
+	 run_cell             = &lt;bound method InteractiveShell.run_cell_async of &lt;...
+	 should_run_async     = &lt;bound method InteractiveShell.should_run_async of...
+	 shell                = &lt;ipykernel.zmqshell.ZMQInteractiveShell object at ...
+Frame run_cell in /usr/local/lib/python3.8/dist-packages/ipykernel/zmqshell.py at line 539
+	 self                 = &lt;ipykernel.zmqshell.ZMQInteractiveShell object at ...
+	 args                 = ('#collapse-output\n#now let uss try our custom ex...
+	 kwargs               = {'store_history': True, 'silent': False}
+	 __class__            = &lt;class 'ipykernel.zmqshell.ZMQInteractiveShell'&gt;
+Frame run_cell in /usr/local/lib/python3.8/dist-packages/IPython/core/interactiveshell.py at line 2877
+	 self                 = &lt;ipykernel.zmqshell.ZMQInteractiveShell object at ...
+	 raw_cell             = #collapse-output
+#now let uss try our custom excep...
+	 store_history        = True
+	 silent               = False
+	 shell_futures        = True
+	 result               = None
+Frame _run_cell in /usr/local/lib/python3.8/dist-packages/IPython/core/interactiveshell.py at line 2923
+	 self                 = &lt;ipykernel.zmqshell.ZMQInteractiveShell object at ...
+	 raw_cell             = #collapse-output
+#now let uss try our custom excep...
+	 store_history        = True
+	 silent               = False
+	 shell_futures        = True
+	 preprocessing_exc_tuple = None
+	 transformed_cell     = #collapse-output
+#now let uss try our custom excep...
+	 coro                 = &lt;coroutine object InteractiveShell.run_cell_async ...
+	 runner               = &lt;function _pseudo_sync_runner at 0x7fd01bb3b040&gt;
+Frame _pseudo_sync_runner in /usr/local/lib/python3.8/dist-packages/IPython/core/async_helpers.py at line 68
+	 coro                 = &lt;coroutine object InteractiveShell.run_cell_async ...
+Frame run_cell_async in /usr/local/lib/python3.8/dist-packages/IPython/core/interactiveshell.py at line 3146
+	 raw_cell             = #collapse-output
+#now let uss try our custom excep...
+	 silent               = False
+	 shell_futures        = True
+	 transformed_cell     = #collapse-output
+#now let uss try our custom excep...
+	 preprocessing_exc_tuple = None
+	 info                 = &lt;ExecutionInfo object at 7fd015498ac0, raw_cell="#...
+	 error_before_exec    = &lt;function InteractiveShell.run_cell_async.&lt;locals&gt;...
+	 cell                 = #collapse-output
+#now let uss try our custom excep...
+	 compiler             = &lt;IPython.core.compilerop.CachingCompiler object at...
+	 _run_async           = False
+	 cell_name            = &lt;ipython-input-10-521618c72821&gt;
+	 code_ast             = &lt;_ast.Module object at 0x7fd0154989a0&gt;
+	 interactivity        = last_expr
+	 result               = &lt;ExecutionResult object at 7fd015498a90, execution...
+	 self                 = &lt;ipykernel.zmqshell.ZMQInteractiveShell object at ...
+	 store_history        = True
+Frame run_ast_nodes in /usr/local/lib/python3.8/dist-packages/IPython/core/interactiveshell.py at line 3338
+	 self                 = &lt;ipykernel.zmqshell.ZMQInteractiveShell object at ...
+	 nodelist             = [&lt;_ast.Try object at 0x7fd015498cd0&gt;]
+	 cell_name            = &lt;ipython-input-10-521618c72821&gt;
+	 interactivity        = none
+	 compiler             = &lt;IPython.core.compilerop.CachingCompiler object at...
+	 result               = &lt;ExecutionResult object at 7fd015498a90, execution...
+	 to_run_exec          = [&lt;_ast.Try object at 0x7fd015498cd0&gt;]
+	 to_run_interactive   = []
+	 mod                  = &lt;_ast.Module object at 0x7fd015448910&gt;
+	 compare              = &lt;function InteractiveShell.run_ast_nodes.&lt;locals&gt;....
+	 to_run               = [(&lt;_ast.Try object at 0x7fd015498cd0&gt;, 'exec')]
+	 node                 = &lt;_ast.Try object at 0x7fd015498cd0&gt;
+	 mode                 = exec
+	 code                 = &lt;code object &lt;module&gt; at 0x7fd0154aef50, file "&lt;ip...
+	 asy                  = False
+	 _async               = False
+Frame run_code in /usr/local/lib/python3.8/dist-packages/IPython/core/interactiveshell.py at line 3418
+	 self                 = &lt;ipykernel.zmqshell.ZMQInteractiveShell object at ...
+	 code_obj             = &lt;code object &lt;module&gt; at 0x7fd0154aef50, file "&lt;ip...
+	 result               = &lt;ExecutionResult object at 7fd015498a90, execution...
+	 async_               = False
+	 __tracebackhide__    = __ipython_bottom__
+	 old_excepthook       = &lt;bound method IPKernelApp.excepthook of &lt;ipykernel...
+	 outflag              = True
+Frame &lt;module&gt; in &lt;ipython-input-10-521618c72821&gt; at line 6
+	 __name__             = __main__
+	 __doc__              = Automatically created module for IPython interacti...
+	 __package__          = None
+	 __loader__           = None
+	 __spec__             = None
+	 __builtin__          = &lt;module 'builtins' (built-in)&gt;
+	 __builtins__         = &lt;module 'builtins' (built-in)&gt;
+	 _ih                  = ['', '#collapse-hide\nfrom platform import python_...
+	 _oh                  = {}
+	 _dh                  = ['/data/_notebooks']
+	 In                   = ['', '#collapse-hide\nfrom platform import python_...
+	 Out                  = {}
+	 get_ipython          = &lt;bound method InteractiveShell.get_ipython of &lt;ipy...
+	 exit                 = &lt;IPython.core.autocall.ZMQExitAutocall object at 0...
+	 quit                 = &lt;IPython.core.autocall.ZMQExitAutocall object at 0...
+	 _                    = 
+	 __                   = 
+	 ___                  = 
+	 _i                   = #collapse-show
+def exc_info_plus():
+    """
+    Pr...
+	 _ii                  = ##
+# no exception is generated so sys.exc_info() w...
+	 _iii                 = ##
+# method 2: get traceback object using Exceptio...
+	 _i1                  = #collapse-hide
+from platform import python_version...
+	 python_version       = &lt;function python_version at 0x7fd01c439430&gt;
+	 _i2                  = #collapse-hide
+# this is intentionally hidden as w...
+	 data                 = ['1', '22', 333, '4444']
+	 _i3                  = ##
+# our toy example function.
+import sys, traceba...
+	 sys                  = &lt;module 'sys' (built-in)&gt;
+	 traceback            = &lt;module 'traceback' from '/usr/lib/python3.8/trace...
+	 get_items_len        = &lt;function get_items_len at 0x7fd0154ab310&gt;
+	 _i4                  = ##
+# let's run our function on "data" received fro...
+	 _i5                  = #collapse-output
+# calling traceback module built-...
+	 exc_type             = &lt;class 'TypeError'&gt;
+	 exc_value            = object of type 'int' has no len()
+	 exc_traceback        = &lt;traceback object at 0x7fd01544e5c0&gt;
+	 formatted_lines      = ['Traceback (most recent call last):', '  File "&lt;i...
+	 _i6                  = ##
+# method 1: get traceback object using sys.exc_...
+	 _i7                  = ##
+# method 2: get traceback object using Exceptio...
+	 _i8                  = ##
+# no exception is generated so sys.exc_info() w...
+	 _i9                  = #collapse-show
+def exc_info_plus():
+    """
+    Pr...
+	 exc_info_plus        = &lt;function exc_info_plus at 0x7fd0154ab790&gt;
+	 _i10                 = #collapse-output
+#now let uss try our custom excep...
+	 e                    = object of type 'int' has no len()
+Frame get_items_len in &lt;ipython-input-3-8421f841ba77&gt; at line 11
+	 items                = ['1', '22', 333, '4444']
+	 items_len            = [1, 2]
+	 i                    = 333
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+    </details>
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note the last three lines in the above stack trace. It is easy now to see (<em>items</em>) that we received in our function. The item at index <em>i</em> is 333 is also available on which our function crashed. Using our custom function unexpected errors are logged in a format that makes it a lot easier to find and fix the errors. Let's fix our function to handle unexpected integer values</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># let's fix our function to handle unexpected 'int' items by converting them to 'str'</span>
+<span class="k">def</span> <span class="nf">get_items_len</span><span class="p">(</span><span class="n">items</span><span class="p">:</span> <span class="nb">list</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">:</span>
+    <span class="sd">"""</span>
+<span class="sd">    this function returns the length of items received in a list.</span>
+<span class="sd">    """</span>
+    <span class="n">items_len</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="n">items</span><span class="p">):</span>
+        <span class="n">items_len</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">i</span><span class="p">))</span>
+    
+    <span class="k">return</span> <span class="n">items_len</span>
+
+<span class="c1"># test it again</span>
+<span class="n">get_items_len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[1, 2, 3, 4]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hassaanbinaslam/myblog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/myblog/python/2022/02/11/python-stack-traceback-more-info.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/fastai" target="_blank" title="fastai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/fastdotai" target="_blank" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
