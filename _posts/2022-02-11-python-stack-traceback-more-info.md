@@ -6,6 +6,7 @@ toc: true
 badges: true
 comments: true
 categories: [python]
+image: images/2022-02-11-python-traceback.png
 nb_path: _notebooks/2022-02-11-python-stack-traceback-more-info.ipynb
 layout: notebook
 ---
