@@ -460,7 +460,8 @@ This module provides an easy-to-use interface to work with <code>traceback objec
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h3 id="Visual-representation-of-Traceback,-Frame-and-Code-Objects">Visual representation of Traceback, Frame and Code Objects<a class="anchor-link" href="#Visual-representation-of-Traceback,-Frame-and-Code-Objects"> </a></h3><p><img src="/myblog/images/copied_from_nb/images/2022-02-11-python-traceback.png" alt="Visual representation of Traceback, Frame and Code Objects"></p>
+<h3 id="Visual-representation-of-Traceback,-Frame-and-Code-Objects">Visual representation of Traceback, Frame and Code Objects<a class="anchor-link" href="#Visual-representation-of-Traceback,-Frame-and-Code-Objects"> </a></h3><p><img src="/myblog/images/copied_from_nb/images/2022-02-11-python-traceback.png" alt=""></p>
+<p><em><center>figure 1: Visual representation of Traceback, Frame and Code Objects</center></em></p>
 
 </div>
 </div>
