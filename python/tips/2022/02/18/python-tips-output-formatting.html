@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Python - A collection of output formatting tips | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Python - A collection of output formatting tips" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="Some handy Python output tips" />
+<meta property="og:description" content="Some handy Python output tips" />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/python/tips/2022/02/18/python-tips-output-formatting.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/python/tips/2022/02/18/python-tips-output-formatting.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-02-18T00:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Python - A collection of output formatting tips" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-02-18T00:00:00-06:00","datePublished":"2022-02-18T00:00:00-06:00","description":"Some handy Python output tips","headline":"Python - A collection of output formatting tips","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/python/tips/2022/02/18/python-tips-output-formatting.html"},"url":"https://hassaanbinaslam.github.io/myblog/python/tips/2022/02/18/python-tips-output-formatting.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Python - A collection of output formatting tips</h1><p class="page-description">Some handy Python output tips</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-02-18T00:00:00-06:00" itemprop="datePublished">
+        Feb 18, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      2 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#python">python</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#tips">tips</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-justify-center">
+          <div class="px-2">
+
+    <a href="https://github.com/hassaanbinaslam/myblog/tree/master/_notebooks/2022-02-18-python-tips-output-formatting.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/myblog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/hassaanbinaslam/myblog/master?filepath=_notebooks%2F2022-02-18-python-tips-output-formatting.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/myblog/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/hassaanbinaslam/myblog/blob/master/_notebooks/2022-02-18-python-tips-output-formatting.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/myblog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+          <div class="px-2">
+  <a href="https://deepnote.com/launch?url=https%3A%2F%2Fgithub.com%2Fhassaanbinaslam%2Fmyblog%2Fblob%2Fmaster%2F_notebooks%2F2022-02-18-python-tips-output-formatting.ipynb" target="_blank">
+      <img class="notebook-badge-image" src="/myblog/assets/badges/deepnote.svg" alt="Launch in Deepnote"/>
+  </a>
+</div>
+
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h2"><a href="#About">About </a></li>
+<li class="toc-entry toc-h2"><a href="#Environment">Environment </a></li>
+<li class="toc-entry toc-h2"><a href="#f-string:-Expressions-inside-a-string">f-string: Expressions inside a string </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#f-string:-Padding-the-output">f-string: Padding the output </a></li>
+<li class="toc-entry toc-h3"><a href="#f-string:-Binary-and-hexadecimal-format">f-string: Binary and hexadecimal format </a></li>
+<li class="toc-entry toc-h3"><a href="#f-string:-Controlling-the-decimal-places">f-string: Controlling the decimal places </a></li>
+<li class="toc-entry toc-h3"><a href="#f-string:-Putting-commas-in-numerical-output">f-string: Putting commas in numerical output </a></li>
+</ul>
+</li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-02-18-python-tips-output-formatting.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h2>
+<p>This notebook is a collection of useful tips to format Python string literals and output.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Environment">
+<a class="anchor" href="#Environment" aria-hidden="true"><span class="octicon octicon-link"></span></a>Environment<a class="anchor-link" href="#Environment"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
+        <p></p>
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">platform</span> <span class="kn">import</span> <span class="n">python_version</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">"python=="</span> <span class="o">+</span> <span class="n">python_version</span><span class="p">())</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+    </details>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>python==3.8.5
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="f-string:-Expressions-inside-a-string">
+<a class="anchor" href="#f-string:-Expressions-inside-a-string" aria-hidden="true"><span class="octicon octicon-link"></span></a>f-string: Expressions inside a string<a class="anchor-link" href="#f-string:-Expressions-inside-a-string"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">r</span> <span class="o">=</span> <span class="s1">'red'</span>
+<span class="n">g</span> <span class="o">=</span> <span class="s1">'green'</span>
+<span class="n">b</span> <span class="o">=</span> <span class="mi">1001</span>
+
+<span class="c1"># f-string has a simple syntax. Put 'f' at the start of string, and put expressions in {}</span>
+<span class="sa">f</span><span class="s2">"Stop = </span><span class="si">{</span><span class="n">r</span><span class="si">}</span><span class="s2">, Go = </span><span class="si">{</span><span class="n">g</span><span class="si">}</span><span class="s2">"</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'Stop = red, Go = green'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># 'F' can also be used to start an f-string</span>
+<span class="sa">F</span><span class="s2">"binary = </span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="s2">. If you need value in brackets </span><span class="se">{{</span><span class="si">{</span><span class="n">b</span><span class="si">}</span><span class="se">}}</span><span class="s2">"</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'binary = 1001. If you need value in brackets {1001}'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># f-string can also be started with """ quotes</span>
+<span class="sa">f</span><span class="s2">"""</span><span class="si">{</span><span class="n">r</span><span class="si">}</span><span class="s2"> or </span><span class="si">{</span><span class="n">g</span><span class="si">}</span><span class="s2">"""</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'red or green'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># f-string on multiple lines. </span>
+<span class="c1"># 1. Use """ with backslash \</span>
+<span class="sa">f</span><span class="s2">"""</span><span class="si">{</span><span class="n">r</span><span class="si">}</span><span class="se">\</span>
+<span class="s2"> or </span><span class="se">\</span>
+<span class="si">{</span><span class="n">g</span><span class="si">}</span><span class="s2">"""</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'red or green'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># f-string on multiple lines. </span>
+<span class="c1"># 2. Use only backslash \</span>
+<span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">r</span><span class="si">}</span><span class="s2">"</span> \
+<span class="s2">" or "</span> \
+<span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">g</span><span class="si">}</span><span class="s2">"</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'red or green'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># f-string on multiple lines. </span>
+<span class="c1"># 3. Use  brackets ()</span>
+<span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">r</span><span class="si">}</span><span class="s2">"</span>
+<span class="s2">" or "</span>
+<span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">g</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'red or green'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># you can also compute an expression in an f-string</span>
+<span class="sa">f</span><span class="s2">"</span><span class="si">{</span> <span class="mi">40</span> <span class="o">+</span> <span class="mi">2</span><span class="si">}</span><span class="s2">"</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'42'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># functions can also be called from inside an f-string</span>
+<span class="sa">f</span><span class="s2">"This is in CAPS: </span><span class="si">{</span> <span class="nb">str</span><span class="o">.</span><span class="n">upper</span><span class="p">(</span><span class="n">r</span><span class="p">)</span> <span class="si">}</span><span class="s2">"</span>
+
+<span class="c1"># same as above</span>
+<span class="sa">f</span><span class="s2">"This is in CAPS: </span><span class="si">{</span> <span class="n">r</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="si">}</span><span class="s2">"</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'This is in CAPS: RED'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="f-string:-Padding-the-output">
+<a class="anchor" href="#f-string:-Padding-the-output" aria-hidden="true"><span class="octicon octicon-link"></span></a>f-string: Padding the output<a class="anchor-link" href="#f-string:-Padding-the-output"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Inside f-string, passing an integer after ':' will cause that field to be a minimum number of characters wide. </span>
+<span class="c1"># This is useful for making columns line up.</span>
+
+<span class="n">groups</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">'small'</span><span class="p">:</span> <span class="mi">100</span><span class="p">,</span>
+    <span class="s1">'medium'</span><span class="p">:</span> <span class="mi">100100</span><span class="p">,</span>
+    <span class="s1">'large'</span><span class="p">:</span> <span class="mi">100100100</span>
+<span class="p">}</span>
+
+<span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">10</span><span class="si">}</span><span class="s2"> ==&gt; </span><span class="si">{</span><span class="n">group</span><span class="si">:</span><span class="s2">20</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="s1">'****'</span><span class="o">*</span><span class="mi">10</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span> <span class="c1"># another nice trick</span>
+
+<span class="k">for</span> <span class="n">group</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">group</span><span class="si">:</span><span class="s2">10</span><span class="si">}</span><span class="s2"> ==&gt; </span><span class="si">{</span><span class="n">value</span><span class="si">:</span><span class="s2">20</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>       100 ==&gt; small               
+    100100 ==&gt; medium              
+ 100100100 ==&gt; large               
+****************************************
+small      ==&gt;                  100
+medium     ==&gt;               100100
+large      ==&gt;            100100100
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="f-string:-Binary-and-hexadecimal-format">
+<a class="anchor" href="#f-string:-Binary-and-hexadecimal-format" aria-hidden="true"><span class="octicon octicon-link"></span></a>f-string: Binary and hexadecimal format<a class="anchor-link" href="#f-string:-Binary-and-hexadecimal-format"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># you can convert integers to binary and hexadecimal format</span>
+<span class="nb">print</span><span class="p">(</span> <span class="sa">f</span><span class="s2">"5 in binary </span><span class="si">{</span><span class="mi">5</span><span class="si">:</span><span class="s2">b</span><span class="si">}</span><span class="s2">"</span> <span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span> <span class="sa">f</span><span class="s2">"5 in hexadecimal </span><span class="si">{</span><span class="mi">5</span><span class="si">:</span><span class="s2">#b</span><span class="si">}</span><span class="s2">"</span> <span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>5 in binary 101
+5 in hexadecimal 0b101
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="f-string:-Controlling-the-decimal-places">
+<a class="anchor" href="#f-string:-Controlling-the-decimal-places" aria-hidden="true"><span class="octicon octicon-link"></span></a>f-string: Controlling the decimal places<a class="anchor-link" href="#f-string:-Controlling-the-decimal-places"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">math</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'The value of pi is approximately (no formatting) </span><span class="si">{</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s1">'The value of pi is approximately </span><span class="si">{</span><span class="n">math</span><span class="o">.</span><span class="n">pi</span> <span class="si">:</span><span class="s1">.3f</span><span class="si">}</span><span class="s1">'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>The value of pi is approximately (no formatting) 3.141592653589793
+The value of pi is approximately 3.142
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="f-string:-Putting-commas-in-numerical-output">
+<a class="anchor" href="#f-string:-Putting-commas-in-numerical-output" aria-hidden="true"><span class="octicon octicon-link"></span></a>f-string: Putting commas in numerical output<a class="anchor-link" href="#f-string:-Putting-commas-in-numerical-output"> </a>
+</h3>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">num</span> <span class="o">=</span> <span class="mf">3214298342.234</span>
+<span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">num</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">"</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'3,214,298,342.234'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hassaanbinaslam/myblog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/myblog/python/tips/2022/02/18/python-tips-output-formatting.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/fastai" target="_blank" title="fastai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/fastdotai" target="_blank" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
