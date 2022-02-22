@@ -1,11 +1,12 @@
 ---
-keywords: [aws, iam, policy types]
+keywords: [aws, iam, policy types, identity based policy, resource based policy, ACL, SCP]
 description: A summary of different AWS IAM policies.
 title: AWS IAM Policy Types
 toc: true 
-badges: true
+badges: false
 comments: true
 categories: [aws]
+image: images/2022-02-22-aws-iam-policies.png
 nb_path: _notebooks/2022-02-23-aws-policy-types.ipynb
 layout: notebook
 ---

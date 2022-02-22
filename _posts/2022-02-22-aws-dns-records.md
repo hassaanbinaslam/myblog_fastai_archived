@@ -1,9 +1,9 @@
 ---
-keywords: fastai
+keywords: [aws, dns, cname, alias, mx, aaaa]
 description: A summary of differences between AWS Route53 DNS Records
 title: AWS DNS Records - A, CNAME, ALIAS, & MX
 toc: true 
-badges: true
+badges: false
 comments: true
 categories: [aws]
 nb_path: _notebooks/2022-02-22-aws-dns-records.ipynb
