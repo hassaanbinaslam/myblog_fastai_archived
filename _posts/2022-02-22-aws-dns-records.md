@@ -1,5 +1,5 @@
 ---
-keywords: aws, dns, route53
+keywords: fastai
 description: A summary of differences between AWS Route53 DNS Records
 title: AWS DNS Records - A, CNAME, ALIAS, & MX
 toc: true 
@@ -80,7 +80,7 @@ layout: notebook
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="CNAME">CNAME<a class="anchor-link" href="#CNAME"> </a></h1><p>CNAME records must always point to another domain name, never directly to an IP address. Since it does not point to an IP address, it is commonly used along with an A record.</p>
+<h1 id="CNAME-Record">CNAME Record<a class="anchor-link" href="#CNAME-Record"> </a></h1><p>CNAME records must always point to another domain name, never directly to an IP address. Since it does not point to an IP address, it is commonly used along with an A record.</p>
 <p>One can, for example, point <strong><em>ftp.example.com</em></strong> and/or <strong><em>www.example.com</em></strong> to the DNS entry <strong><em>example.com</em></strong>, which in turn has an <strong>A record</strong> that points to the IP address. Then, if the IP address ever changes, one only has to record the change in one place within the network: in the DNS A record for <strong><em>example.com</em></strong>.</p>
 <h2 id="Example-use-cases">Example use cases<a class="anchor-link" href="#Example-use-cases"> </a></h2><table>
 <thead><tr>
