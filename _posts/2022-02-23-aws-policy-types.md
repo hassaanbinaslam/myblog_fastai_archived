@@ -64,7 +64,7 @@ This post is summary of AWS IAM policy and permission types.</p>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Permissions-boundaries"><strong>Permissions boundaries</strong><a class="anchor-link" href="#Permissions-boundaries"> </a></h2><p><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_bound">Permissions boundaries</a> – Use a managed policy as the permissions boundary for an IAM entity (user or role). That policy defines the maximum permissions that the identity-based policies can grant to an entity, but does not grant permissions. Permissions boundaries do not define the maximum permissions that a resource-based policy can grant to an entity.</p>
+<h2 id="Permissions-boundaries"><strong>Permissions boundaries</strong><a class="anchor-link" href="#Permissions-boundaries"> </a></h2><p><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_bound">Permissions boundaries</a> – Use a customer or AWS managed policy as the permissions boundary for an IAM entity (user or role). That policy defines the maximum permissions that the identity-based policies can grant to an entity, but does not grant permissions. Permissions boundaries do not define the maximum permissions that a resource-based policy can grant to an entity.</p>
 
 </div>
 </div>
@@ -89,7 +89,7 @@ This post is summary of AWS IAM policy and permission types.</p>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Access-control-lists-(ACLs)"><strong>Access control lists (ACLs)</strong><a class="anchor-link" href="#Access-control-lists-(ACLs)"> </a></h2><p><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_acl">Access control lists (ACLs)</a> – Use ACLs to control which principals in other accounts can access the resource to which the ACL is attached. ACLs are similar to resource-based policies, although they are the only policy type that does not use the JSON policy document structure. ACLs are cross-account permissions policies that grant permissions to the specified principal. ACLs cannot grant permissions to entities within the same account.</p>
+<h2 id="Access-control-lists-(ACLs)"><strong>Access control lists (ACLs)</strong><a class="anchor-link" href="#Access-control-lists-(ACLs)"> </a></h2><p><a href="https://docs.aws.amazon.com/IAM/latest/UserGuide/access_policies.html#policies_acl">Access control lists (ACLs)</a> – Use ACLs to control which principals in other accounts can access the resource to which the ACL is attached. ACLs are similar to resource-based policies, although they are the only policy type that does not use the JSON policy document structure. ACLs are cross-account permissions policies that grant permissions to the specified principal. <em>ACLs cannot grant permissions to entities within the same account</em>.</p>
 
 </div>
 </div>

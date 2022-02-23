@@ -6,6 +6,7 @@ toc: true
 badges: false
 comments: true
 categories: [aws]
+image: images/2022-02-22-aws-dns-records.png
 nb_path: _notebooks/2022-02-22-aws-dns-records.ipynb
 layout: notebook
 ---
@@ -28,7 +29,7 @@ layout: notebook
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Credits">Credits<a class="anchor-link" href="#Credits"> </a></h1><p>This post takes help from a few other really good articles. Please refer to them if need more details on this subject</p>
+<h1 id="Credits">Credits<a class="anchor-link" href="#Credits"> </a></h1><p>This post takes help from a few other really good articles. Please refer to them if you need more details on this subject</p>
 <ul>
 <li><blockquote><p>“Demystifying DNS Records – A, CNAME, ALIAS, MX &amp; AAAA” from <strong>Whizlabs (</strong><a href="https://www.whizlabs.com/blog/dns-records/"><span class="underline">https://www.whizlabs.com/blog/dns-records/</span></a>)</p>
 </blockquote>
@@ -43,9 +44,23 @@ layout: notebook
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="First,-some-definitions">First, some definitions<a class="anchor-link" href="#First,-some-definitions"> </a></h1><h2 id="Domain-Name">Domain Name<a class="anchor-link" href="#Domain-Name"> </a></h2><p><img src="/myblog/images/copied_from_nb/images/2022-02-22-aws-dns-records.png" alt=""></p>
+<ul>
+<li>Domain + TLD = Domain Name</li>
+<li>When you buy a ‘domain’ from a a registrar or reseller, you buy the rights to a specific domain name (example.com), and any subdomains you want to create (my-site.example.com, mail.example.com, etc).</li>
+<li>The domain name (example.com) is also called the apex, root or naked domain name.</li>
+<li>Examples of protocol are http, ftp, TCP, UDP, FTP, SMTP etc.</li>
+<li>Examples of top level domains are .org, .net, .com, .ai etc.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="A-Record">A Record<a class="anchor-link" href="#A-Record"> </a></h1><p>A record (or an address record) always points to an IP address. This IP address should be static like AWS Elastic IP Addresses (EIP)</p>
 <h2 id="Example-use-cases">Example use cases<a class="anchor-link" href="#Example-use-cases"> </a></h2><ul>
-<li><blockquote><p>You can point your root domain name (also known as domain apex or naked domain) <strong>example.com</strong> to an Elastic IP Address <strong>192.0.2.23</strong></p>
+<li><blockquote><p>You can point your root domain name <strong>example.com</strong> to an Elastic IP Address <strong>192.0.2.23</strong></p>
 </blockquote>
 </li>
 <li><blockquote><p>We can also map EC2 instances IPv4 Public IP Address to an A record. But this is not recommended as EC2 instances public IP addresses change when you stop/start your server. We should always use Elastic IP addresses instead.</p>
@@ -126,7 +141,7 @@ layout: notebook
 </thead>
 <tbody>
 <tr>
-<td>example.com</td>
+<td><span style="color:red"> example.com</span></td>
 <td>CNAME</td>
 <td>app.example.com</td>
 </tr>
