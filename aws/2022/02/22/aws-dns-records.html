@@ -13,12 +13,14 @@
 <link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/aws/2022/02/22/aws-dns-records.html" />
 <meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/aws/2022/02/22/aws-dns-records.html" />
 <meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/images/2022-02-22-aws-dns-records.png" />
 <meta property="og:type" content="article" />
 <meta property="article:published_time" content="2022-02-22T00:00:00-06:00" />
-<meta name="twitter:card" content="summary" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://hassaanbinaslam.github.io/myblog/images/2022-02-22-aws-dns-records.png" />
 <meta property="twitter:title" content="AWS DNS Records - A, CNAME, ALIAS, &amp; MX" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-02-22T00:00:00-06:00","datePublished":"2022-02-22T00:00:00-06:00","description":"A summary of differences between AWS Route53 DNS Records","headline":"AWS DNS Records - A, CNAME, ALIAS, &amp; MX","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/aws/2022/02/22/aws-dns-records.html"},"url":"https://hassaanbinaslam.github.io/myblog/aws/2022/02/22/aws-dns-records.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-02-22T00:00:00-06:00","datePublished":"2022-02-22T00:00:00-06:00","description":"A summary of differences between AWS Route53 DNS Records","headline":"AWS DNS Records - A, CNAME, ALIAS, &amp; MX","image":"https://hassaanbinaslam.github.io/myblog/images/2022-02-22-aws-dns-records.png","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/aws/2022/02/22/aws-dns-records.html"},"url":"https://hassaanbinaslam.github.io/myblog/aws/2022/02/22/aws-dns-records.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
 
@@ -94,7 +96,7 @@ window.onload = wrap_img;
        • <span class="read-time" title="Estimated read time">
     
     
-      2 min read
+      3 min read
     
 </span></p>
 
@@ -114,6 +116,11 @@ window.onload = wrap_img;
     <ul id="toc" class="section-nav">
 <li class="toc-entry toc-h1"><a href="#About">About </a></li>
 <li class="toc-entry toc-h1"><a href="#Credits">Credits </a></li>
+<li class="toc-entry toc-h1"><a href="#First,-some-definitions">First, some definitions </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Domain-Name">Domain Name </a></li>
+</ul>
+</li>
 <li class="toc-entry toc-h1"><a href="#A-Record">A Record </a>
 <ul>
 <li class="toc-entry toc-h2"><a href="#Example-use-cases">Example use cases </a></li>
@@ -153,7 +160,7 @@ window.onload = wrap_img;
 <h1 id="Credits">
 <a class="anchor" href="#Credits" aria-hidden="true"><span class="octicon octicon-link"></span></a>Credits<a class="anchor-link" href="#Credits"> </a>
 </h1>
-<p>This post takes help from a few other really good articles. Please refer to them if need more details on this subject</p>
+<p>This post takes help from a few other really good articles. Please refer to them if you need more details on this subject</p>
 <ul>
 <li>
 <blockquote>
@@ -173,6 +180,27 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="First,-some-definitions">
+<a class="anchor" href="#First,-some-definitions" aria-hidden="true"><span class="octicon octicon-link"></span></a>First, some definitions<a class="anchor-link" href="#First,-some-definitions"> </a>
+</h1>
+<h2 id="Domain-Name">
+<a class="anchor" href="#Domain-Name" aria-hidden="true"><span class="octicon octicon-link"></span></a>Domain Name<a class="anchor-link" href="#Domain-Name"> </a>
+</h2>
+<p><img src="/myblog/images/copied_from_nb/images/2022-02-22-aws-dns-records.png" alt=""></p>
+<ul>
+<li>Domain + TLD = Domain Name</li>
+<li>When you buy a ‘domain’ from a a registrar or reseller, you buy the rights to a specific domain name (example.com), and any subdomains you want to create (my-site.example.com, mail.example.com, etc).</li>
+<li>The domain name (example.com) is also called the apex, root or naked domain name.</li>
+<li>Examples of protocol are http, ftp, TCP, UDP, FTP, SMTP etc.</li>
+<li>Examples of top level domains are .org, .net, .com, .ai etc.</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="A-Record">
 <a class="anchor" href="#A-Record" aria-hidden="true"><span class="octicon octicon-link"></span></a>A Record<a class="anchor-link" href="#A-Record"> </a>
 </h1>
@@ -183,7 +211,7 @@ window.onload = wrap_img;
 <ul>
 <li>
 <blockquote>
-<p>You can point your root domain name (also known as domain apex or naked domain) <strong>example.com</strong> to an Elastic IP Address <strong>192.0.2.23</strong></p>
+<p>You can point your root domain name <strong>example.com</strong> to an Elastic IP Address <strong>192.0.2.23</strong></p>
 </blockquote>
 </li>
 <li>
@@ -293,7 +321,7 @@ window.onload = wrap_img;
 </thead>
 <tbody>
 <tr>
-<td>example.com</td>
+<td><span style="color:red"> example.com</span></td>
 <td>CNAME</td>
 <td>app.example.com</td>
 </tr>
