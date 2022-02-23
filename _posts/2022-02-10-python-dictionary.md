@@ -1,5 +1,5 @@
 ---
-keywords: fastai
+keywords: [python, fstrings, formatting, tips]
 description: A tutorial on multiple ways to get items from a Python dictionary.
 title: Python Dictionary - Multiple ways to get items
 toc: true 

@@ -1,5 +1,5 @@
 ---
-keywords: fastai
+keywords: [python, traceback, exception, frame]
 description: A tutorial to get more information from Python exception stack traceback.
 title: Python - Getting more information from Tracebacks
 toc: true 

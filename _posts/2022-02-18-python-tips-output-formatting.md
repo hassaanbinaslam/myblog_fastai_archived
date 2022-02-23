@@ -5,7 +5,7 @@ title: Python - A collection of output formatting tips
 toc: true 
 badges: true
 comments: true
-categories: [python, tips]
+categories: [python]
 show_tags: true
 nb_path: _notebooks/2022-02-18-python-tips-output-formatting.ipynb
 layout: notebook
