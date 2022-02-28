@@ -6,6 +6,7 @@ toc: true
 badges: false
 comments: true
 categories: [aws]
+image: images/2022-02-28-aws-cloudformtion.png
 keyword: [aws, cloudformation, template, intrinsic functions]
 nb_path: _notebooks/2022-02-28-aws-cloudformation-template.ipynb
 layout: notebook
