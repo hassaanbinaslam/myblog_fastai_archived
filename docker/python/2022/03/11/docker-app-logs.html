@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Docker - Accessing Python Application Logs | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Docker - Accessing Python Application Logs" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A tutorial on getting Python application logs running on Docker inside WSL2." />
+<meta property="og:description" content="A tutorial on getting Python application logs running on Docker inside WSL2." />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/docker/python/2022/03/11/docker-app-logs.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/docker/python/2022/03/11/docker-app-logs.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-03-11T00:00:00-06:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Docker - Accessing Python Application Logs" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-03-11T00:00:00-06:00","datePublished":"2022-03-11T00:00:00-06:00","description":"A tutorial on getting Python application logs running on Docker inside WSL2.","headline":"Docker - Accessing Python Application Logs","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/docker/python/2022/03/11/docker-app-logs.html"},"url":"https://hassaanbinaslam.github.io/myblog/docker/python/2022/03/11/docker-app-logs.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Docker - Accessing Python Application Logs</h1><p class="page-description">A tutorial on getting Python application logs running on Docker inside WSL2.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-03-11T00:00:00-06:00" itemprop="datePublished">
+        Mar 11, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      9 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#docker">docker</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#python">python</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-justify-center">
+          <div class="px-2">
+
+    <a href="https://github.com/hassaanbinaslam/myblog/tree/master/_notebooks/2022-03-11-docker-app-logs.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/myblog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/hassaanbinaslam/myblog/master?filepath=_notebooks%2F2022-03-11-docker-app-logs.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/myblog/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/hassaanbinaslam/myblog/blob/master/_notebooks/2022-03-11-docker-app-logs.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/myblog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+          <div class="px-2">
+  <a href="https://deepnote.com/launch?url=https%3A%2F%2Fgithub.com%2Fhassaanbinaslam%2Fmyblog%2Fblob%2Fmaster%2F_notebooks%2F2022-03-11-docker-app-logs.ipynb" target="_blank">
+      <img class="notebook-badge-image" src="/myblog/assets/badges/deepnote.svg" alt="Launch in Deepnote"/>
+  </a>
+</div>
+
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h1"><a href="#About">About </a></li>
+<li class="toc-entry toc-h1"><a href="#Environment-Details">Environment Details </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Sample-Application">Sample Application </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Dockerize-the-application">Dockerize the application </a></li>
+<li class="toc-entry toc-h1"><a href="#Log-Files-Physical-Location">Log Files Physical Location </a></li>
+<li class="toc-entry toc-h1"><a href="#Application-Log-Files">Application Log Files </a></li>
+<li class="toc-entry toc-h1"><a href="#Docker-Volume">Docker Volume </a></li>
+<li class="toc-entry toc-h1"><a href="#Application-log-files-from-the-docker-container">Application log files from the docker container </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-03-11-docker-app-logs.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h1>
+<p>This post is about the challenges on accessing Python application logs running on a Docker container inside WSL2 linux environment.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Environment-Details">
+<a class="anchor" href="#Environment-Details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Environment Details<a class="anchor-link" href="#Environment-Details"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Python = 3.8.x</li>
+<li>WSL version = 2</li>
+<li>WSL Ubuntu version = 20.04</li>
+<li>Docker Engine version = 20.10.12</li>
+<li>Docker Desktop version = 4.4.4</li>
+<li>Host OS = Windows 10</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Sample-Application">
+<a class="anchor" href="#Sample-Application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sample Application<a class="anchor-link" href="#Sample-Application"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let us create a simple hello world application that will print "hello world" message to stdout, and also logs them in a logfile. After each message the application sleeps for 5 seconds, and keeps on doing this for 5 mins (300 sec). After this the program exists.</p>
+<p>Project structure of this application is</p>
+
+<pre><code>app/
+└── src/
+    ├── commons/
+    │   └── logger.py
+    └── hello.py</code></pre>
+<p>Where</p>
+<ul>
+<li>
+<code>app/</code> is the project root folder</li>
+<li>
+<code>src/</code> folder contain the python application code</li>
+<li>
+<code>src/commons/logger.py</code> is the logging module</li>
+<li>
+<code>src/hello.py</code> is the main application</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Code files are provided below</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># app/src/commons/logger.py</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">logformat</span> <span class="o">=</span> <span class="s2">"</span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">"</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s2">"logfile.log"</span>
+
+<span class="c1"># Setting the config of the log object</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="nb">format</span><span class="o">=</span><span class="n">logformat</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># app/src/hello.py</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">import</span> <span class="nn">commons.logger</span> <span class="k">as</span> <span class="nn">logger</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># run for about 5 min: 300 sec</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">60</span><span class="p">):</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">dt_string</span> <span class="o">=</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"</span><span class="si">%d</span><span class="s2">/%m/%Y %H:%M:%S"</span><span class="p">)</span>
+
+        <span class="c1"># prepare message</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"hello world at </span><span class="si">{</span><span class="n">dt_string</span><span class="si">}</span><span class="s2">"</span>
+
+        <span class="c1"># put message to stdout and logs</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># sleep for some seconds</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>When I run the hello.py file I get the output on the termial with hello world messages like this.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-11-docker/helloworld_output.png" alt="helloworld_output"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>When we run the application a "logfile.log" will also appear in the project directory containing the logged messages.</p>
+
+<pre><code>.
+├── app/
+│   └── src/
+│       ├── commons/
+│       │   └── logger.py
+│       └── hello.py
+└── **logfile.log**</code></pre>
+<p>Contents of "logfile.log" file will look like this</p>
+
+<pre><code>INFO 2022-03-11 13:01:56,451 - hello world at 11/03/2022 13:01:56
+INFO 2022-03-11 13:02:01,464 - hello world at 11/03/2022 13:02:01
+INFO 2022-03-11 13:02:06,466 - hello world at 11/03/2022 13:02:06
+INFO 2022-03-11 13:02:11,480 - hello world at 11/03/2022 13:02:11
+INFO 2022-03-11 13:02:16,496 - hello world at 11/03/2022 13:02:16</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>All the code till this point can be found at GitHub repository <a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022">https://github.com/hassaanbinaslam/snapshots-docker-post-11032022</a></p>
+<ul>
+<li><a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022/tree/10ee2d24f410dc38f40bdffb1285acbe5dd59d81">Project code files</a></li>
+<li><a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022/releases/tag/snapshot-01">Project zip file</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Dockerize-the-application">
+<a class="anchor" href="#Dockerize-the-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dockerize the application<a class="anchor-link" href="#Dockerize-the-application"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Our hello-world application is ready now, and we can put it inside a docker container. For this let's create a <code>Dockerfile</code> and place it in <code>app/</code> folder.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># app/Dockerfile</span>
+
+<span class="n">FROM</span> <span class="n">python</span><span class="p">:</span><span class="mf">3.8</span><span class="o">-</span><span class="n">slim</span><span class="o">-</span><span class="n">buster</span>
+
+<span class="c1"># set the working directory in the container</span>
+<span class="n">WORKDIR</span> <span class="o">/</span><span class="n">app</span>
+
+<span class="c1"># copy the content of the local src directory to the working directory</span>
+<span class="n">COPY</span> <span class="n">src</span><span class="o">/</span> <span class="o">.</span>
+
+<span class="c1"># command to run on container start</span>
+<span class="n">CMD</span> <span class="p">[</span> <span class="s2">"python3"</span><span class="p">,</span> <span class="s2">"./hello.py"</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can build our docker image by running the command from terminal at folder <code>app/</code></p>
+
+<pre><code>docker build --tag python-docker .</code></pre>
+<p>Output of this command will look like this
+<img src="/myblog/images/copied_from_nb/images/2022-03-11-docker/docker-build-cmd.png" alt="docker-build-cmd"></p>
+<p>We can check the created docker image using command from terminal</p>
+
+<pre><code>docker images</code></pre>
+<p>Output of this command will look like this
+<img src="/myblog/images/copied_from_nb/images/2022-03-11-docker/docker-image.png" alt="docker-images-cmd"></p>
+<p>So our docker image is ready, we can now run it using command</p>
+
+<pre><code>docker run --name helloworld python-docker</code></pre>
+<p>After running this command you will observe that there is no output on the terminal. Even though we have run our image in an attached mode but still there is no output. We know that the container is running as control on terminal has not return back to us. We can also verify that the container is running by running command <code>docker ps</code> in a separate terminal. 
+Output from this command will look like this</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-11-docker/docker-running-ps.png" alt="docker-running-ps"></p>
+<p>We can also verify that the container is running from <code>Docker Desktop</code> container apps menu. Running container instance will appear like this</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-11-docker/docker-running-desktop.png" alt="docker-running-desktop"></p>
+<p>The reason for logs not appearing on the terminal is because they are being buffered by docker internally. You will get all of them once docker container has finished execution and stopped. You can read more about docker buffereing the output from these StackOverflow posts</p>
+<ul>
+<li><a href="https://stackoverflow.com/questions/107705/disable-output-buffering">disable-output-buffering</a></li>
+<li><a href="https://stackoverflow.com/questions/29663459/python-app-does-not-print-anything-when-running-detached-in-docker">python-app-does-not-print-anything-when-running-detached-in-docker</a></li>
+</ul>
+<p>To disable the output buffering we need to change the CMD in our docker file as</p>
+
+<pre><code>CMD [ "python3", "-u", "./hello.py"]</code></pre>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># app/Dockerfile</span>
+
+<span class="n">FROM</span> <span class="n">python</span><span class="p">:</span><span class="mf">3.8</span><span class="o">-</span><span class="n">slim</span><span class="o">-</span><span class="n">buster</span>
+
+<span class="c1"># set the working directory in the container</span>
+<span class="n">WORKDIR</span> <span class="o">/</span><span class="n">app</span>
+
+<span class="c1"># copy the content of the local src directory to the working directory</span>
+<span class="n">COPY</span> <span class="n">src</span><span class="o">/</span> <span class="o">.</span>
+
+<span class="c1"># command to run on container start</span>
+<span class="n">CMD</span> <span class="p">[</span> <span class="s2">"python3"</span><span class="p">,</span> <span class="s2">"-u"</span><span class="p">,</span> <span class="s2">"./hello.py"</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We need to rebuild our docker image and then run it. Let's do that will the following commands</p>
+
+<pre><code>docker build --tag python-docker .
+docker run --name helloworld python-docker</code></pre>
+<p>this time you can see the output directly on the terminal
+<img src="/myblog/images/copied_from_nb/images/2022-03-11-docker/docker-run-output.png" alt="docker-run-output"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We don't have to run the docker container in an attached mode, and can still get the logs from a running container using <code>docker logs</code> command. Let's do that then</p>
+<p>first run the docker image in a detached mode</p>
+
+<pre><code>docker run -d --name helloworld python-docker</code></pre>
+<p>this command will give the running container ID which will look something like this <code>06918cf824210c015b08ef072feed01768be30ee569e5dbc0eef8d3cd855ab47</code>. We can pass this ID to our next command to view the logs stream from a running container. Use this command</p>
+
+<pre><code>docker logs -f 06918cf824210c015b08ef072feed01768be30ee569e5dbc0eef8d3cd855ab47</code></pre>
+<p>Also note that we don't need to provide the full container id, and can can also provide the first 2 or 3 digits of the ID that can uniquely identify the running container. So following command will also work</p>
+
+<pre><code>docker logs -f 069</code></pre>
+<p>Output on the terminal will look like this
+<img src="/myblog/images/copied_from_nb/images/2022-03-11-docker/docker-run-detached.png" alt="docker-run-detached"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>All the project files till this point can be found at</p>
+<ul>
+<li><a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022/tree/8805832aa0a0a2102f97eeb7f40070284eeac152">project code files</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Log-Files-Physical-Location">
+<a class="anchor" href="#Log-Files-Physical-Location" aria-hidden="true"><span class="octicon octicon-link"></span></a>Log Files Physical Location<a class="anchor-link" href="#Log-Files-Physical-Location"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Docker STDOUT / STDERR logs are also stored on host system as JSON files.</p>
+<p><strong>On linux</strong> You can find them at</p>
+
+<pre><code>/var/lib/docker/containers/&lt;container-id&gt;/&lt;container-id&gt;-json.log</code></pre>
+<p><strong>On Windows</strong> You can find them at</p>
+
+<pre><code>\\wsl$\docker-desktop-data\version-pack-data\community\docker\containers\&lt;container-id&gt;/&lt;container-id&gt;-json.log</code></pre>
+<p>In the above paths replace <code>&lt;container-id&gt;</code> with your full cotaniner ID. Also note that on Windows 10 you can open the folder location by directly pasting the path in folder explorer search bar.</p>
+<p>You can read more about them in the following StackOverflow post</p>
+<ul>
+<li><a href="https://stackoverflow.com/questions/56518032/windows-10-and-docker-container-logs-docker-logging-driver">windows-10-and-docker-container-logs-docker-logging-driver</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Application-Log-Files">
+<a class="anchor" href="#Application-Log-Files" aria-hidden="true"><span class="octicon octicon-link"></span></a>Application Log Files<a class="anchor-link" href="#Application-Log-Files"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>So far we have talked about the docker logs that were generated by application feed to STDOUT or STDERR. But now we are interested in app logs generated by logging module like the one we saw in our first example "logfile.log". For this let's first connect to running docker container and see where is this file located inside the docker running instance.</p>
+<p>Run a new docker container again using command</p>
+
+<pre><code>docker run -d --name helloworld python-docker</code></pre>
+<p>If container already exists you can just start it using command</p>
+
+<pre><code>docker start &lt;container-id&gt;</code></pre>
+<p>Or you can also use the docker desktop to start existing container by click the play button over it.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-11-docker/docker-start-container.png" alt="docker-start-container"></p>
+<p>Once the docker container is running, you can connect to it by either using the CLI from docker desktop</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-11-docker/docker-desktop-cli.png" alt="docker-desktop-cli"></p>
+<p>or from the command below</p>
+
+<pre><code>docker exec -it &lt;cotainer-id&gt; /bin/bash</code></pre>
+<p>Remember that container-id of a running container can be obtained by command <code>docker ps</code>. Output from the above command will look like this</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-11-docker/docker-command-cli.png" alt="docker-command-cli"></p>
+<p>Note that the location of "logfile.log" is under <code>app/</code> folder</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Docker-Volume">
+<a class="anchor" href="#Docker-Volume" aria-hidden="true"><span class="octicon octicon-link"></span></a>Docker Volume<a class="anchor-link" href="#Docker-Volume"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We have seen the application logs by connecting to the docker container, but we would like to have these logs readily available outside the docker container so they can be consumed in real time for debugging. Fot this docker recommends using <a href="https://docs.docker.com/storage/volumes/">volume</a>. Let's create a volume and then mount our application logs to it.</p>
+<p>To create a volume use command</p>
+
+<pre><code>docker volume create applogs</code></pre>
+<p>To remove a volume use command</p>
+
+<pre><code>docker rm create applogs</code></pre>
+<p>To inspect a created volume use command</p>
+
+<pre><code>docker volume inspect applogs</code></pre>
+<p>Output of this command will be like this where Mountpoint is the location of logs on host system.</p>
+
+<pre><code>[
+    {
+        "CreatedAt": "2022-03-11T13:12:57Z",
+        "Driver": "local",
+        "Labels": {},
+        "Mountpoint": "/var/lib/docker/volumes/applogs/_data",
+        "Name": "applogs",
+        "Options": {},
+        "Scope": "local"
+    }
+]</code></pre>
+<p>On Windows 10 you can find the location of these volumes at</p>
+
+<pre><code>\\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\applogs\_data</code></pre>
+<p>Now let's run our docker container with this volume mounted to it. Command for this is</p>
+
+<pre><code>docker run -d --name helloworld -v applogs:/app python-docker</code></pre>
+<p>Docker container will run as before, but if we check the volume on our host we will find that this time all the files and folders available in <code>app/</code> folder from inside the docker container are available. And they will persist on the host OS even if the container is stopped.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-11-docker/docker-volume-mounted.png" alt="docker-volume-mounted"></p>
+<p>Note that the log file 'logfile.log' is also available outside the container, and we can poll it for debugging. But having all the contents of <code>app/</code> folder exposed can be a security issue, as they can contain secrets and passwords. We should only mount the <code>logfile.log</code> file on the volume as a best practice. So let's do that next.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Application-log-files-from-the-docker-container">
+<a class="anchor" href="#Application-log-files-from-the-docker-container" aria-hidden="true"><span class="octicon octicon-link"></span></a>Application log files from the docker container<a class="anchor-link" href="#Application-log-files-from-the-docker-container"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To do this we need to slightly update our application, and create the <code>logfile.log</code> file in a designated <code>log/</code> folder inside the <code>app/</code>. This way we can only mount <code>app/log/</code> folder on the volume. In our application we will update the logging module as</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># app/src/commons/logger.py</span>
+
+<span class="kn">import</span> <span class="nn">logging</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+
+<span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="s2">"logs"</span><span class="p">):</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="s2">"logs"</span><span class="p">)</span>
+
+<span class="n">logformat</span> <span class="o">=</span> <span class="s2">"</span><span class="si">%(levelname)s</span><span class="s2"> </span><span class="si">%(asctime)s</span><span class="s2"> - </span><span class="si">%(message)s</span><span class="s2">"</span>
+<span class="n">filename</span> <span class="o">=</span> <span class="s2">"logs/logfile.log"</span>
+
+
+<span class="c1"># Setting the config of the log object</span>
+<span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span>
+    <span class="nb">format</span><span class="o">=</span><span class="n">logformat</span><span class="p">,</span>
+    <span class="n">filename</span><span class="o">=</span><span class="n">filename</span><span class="p">,</span>
+    <span class="n">level</span><span class="o">=</span><span class="n">logging</span><span class="o">.</span><span class="n">INFO</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This is all we need to change in our application. To cleanup the volume we can either remove the old one and recreate a new one. Or we can directly delete all the files &amp; folders from the host OS from the directory</p>
+
+<pre><code>\\wsl$\docker-desktop-data\version-pack-data\community\docker\volumes\applogs\_data</code></pre>
+<p>Since we have updated the application code we need to rebuild our docker image. Then create a new docker container, and this time only mount the <code>logs/</code> folder on the volume. Command for this is</p>
+<div class="highlight"><pre><span></span><span class="c1"># delete the old volume</span>
+<span class="n">docker</span> <span class="n">volume</span> <span class="n">rm</span> <span class="n">applogs</span>
+
+<span class="c1"># create a new volume</span>
+<span class="n">docker</span> <span class="n">volume</span> <span class="n">create</span> <span class="n">applogs</span>
+
+<span class="c1"># build the docker image</span>
+<span class="n">docker</span> <span class="n">build</span> <span class="o">--</span><span class="n">tag</span> <span class="n">python</span><span class="o">-</span><span class="n">docker</span> <span class="o">.</span>
+
+<span class="c1"># run the docker container and mount a specific folder on volume</span>
+<span class="n">docker</span> <span class="n">run</span> <span class="o">-</span><span class="n">d</span> <span class="o">--</span><span class="n">name</span> <span class="n">helloworld</span> <span class="o">-</span><span class="n">v</span> <span class="n">applogs</span><span class="p">:</span><span class="o">/</span><span class="n">app</span><span class="o">/</span><span class="n">logs</span> <span class="n">python</span><span class="o">-</span><span class="n">docker</span>
+</pre></div>
+<p>If we check the mounted volume, this time only <code>logfile.log</code> is exposed.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-11-docker/docker-logs-mounted.png" alt="docker-logs-mounted"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>All the code for this post can be found at GitHub repository <a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022">https://github.com/hassaanbinaslam/snapshots-docker-post-11032022</a></p>
+<ul>
+<li><a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022/tree/94051e7efbdeac0eafcf17b3b99f8116ddc856a3">Project code files</a></li>
+<li><a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022/releases/tag/snapshot-02">Project zip file</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hassaanbinaslam/myblog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/myblog/docker/python/2022/03/11/docker-app-logs.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/fastai" target="_blank" title="fastai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/fastdotai" target="_blank" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
