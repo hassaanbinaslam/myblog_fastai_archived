@@ -1,9 +1,9 @@
 ---
-keywords: fastai
+keywords: [docker, python, logs, wsl2, windows 10]
 description: A tutorial on getting Python application logs running on Docker inside WSL2.
 title: Docker - Accessing Python Application Logs
 toc: true 
-badges: true
+badges: false
 comments: true
 categories: [docker, python]
 nb_path: _notebooks/2022-03-11-docker-app-logs.ipynb
