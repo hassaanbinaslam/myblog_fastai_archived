@@ -1,0 +1,443 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Docker - Debugging Python Application | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Docker - Debugging Python Application" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A tutorial on debugging Python application running on Docker inside WSL2." />
+<meta property="og:description" content="A tutorial on debugging Python application running on Docker inside WSL2." />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/docker/python/2022/03/14/docker-app-debug.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/docker/python/2022/03/14/docker-app-debug.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-03-14T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Docker - Debugging Python Application" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-03-14T00:00:00-05:00","datePublished":"2022-03-14T00:00:00-05:00","description":"A tutorial on debugging Python application running on Docker inside WSL2.","headline":"Docker - Debugging Python Application","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/docker/python/2022/03/14/docker-app-debug.html"},"url":"https://hassaanbinaslam.github.io/myblog/docker/python/2022/03/14/docker-app-debug.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Docker - Debugging Python Application</h1><p class="page-description">A tutorial on debugging Python application running on Docker inside WSL2.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-03-14T00:00:00-05:00" itemprop="datePublished">
+        Mar 14, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      6 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#docker">docker</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#python">python</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h1"><a href="#About">About </a></li>
+<li class="toc-entry toc-h1"><a href="#Environment-Details">Environment Details </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Sample-Application">Sample Application </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Debug-Docker-Application">Debug Docker Application </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-03-14-docker-app-debug.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h1>
+<p>This post is about debugging a Python application running on a Docker container inside WSL2 linux environment. Highlight of this post is <a href="https://code.visualstudio.com/">Visual Studio Code</a> environment and it extensions <a href="https://marketplace.visualstudio.com/items?itemName=ms-vscode-remote.remote-containers">Remote Containers</a>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Environment-Details">
+<a class="anchor" href="#Environment-Details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Environment Details<a class="anchor-link" href="#Environment-Details"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Python = 3.8.x</li>
+<li>WSL version = 2</li>
+<li>WSL Ubuntu version = 20.04</li>
+<li>Docker Engine version = 20.10.12</li>
+<li>Docker Desktop version = 4.4.4</li>
+<li>Host OS = Windows 10</li>
+<li>VSCode version =  1.65</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Sample-Application">
+<a class="anchor" href="#Sample-Application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sample Application<a class="anchor-link" href="#Sample-Application"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For this post I will use a a simple hello world application that will print "hello world" messages to stdout, and also logs them in a logfilelog. After each message the application sleeps for 5 seconds, and keeps on doing this for 5 mins (300 sec). After this the program exists.</p>
+<p>This application was created as part of the previous blog post <a href="https://hassaanbinaslam.github.io/myblog/docker/python/2022/03/11/docker-app-logs.html">Docker - Accessing Python Application Logs</a>. It is a very simple application, and you can find all the code in GitHub repository <a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022">snapshots-docker-post-11032022</a></p>
+<ul>
+<li><a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022/tree/1c1a98b08690a6106060fd7ed88f85d67cf1d4ab">Project code files</a></li>
+<li><a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022/releases/tag/snapshot-03">Project zip file</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Project structure of this application is</p>
+
+<pre><code>app/
+├── src/
+│   ├── commons/
+│   │   └── logger.py
+│   └── hello.py
+└── Dockerfile</code></pre>
+<p>Where</p>
+<ul>
+<li>
+<code>app/</code> is the project root folder</li>
+<li>
+<code>src/</code> folder contain the python application code</li>
+<li>
+<code>src/commons/logger.py</code> is the logging module</li>
+<li>
+<code>src/hello.py</code> is the main application</li>
+<li>
+<code>app/Dockerfile</code> is the Docker image build file</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>When I run the <code>src/hello.py</code> file from my local machine (Windows 10) I get the output on the termial with hello world messages like this.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/app-run-local.png" alt="app-run-local"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>A "logfile.log" will also appear in the project directory containing the logged messages.</p>
+
+<pre><code>.
+├── app/
+│   ├── src/
+│   │   ├── commons/
+│   │   │   └── logger.py
+│   │   └── hello.py
+│   └── Dockerfile
+└── **logfile.log**</code></pre>
+<p>Contents of "logfile.log" file will look like this</p>
+
+<pre><code>INFO 2022-03-11 13:01:56,451 - hello world at 11/03/2022 13:01:56
+INFO 2022-03-11 13:02:01,464 - hello world at 11/03/2022 13:02:01
+INFO 2022-03-11 13:02:06,466 - hello world at 11/03/2022 13:02:06
+INFO 2022-03-11 13:02:11,480 - hello world at 11/03/2022 13:02:11
+INFO 2022-03-11 13:02:16,496 - hello world at 11/03/2022 13:02:16</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can build our docker image and run it using commands</p>
+
+<pre><code>docker build --tag python-docker .
+docker run --name helloworld python-docker</code></pre>
+<p>Output on the terminal will be like this
+<img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/app-build-run.png" alt="app-build-run"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Notice the difference in the print message when the application was is locally, and from the docker container.</p>
+<ul>
+<li>Local (Win10) message = hello world at 14/03/2022 18:04:02 from <strong>Windows</strong>
+</li>
+<li>Docker container message = hello world at 14/03/2022 13:12:14 from <strong>Linux</strong>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Debug-Docker-Application">
+<a class="anchor" href="#Debug-Docker-Application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Debug Docker Application<a class="anchor-link" href="#Debug-Docker-Application"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To debug the application from inside the docker container we will use VSCode extention <a href="https://code.visualstudio.com/docs/remote/containers">Visual Studio Code Remote - Containers</a>. From the extension docs</p>
+<blockquote>
+<p>The Visual Studio Code Remote - Containers extension lets you use a Docker container as a full-featured development environment. It allows you to open any folder inside (or mounted into) a container and take advantage of Visual Studio Code's full feature set.</p>
+</blockquote>
+<p>Once this extension is installed a new icon ( <strong>Remote Window</strong> ) will appear at the bottom left corner of the VSCode window. Once clicked on the icon, a dropped down will appear as shown below. From this drop down choose option <strong>Reopen in Container</strong></p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/docker-remote-install.png" alt="docker-remote-install"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now it is important to understand that <strong>Visual Studio Code Remote - Containers</strong> extension let's you use a Docker container as a <strong>full-featured development environment</strong>. It allows you to open any folder or repository inside a container and take advantage of Visual Studio Code's full feature set including code debugging, linting, formatting, intellisense, and other tooling. VSCode also provides its own prebuild docker images with all the necessary tools installed into them. Or we can we instruct the VSCode to create a new <strong>development container</strong> using our docker file. You can find a list of prebuild docker images here: <a href="https://hub.docker.com/_/microsoft-vscode-devcontainers">microsoft-vscode-devcontainers</a></p>
+<p>VSCode uses a configuration file called "devcontainer.json" to store instructions on how to create and attach to a development container. You can read more about this config file here: <a href="https://code.visualstudio.com/docs/remote/devcontainerjson-reference">devcontainerjson-reference</a></p>
+<p>Now let's create a new docker development environment using our Dockerfile.</p>
+<ul>
+<li>Open VSCode Commands Palette (F1 or CTL+Shift+P on Win10)</li>
+<li>Select "Remote-Containers: Add Development Container Configuration Files" option from dropdown</li>
+<li>Then select "from Docker" since we want our development container environment same as defined in the Dockerfile</li>
+</ul>
+<p>If this option is not available, and the drop down is showing other options like in the image below, then VSCode is unable to find a Dockerfile associated with the project.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/docker-remote-options-wrong.png" alt="docker-remote-options-wrong"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Notice my project dir in the image below. The root folder of my project <code>snapshots-docker-post-11032022</code> does not contain any Dockerfile.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/project-dir-wrong.png" alt="project-dir-wrong"></p>
+<p>VSCode remote extension assumes that there is a Docker file at the root of the project directory. My project root contain <code>app/</code> folder and inside this folder Dockerfile is located. When we select "Remote-Containers: Add Development Container Configuration Files" option docker extension checks the project root folder for a Dockerfile. It could not find one in my project and that is why it removed 'From Dockerfile' option from the dropdown. Let's correctly open the project with <code>app/</code> as the root folder (or place the Dockerfile at the project root folder). After correcting this mistake, my project in VSCode looks like this</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/project-dir-correct.png" alt="project-dir-correct"></p>
+<p>Now use the extension one more time to create a development container. This time you will find the option "From Dockerfile" in the dropdown menu</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/docker-remote-options-correct.png" alt="docker-remote-options-correct"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Once this option is selected, VSCode will add a folder ".devcontainer" in the project root containing instructions on how to build and launch the development container. Then it will run those instruction to launch a container and connect to it. VSCode terminal will show the logs of all the commands used in launching that container, and at bottom left of VSCode window it will show the name of the container to which it is currently connected.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/docker-dev-running.png" alt="docker-dev-running"></p>
+<p>Note that at this point we are actually working from inside a container. But to actually develop and debug the code from this container you will be required to install more extensions to it. If we had used a VSCode prebuild image then all the required extensions will be automatically available. To install required extension we can use VSCode extensions tab.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/docker-extensions.png" alt="docker-extensions"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Python</strong> extension will be required to work with Python code. So let's intall in our working container. You can also copy the names of installed extensions and paste them in the ".devcontainer" config file as shown below</p>
+<div class="highlight"><pre><span></span><span class="err">//</span> <span class="err">Add</span> <span class="kc">t</span><span class="err">he</span> <span class="err">IDs</span> <span class="err">o</span><span class="kc">f</span> <span class="err">ex</span><span class="kc">tens</span><span class="err">io</span><span class="kc">ns</span> <span class="err">you</span> <span class="err">wa</span><span class="kc">nt</span> <span class="err">i</span><span class="kc">nstalle</span><span class="err">d</span> <span class="err">whe</span><span class="kc">n</span> <span class="kc">t</span><span class="err">he</span> <span class="err">co</span><span class="kc">nta</span><span class="err">i</span><span class="kc">ner</span> <span class="err">is</span> <span class="err">crea</span><span class="kc">te</span><span class="err">d.</span>
+    <span class="nt">"extensions"</span><span class="p">:</span> <span class="p">[</span>
+        <span class="s2">"ms-python.python"</span><span class="p">,</span>
+        <span class="s2">"ms-python.vscode-pylance"</span>
+    <span class="p">]</span>
+</pre></div>
+<p>This way when next time we use this config file to launch a new dev container, all these extensions will be automatically installed for us. To customise the config file you can take help from this template provided by VSCode team <a href="https://github.com/microsoft/vscode-dev-containers/blob/main/containers/python-3/.devcontainer/devcontainer.json">python-3/.devcontainer</a></p>
+<p>Installation of the extensions can be verified from the VSCode terminal logs</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/docker-extension-logs.png" alt="docker-extension-logs"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can now run our Python code from inside this container</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/docker-dev-run-code.png" alt="docker-dev-run-code"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can also easily debug our code directly from inside the container</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/docker-dev-debug-code.png" alt="docker-dev-debug-code"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To close the remote connection, click on the <strong>Remote Window Icon</strong> at the bottom left corner. Use "Reopen Folder Locally" option to return back to local environment. Or "Close Remote Connection" to close the remote connection and also close the project.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-14-docker-debug/docker-dev-close.png" alt="docker-dev-close"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>All the code used for this post can be obtained from the GitHub repository <a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022">snapshots-docker-post-11032022</a></p>
+<ul>
+<li><a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022/tree/6f1235202921c653d13ed7beecda3e3cc10a74a6">Project code files</a></li>
+<li><a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022/releases/tag/snapshot-04">Project zip file</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hassaanbinaslam/myblog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/myblog/docker/python/2022/03/14/docker-app-debug.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/fastai" target="_blank" title="fastai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/fastdotai" target="_blank" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
