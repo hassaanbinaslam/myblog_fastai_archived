@@ -253,7 +253,7 @@ This application implements a basic API backend. It consists of an Amazon API Ga
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Option-2:-Debug-Lambda-Directly-from-Code">Option 2: Debug Lambda Directly from Code<a class="anchor-link" href="#Option-2:-Debug-Lambda-Directly-from-Code"> </a></h1><p>From VSCode open lambda handler code <code>sam-app/hello_world/app.py</code>. A tooltip will appear above the <code>lambda_handler</code> function with options</p>
+<h2 id="Option-2:-Debug-Lambda-Directly-from-Code">Option 2: Debug Lambda Directly from Code<a class="anchor-link" href="#Option-2:-Debug-Lambda-Directly-from-Code"> </a></h2><p>From VSCode open lambda handler code <code>sam-app/hello_world/app.py</code>. A tooltip will appear above the <code>lambda_handler</code> function with options</p>
 <ul>
 <li>AWS: Add Debug Configuration</li>
 <li>AWS: Edit Debug Configuration</li>
