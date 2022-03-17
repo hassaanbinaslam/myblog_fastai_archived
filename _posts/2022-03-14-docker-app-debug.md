@@ -238,7 +238,7 @@ docker run --name helloworld python-docker</code></pre>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>All the code used for this post can be obtained from the GitHub repository <a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022">snapshots-docker-post-11032022</a></p>
+<p>All the code used for this post can be obtained from the GitHub repository <a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022">hassaanbinaslam/snapshots-docker-post-11032022</a></p>
 <ul>
 <li><a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022/tree/6f1235202921c653d13ed7beecda3e3cc10a74a6">Project code files</a></li>
 <li><a href="https://github.com/hassaanbinaslam/snapshots-docker-post-11032022/releases/tag/snapshot-04">Project zip file</a></li>
