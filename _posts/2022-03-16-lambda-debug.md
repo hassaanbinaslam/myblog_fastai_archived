@@ -1,5 +1,5 @@
 ---
-keywords: [aws, lambda, docker, python, wsl2, windows 10, debug, remote container, vscode]
+keywords: [aws, lambda, docker, python, wsl2, windows 10, debug, vscode]
 description: A tutorial on testing and debugging AWS Lambda function from Visual Studio Code.
 title: AWS Lambda - Test and Debug Locally in Visual Studio Code
 toc: true 
