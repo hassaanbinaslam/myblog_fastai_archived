@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>AWS Lambda - Test and Debug Locally in Visual Studio Code | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="AWS Lambda - Test and Debug Locally in Visual Studio Code" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A tutorial on testing and debugging AWS Lambda function from Visual Studio Code." />
+<meta property="og:description" content="A tutorial on testing and debugging AWS Lambda function from Visual Studio Code." />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/aws/lambda/docker/2022/03/16/lambda-debug.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/aws/lambda/docker/2022/03/16/lambda-debug.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-03-16T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="AWS Lambda - Test and Debug Locally in Visual Studio Code" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-03-16T00:00:00-05:00","datePublished":"2022-03-16T00:00:00-05:00","description":"A tutorial on testing and debugging AWS Lambda function from Visual Studio Code.","headline":"AWS Lambda - Test and Debug Locally in Visual Studio Code","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/aws/lambda/docker/2022/03/16/lambda-debug.html"},"url":"https://hassaanbinaslam.github.io/myblog/aws/lambda/docker/2022/03/16/lambda-debug.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">AWS Lambda - Test and Debug Locally in Visual Studio Code</h1><p class="page-description">A tutorial on testing and debugging AWS Lambda function from Visual Studio Code.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-03-16T00:00:00-05:00" itemprop="datePublished">
+        Mar 16, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      6 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#aws">aws</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#lambda">lambda</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#docker">docker</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h1"><a href="#About">About </a></li>
+<li class="toc-entry toc-h1"><a href="#Environment-Details">Environment Details </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Sample-Application">Sample Application </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#SAM-Project-Directory">SAM Project Directory </a></li>
+<li class="toc-entry toc-h1"><a href="#Run-Lambda-Locally">Run Lambda Locally </a></li>
+<li class="toc-entry toc-h1"><a href="#Run-API-Gateway-Locally">Run API Gateway Locally </a></li>
+<li class="toc-entry toc-h1"><a href="#Debug-Lambda-Application-Locally">Debug Lambda Application Locally </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Option-1:-Debug-through-SAM-template">Option 1: Debug through SAM template </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Option-2:-Debug-Lambda-Directly-from-Code">Option 2: Debug Lambda Directly from Code </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-03-16-lambda-debug.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h1>
+<p>This post is about running, and debugging <a href="https://aws.amazon.com/lambda/">AWS Lambda</a> function locally from <a href="https://code.visualstudio.com/">Visual Studio Code</a> environment and it extensions <a href="https://marketplace.visualstudio.com/items?itemName=AmazonWebServices.AWSToolkitforVisualStudio2022">AWS Toolkit</a>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Environment-Details">
+<a class="anchor" href="#Environment-Details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Environment Details<a class="anchor-link" href="#Environment-Details"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Python = 3.8.x</li>
+<li>WSL version = 2</li>
+<li>WSL Ubuntu version = 20.04</li>
+<li>Docker Engine version = 20.10.12</li>
+<li>Docker Desktop version = 4.4.4</li>
+<li>Host OS = Windows 10</li>
+<li>VSCode version =  1.65</li>
+<li>SAM CLI version = 1.40.1 </li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Sample-Application">
+<a class="anchor" href="#Sample-Application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sample Application<a class="anchor-link" href="#Sample-Application"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>For this post we will use a simple hello world application as our focus is on debugging. We will use AWS SAM CLI to create our application. You can follow the steps provided in tutorial <a href="https://docs.aws.amazon.com/serverless-application-model/latest/developerguide/serverless-getting-started.html">AWS SAM Developer Guide&gt;Getting started with AWS SAM</a> to create this application.</p>
+<p>From the provided link (SAM Developer Guide): 
+This application implements a basic API backend. It consists of an Amazon API Gateway endpoint and an AWS Lambda function. When you send a GET request to the API Gateway endpoint, the Lambda function is invoked. This function returns a hello world message.</p>
+<p>The following diagram shows the components of this application:</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-16-lambda-debug/sam-getting-started-hello-world.png" alt="sam-getting-started-hello-world"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To initialize a serverless app use command</p>
+
+<pre><code>sam init</code></pre>
+<p>Complete the SAM initialization setup steps</p>
+<div class="highlight"><pre><span></span><span class="nb">PS </span><span class="n">C</span><span class="err">:</span><span class="p">\</span><span class="n">MyWorkspace</span><span class="p">\</span><span class="n">gitrepos</span><span class="p">\</span><span class="n">2022</span><span class="p">-</span><span class="n">03</span><span class="p">-</span><span class="n">16-lambda-debug</span><span class="p">&gt;</span> <span class="n">sam</span> <span class="n">init</span>
+
+<span class="n">You</span> <span class="n">can</span> <span class="n">preselect</span> <span class="n">a</span> <span class="n">particular</span> <span class="n">runtime</span> <span class="n">or</span> <span class="n">package</span> <span class="nb">type </span><span class="n">when</span> <span class="n">using</span> <span class="n">the</span> <span class="p">`</span><span class="n">sam</span> <span class="n">init</span><span class="p">`</span> <span class="n">experience</span><span class="p">.</span>
+<span class="n">Call</span> <span class="p">`</span><span class="n">sam</span> <span class="n">init</span> <span class="p">-</span><span class="n">-help</span><span class="p">`</span> <span class="n">to</span> <span class="n">learn</span> <span class="n">more</span><span class="p">.</span>
+
+<span class="n">Which</span> <span class="n">template</span> <span class="n">source</span> <span class="n">would</span> <span class="n">you</span> <span class="n">like</span> <span class="n">to</span> <span class="n">use</span><span class="p">?</span>
+        <span class="n">1</span> <span class="p">-</span> <span class="n">AWS</span> <span class="n">Quick</span> <span class="nb">Start </span><span class="n">Templates</span>
+        <span class="n">2</span> <span class="p">-</span> <span class="n">Custom</span> <span class="n">Template</span> <span class="n">Location</span>
+<span class="n">Choice</span><span class="err">:</span> <span class="n">1</span>
+
+<span class="n">Choose</span> <span class="n">an</span> <span class="n">AWS</span> <span class="n">Quick</span> <span class="nb">Start </span><span class="n">application</span> <span class="n">template</span>
+        <span class="n">1</span> <span class="p">-</span> <span class="n">Hello</span> <span class="n">World</span> <span class="n">Example</span>
+        <span class="n">2</span> <span class="p">-</span> <span class="n">Multi-step</span> <span class="n">workflow</span>
+        <span class="n">3</span> <span class="p">-</span> <span class="n">Serverless</span> <span class="n">API</span>
+        <span class="n">4</span> <span class="p">-</span> <span class="n">Scheduled</span> <span class="n">task</span>
+        <span class="n">5</span> <span class="p">-</span> <span class="n">Standalone</span> <span class="k">function</span>
+        <span class="n">6</span> <span class="p">-</span> <span class="n">Data</span> <span class="n">processing</span>
+        <span class="n">7</span> <span class="p">-</span> <span class="n">Infrastructure</span> <span class="n">event</span> <span class="n">management</span>
+        <span class="n">8</span> <span class="p">-</span> <span class="n">Machine</span> <span class="n">Learning</span>
+<span class="n">Template</span><span class="err">:</span> <span class="n">1</span>
+
+ <span class="n">Use</span> <span class="n">the</span> <span class="n">most</span> <span class="n">popular</span> <span class="n">runtime</span> <span class="n">and</span> <span class="n">package</span> <span class="n">type</span><span class="p">?</span> <span class="p">(</span><span class="n">Python</span> <span class="n">and</span> <span class="n">zip</span><span class="p">)</span> <span class="p">[</span><span class="n">y</span><span class="p">/</span><span class="n">N</span><span class="p">]</span><span class="err">:</span> <span class="n">y</span>
+
+<span class="n">Project</span> <span class="n">name</span> <span class="p">[</span><span class="n">sam-app</span><span class="p">]</span><span class="err">:</span>
+
+<span class="n">Cloning</span> <span class="n">from</span> <span class="n">https</span><span class="err">:</span><span class="p">//</span><span class="n">github</span><span class="p">.</span><span class="n">com</span><span class="p">/</span><span class="n">aws</span><span class="p">/</span><span class="n">aws-sam-cli-app-templates</span> <span class="p">(</span><span class="k">process</span> <span class="n">may</span> <span class="n">take</span> <span class="n">a</span> <span class="n">moment</span><span class="p">)</span>
+
+    <span class="p">-----------------------</span>
+    <span class="n">Generating</span> <span class="n">application</span><span class="err">:</span>
+    <span class="p">-----------------------</span>
+    <span class="n">Name</span><span class="err">:</span> <span class="n">sam-app</span>
+    <span class="n">Runtime</span><span class="err">:</span> <span class="n">python3</span><span class="p">.</span><span class="n">9</span>
+    <span class="n">Architectures</span><span class="err">:</span> <span class="n">x86_64</span>
+    <span class="n">Dependency</span> <span class="n">Manager</span><span class="err">:</span> <span class="n">pip</span>
+    <span class="n">Application</span> <span class="n">Template</span><span class="err">:</span> <span class="n">hello-world</span>
+    <span class="n">Output</span> <span class="n">Directory</span><span class="err">:</span> <span class="p">.</span>
+
+    <span class="n">Next</span> <span class="n">steps</span> <span class="n">can</span> <span class="n">be</span> <span class="n">found</span> <span class="k">in</span> <span class="n">the</span> <span class="n">README</span> <span class="n">file</span> <span class="n">at</span> <span class="p">./</span><span class="n">sam-app</span><span class="p">/</span><span class="n">README</span><span class="p">.</span><span class="nb">md</span>
+
+
+    <span class="n">Commands</span> <span class="n">you</span> <span class="n">can</span> <span class="n">use</span> <span class="n">next</span>
+    <span class="p">=========================</span>
+    <span class="p">[*]</span> <span class="n">Create</span> <span class="n">pipeline</span><span class="err">:</span> <span class="nb">cd </span><span class="n">sam-app</span> <span class="p">&amp;&amp;</span> <span class="n">sam</span> <span class="n">pipeline</span> <span class="n">init</span> <span class="p">-</span><span class="n">-bootstrap</span>
+    <span class="p">[*]</span> <span class="n">Test</span> <span class="k">Function</span> <span class="k">in</span> <span class="n">the</span> <span class="n">Cloud</span><span class="err">:</span> <span class="n">sam</span> <span class="n">sync</span> <span class="p">-</span><span class="n">-stack-name</span> <span class="p">{</span><span class="n">stack-name</span><span class="p">}</span> <span class="p">-</span><span class="n">-watch</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Once the application is initialized the project structure will look like this</p>
+
+<pre><code>sam-app/
+   ├── README.md
+   ├── events/
+   │   └── event.json
+   ├── hello_world/
+   │   ├── __init__.py
+   │   ├── app.py            #Contains your AWS Lambda handler logic.
+   │   └── requirements.txt  #Contains any Python dependencies the application requires, used for sam build
+   ├── template.yaml         #Contains the AWS SAM template defining your application's AWS resources.
+   └── tests/
+       └── unit/
+           ├── __init__.py
+           └── test_handler.py</code></pre>
+<p>There are three especially important files:</p>
+<ul>
+<li>
+<code>template.yaml</code>: Contains the AWS SAM template that defines your application's AWS resources.</li>
+<li>
+<code>hello_world/app.py</code>: Contains your actual Lambda handler logic.</li>
+<li>
+<code>hello_world/requirements.txt</code>: Contains any Python dependencies that the application requires, and is used for sam build.</li>
+</ul>
+<p>Follow the instructions from the tutorial to build, test, and deploy the application.</p>
+<p>All the code used for this post can be obtained from the GitHub repository <a href="https://github.com/hassaanbinaslam/2022-03-16-lambda-debug">hassaanbinaslam/2022-03-16-lambda-debug</a></p>
+<ul>
+<li><a href="https://github.com/hassaanbinaslam/2022-03-16-lambda-debug/tree/fdbbf7a208fe8a89ba94ce71b948d1ad6054939a">Project code files</a></li>
+<li><a href="https://github.com/hassaanbinaslam/2022-03-16-lambda-debug/releases/tag/snapshot-01">Project zip file</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="SAM-Project-Directory">
+<a class="anchor" href="#SAM-Project-Directory" aria-hidden="true"><span class="octicon octicon-link"></span></a>SAM Project Directory<a class="anchor-link" href="#SAM-Project-Directory"> </a>
+</h1>
+<ul>
+<li>SAM CLI<ul>
+<li>After project initialization from <code>sam init</code> make sure that you move to project root folder</li>
+<li>Project root folder is the one that contain <code>template.yaml</code> defining application AWS resources. In this app case project root folder is <code>sam-app/</code>
+</li>
+<li>All the subsequest commands including project <code>sam build</code>, <code>sam deploy</code>, invoke and test lambda should be done from project root folder</li>
+</ul>
+</li>
+<li>VSCode<ul>
+<li>When you open the project make sure that your project root directory is pointing to <code>sam-app/</code> folder as shown in image below</li>
+</ul>
+</li>
+</ul>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-16-lambda-debug/vscode-project-root.png" alt="vscode-project-root"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Run-Lambda-Locally">
+<a class="anchor" href="#Run-Lambda-Locally" aria-hidden="true"><span class="octicon octicon-link"></span></a>Run Lambda Locally<a class="anchor-link" href="#Run-Lambda-Locally"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>To invoke lambda function locally use SAM CLI command</p>
+
+<pre><code>sam local invoke</code></pre>
+<div class="highlight"><pre><span></span><span class="nb">PS </span><span class="n">C</span><span class="err">:</span><span class="p">\</span><span class="n">MyWorkspace</span><span class="p">\</span><span class="n">gitrepos</span><span class="p">\</span><span class="n">2022</span><span class="p">-</span><span class="n">03</span><span class="p">-</span><span class="n">16-lambda-debug</span><span class="p">\</span><span class="n">sam-app</span><span class="p">&gt;</span> <span class="n">sam</span> <span class="n">local</span> <span class="n">invoke</span>
+<span class="n">Invoking</span> <span class="n">app</span><span class="p">.</span><span class="n">lambda_handler</span> <span class="p">(</span><span class="n">python3</span><span class="p">.</span><span class="n">9</span><span class="p">)</span>
+<span class="n">Skip</span> <span class="n">pulling</span> <span class="n">image</span> <span class="n">and</span> <span class="n">use</span> <span class="n">local</span> <span class="n">one</span><span class="err">:</span> <span class="n">public</span><span class="p">.</span><span class="n">ecr</span><span class="p">.</span><span class="n">aws</span><span class="p">/</span><span class="n">sam</span><span class="p">/</span><span class="n">emulation-python3</span><span class="p">.</span><span class="n">9</span><span class="err">:</span><span class="n">rapid</span><span class="p">-</span><span class="n">1</span><span class="p">.</span><span class="n">40</span><span class="p">.</span><span class="n">1-x86_64</span><span class="p">.</span>
+
+<span class="n">Mounting</span> <span class="n">C</span><span class="err">:</span><span class="p">\</span><span class="n">MyWorkspace</span><span class="p">\</span><span class="n">gitrepos</span><span class="p">\</span><span class="n">2022</span><span class="p">-</span><span class="n">03</span><span class="p">-</span><span class="n">16-lambda-debug</span><span class="p">\</span><span class="n">sam-app</span><span class="p">\</span><span class="n">hello_world</span> <span class="n">as</span> <span class="p">/</span><span class="n">var</span><span class="p">/</span><span class="n">task</span><span class="err">:</span><span class="n">ro</span><span class="p">,</span><span class="n">delegated</span> <span class="n">inside</span> <span class="n">runtime</span> <span class="n">container</span>
+<span class="nb">START </span><span class="n">RequestId</span><span class="err">:</span> <span class="n">1d4e45de</span><span class="p">-</span><span class="n">38be</span><span class="p">-</span><span class="n">4b91</span><span class="p">-</span><span class="n">8e9f</span><span class="p">-</span><span class="n">4d3c7da8788a</span> <span class="n">Version</span><span class="err">:</span> <span class="nv">$LATEST</span>
+<span class="k">END</span> <span class="n">RequestId</span><span class="err">:</span> <span class="n">1d4e45de</span><span class="p">-</span><span class="n">38be</span><span class="p">-</span><span class="n">4b91</span><span class="p">-</span><span class="n">8e9f</span><span class="p">-</span><span class="n">4d3c7da8788a</span>
+<span class="n">REPORT</span> <span class="n">RequestId</span><span class="err">:</span> <span class="n">1d4e45de</span><span class="p">-</span><span class="n">38be</span><span class="p">-</span><span class="n">4b91</span><span class="p">-</span><span class="n">8e9f</span><span class="p">-</span><span class="n">4d3c7da8788a</span>  <span class="n">Init</span> <span class="n">Duration</span><span class="err">:</span> <span class="n">1</span><span class="p">.</span><span class="n">40</span> <span class="n">ms</span>  <span class="n">Duration</span><span class="err">:</span> <span class="n">990</span><span class="p">.</span><span class="n">84</span> <span class="n">ms</span>     <span class="n">Billed</span> <span class="n">Duration</span><span class="err">:</span> <span class="n">991</span> <span class="n">ms</span> <span class="n">Memory</span> <span class="n">Size</span><span class="err">:</span> <span class="n">128</span> <span class="n">MB</span>  <span class="n">Max</span> <span class="n">Memory</span> <span class="n">Used</span><span class="err">:</span> <span class="n">128</span> <span class="n">MB</span>
+<span class="p">{</span><span class="s2">"statusCode"</span><span class="err">:</span> <span class="n">200</span><span class="p">,</span> <span class="s2">"body"</span><span class="err">:</span> <span class="s2">"{\"</span><span class="n">message</span><span class="p">\</span><span class="s2">": \"</span><span class="n">hello</span> <span class="n">world</span><span class="p">\</span><span class="s2">"}"</span><span class="p">}</span>
+</pre></div>
+<p>If you have multiple lambda functions in the app, you can invoke a specific lambda function by using it's name in invoke command as</p>
+
+<pre><code>sam local invoke "HelloWorldFunction"</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Run-API-Gateway-Locally">
+<a class="anchor" href="#Run-API-Gateway-Locally" aria-hidden="true"><span class="octicon octicon-link"></span></a>Run API Gateway Locally<a class="anchor-link" href="#Run-API-Gateway-Locally"> </a>
+</h1>
+<p>You can run API Gateway locally to test HTTP request response functionality using command</p>
+
+<pre><code>sam local start-api</code></pre>
+<p>This command will start a local instance of API Gateway and provide you with a URL that you can use to send a request using CURL commmand</p>
+<div class="highlight"><pre><span></span><span class="nb">PS </span><span class="n">C</span><span class="err">:</span><span class="p">\</span><span class="n">MyWorkspace</span><span class="p">\</span><span class="n">gitrepos</span><span class="p">\</span><span class="n">2022</span><span class="p">-</span><span class="n">03</span><span class="p">-</span><span class="n">16-lambda-debug</span><span class="p">\</span><span class="n">sam-app</span><span class="p">&gt;</span> <span class="n">sam</span> <span class="n">local</span> <span class="nb">start-api</span>
+<span class="n">Mounting</span> <span class="n">HelloWorldFunction</span> <span class="n">at</span> <span class="n">http</span><span class="err">:</span><span class="p">//</span><span class="n">127</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">1</span><span class="err">:</span><span class="n">3000</span><span class="p">/</span><span class="n">hello</span> <span class="no">[GET]</span>
+<span class="n">You</span> <span class="n">can</span> <span class="n">now</span> <span class="n">browse</span> <span class="n">to</span> <span class="n">the</span> <span class="n">above</span> <span class="n">endpoints</span> <span class="n">to</span> <span class="n">invoke</span> <span class="n">your</span> <span class="n">functions</span><span class="p">.</span> <span class="n">You</span> <span class="k">do</span> <span class="n">not</span> <span class="n">need</span> <span class="n">to</span> <span class="n">restart</span><span class="p">/</span><span class="n">reload</span> <span class="n">SAM</span> <span class="nb">CLI </span><span class="k">while</span> <span class="n">working</span> <span class="n">on</span> <span class="n">your</span> <span class="n">functions</span><span class="p">,</span> <span class="n">changes</span> <span class="n">will</span> <span class="n">be</span> <span class="n">reflected</span> <span class="n">instantly</span><span class="p">/</span><span class="n">automatically</span><span class="p">.</span> <span class="n">You</span> <span class="n">only</span> <span class="n">need</span> <span class="n">to</span> <span class="n">restart</span> <span class="n">SAM</span> <span class="nb">CLI </span><span class="k">if</span> <span class="n">you</span> <span class="n">update</span> <span class="n">your</span> <span class="n">AWS</span> <span class="n">SAM</span> <span class="n">template</span>
+<span class="n">2022</span><span class="p">-</span><span class="n">03</span><span class="p">-</span><span class="n">17</span> <span class="n">11</span><span class="err">:</span><span class="n">41</span><span class="err">:</span><span class="n">55</span>  <span class="p">*</span> <span class="n">Running</span> <span class="n">on</span> <span class="n">http</span><span class="err">:</span><span class="p">//</span><span class="n">127</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">1</span><span class="err">:</span><span class="n">3000</span><span class="p">/</span> <span class="p">(</span><span class="n">Press</span> <span class="n">CTRL</span><span class="p">+</span><span class="n">C</span> <span class="n">to</span> <span class="n">quit</span><span class="p">)</span>
+</pre></div>
+<p>From terminal output you can find tha <code>HelloWorldFunction</code> is mounted at <code>http://127.0.0.1:3000/hello</code>. From another terminal we can call this URL</p>
+<div class="highlight"><pre><span></span><span class="nb">PS </span><span class="n">C</span><span class="err">:</span><span class="p">\</span><span class="n">MyWorkspace</span><span class="p">\</span><span class="n">gitrepos</span><span class="p">\</span><span class="n">2022</span><span class="p">-</span><span class="n">03</span><span class="p">-</span><span class="n">16-lambda-debug</span><span class="p">\</span><span class="n">sam-app</span><span class="p">&gt;</span> <span class="nb">curl </span><span class="n">http</span><span class="err">:</span><span class="p">//</span><span class="n">127</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">1</span><span class="err">:</span><span class="n">3000</span><span class="p">/</span><span class="n">hello</span>
+
+
+<span class="n">StatusCode</span>        <span class="err">:</span> <span class="n">200</span>
+<span class="n">StatusDescription</span> <span class="err">:</span> <span class="n">OK</span>
+<span class="n">Content</span>           <span class="err">:</span> <span class="p">{</span><span class="s2">"message"</span><span class="err">:</span> <span class="s2">"hello world"</span><span class="p">}</span>
+<span class="n">RawContent</span>        <span class="err">:</span> <span class="n">HTTP</span><span class="p">/</span><span class="n">1</span><span class="p">.</span><span class="n">0</span> <span class="n">200</span> <span class="n">OK</span>
+                    <span class="n">Content-Length</span><span class="err">:</span> <span class="n">26</span>
+                    <span class="n">Content-Type</span><span class="err">:</span> <span class="n">application</span><span class="p">/</span><span class="n">json</span>
+                    <span class="n">Date</span><span class="err">:</span> <span class="n">Thu</span><span class="p">,</span> <span class="n">17</span> <span class="n">Mar</span> <span class="n">2022</span> <span class="n">06</span><span class="err">:</span><span class="n">43</span><span class="err">:</span><span class="n">08</span> <span class="n">GMT</span>
+                    <span class="n">Server</span><span class="err">:</span> <span class="n">Werkzeug</span><span class="p">/</span><span class="n">1</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">1</span> <span class="n">Python</span><span class="p">/</span><span class="n">3</span><span class="p">.</span><span class="n">8</span><span class="p">.</span><span class="n">8</span>
+
+                    <span class="p">{</span><span class="s2">"message"</span><span class="err">:</span> <span class="s2">"hello world"</span><span class="p">}</span>
+<span class="n">Forms</span>             <span class="err">:</span> <span class="p">{}</span>
+<span class="n">Headers</span>           <span class="err">:</span> <span class="p">{[</span><span class="n">Content-Length</span><span class="p">,</span> <span class="n">26</span><span class="p">],</span> <span class="p">[</span><span class="n">Content-Type</span><span class="p">,</span> <span class="n">application</span><span class="p">/</span><span class="n">json</span><span class="p">],</span> <span class="p">[</span><span class="n">Date</span><span class="p">,</span> <span class="n">Thu</span><span class="p">,</span> <span class="n">17</span> <span class="n">Mar</span> <span class="n">2022</span> <span class="n">06</span><span class="err">:</span><span class="n">43</span><span class="err">:</span><span class="n">08</span> <span class="n">GMT</span><span class="p">],</span> <span class="p">[</span><span class="n">Server</span><span class="p">,</span>
+                    <span class="n">Werkzeug</span><span class="p">/</span><span class="n">1</span><span class="p">.</span><span class="n">0</span><span class="p">.</span><span class="n">1</span> <span class="n">Python</span><span class="p">/</span><span class="n">3</span><span class="p">.</span><span class="n">8</span><span class="p">.</span><span class="n">8</span><span class="p">]}</span>
+<span class="n">Images</span>            <span class="err">:</span> <span class="p">{}</span>
+<span class="n">InputFields</span>       <span class="err">:</span> <span class="p">{}</span>
+<span class="n">Links</span>             <span class="err">:</span> <span class="p">{}</span>
+<span class="n">ParsedHtml</span>        <span class="err">:</span> <span class="n">mshtml</span><span class="p">.</span><span class="n">HTMLDocumentClass</span>
+<span class="n">RawContentLength</span>  <span class="err">:</span> <span class="n">26</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Debug-Lambda-Application-Locally">
+<a class="anchor" href="#Debug-Lambda-Application-Locally" aria-hidden="true"><span class="octicon octicon-link"></span></a>Debug Lambda Application Locally<a class="anchor-link" href="#Debug-Lambda-Application-Locally"> </a>
+</h1>
+<p>To debug a lambda function we have following options</p>
+<h2 id="Option-1:-Debug-through-SAM-template">
+<a class="anchor" href="#Option-1:-Debug-through-SAM-template" aria-hidden="true"><span class="octicon octicon-link"></span></a>Option 1: Debug through SAM template<a class="anchor-link" href="#Option-1:-Debug-through-SAM-template"> </a>
+</h2>
+<p>From VSCode open <code>template.yaml</code>, and go to the resources section of the template that defines serverless resources. Click on the lambda function resource, which in our case is <code>HelloWorldFunction</code>. A tooltip will appear over it saying <code>AWS: Add Debug Configuration</code>. Click it as shown below.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-16-lambda-debug/sam-template-add-debug-config.png" alt="sam-template-add-debug-config"></p>
+<p>This will create a new folder in the project with debug launch configuration <code>launch.json</code>.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-16-lambda-debug/debug-launch-config.png" alt="debug-launch-config"></p>
+<p>Let's add a breakpoint in our lambda handler code <code>hello_world/app.py</code>, and start debugging by clicking the green "play" button in the <strong>RUN</strong> view. When the debugging sessions starts, the DEBUG CONSOLE panel shows debugging output and displays any values returned by the Lambda function.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-16-lambda-debug/lambda-debug-template.png" alt="lambda-debug-template"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Option-2:-Debug-Lambda-Directly-from-Code">
+<a class="anchor" href="#Option-2:-Debug-Lambda-Directly-from-Code" aria-hidden="true"><span class="octicon octicon-link"></span></a>Option 2: Debug Lambda Directly from Code<a class="anchor-link" href="#Option-2:-Debug-Lambda-Directly-from-Code"> </a>
+</h1>
+<p>From VSCode open lambda handler code <code>sam-app/hello_world/app.py</code>. A tooltip will appear above the <code>lambda_handler</code> function with options</p>
+<ul>
+<li>AWS: Add Debug Configuration</li>
+<li>AWS: Edit Debug Configuration</li>
+</ul>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-16-lambda-debug/lambda-debug-tooltip.png" alt="lambda-debug-tooltip"></p>
+<p>Click on <code>AWS: Add Debug Configuration</code> and it will show two further options</p>
+<ul>
+<li>template.yaml:HelloWorldFunction (to debug only the lambda function)</li>
+<li>template.yaml:HelloWorldFunction (API Event: HelloWorld) (to debug lambda function along with API gateway)</li>
+</ul>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-16-lambda-debug/lambda-debug-options.png" alt="lambda-debug-options"></p>
+<p>Let's select API option this time. It will again create a launch configuration, and now we can debug our code. Click on the green "play" button again to start the debug session with request request coming from API Gateway to Lambda function.</p>
+<p>You can also edit the debug config visually by selecting the <code>AWS: Edit Debug Configuration</code>, and a side pane will appear from where we can easily edit and update our debug configuration.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-16-lambda-debug/edit-debug-config.png" alt="edit-debug-config"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>All the code used for this post can be obtained from the GitHub repository <a href="https://github.com/hassaanbinaslam/2022-03-16-lambda-debug">hassaanbinaslam/2022-03-16-lambda-debug</a></p>
+<ul>
+<li><a href="https://github.com/hassaanbinaslam//tree/76b73cd24757709edd56e5e3bbbe38e0f4e4cb74">Project code files</a></li>
+<li><a href="https://github.com/hassaanbinaslam/2022-03-16-lambda-debug/releases/tag/snapshot-02">Project zip file</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hassaanbinaslam/myblog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/myblog/aws/lambda/docker/2022/03/16/lambda-debug.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/fastai" target="_blank" title="fastai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/fastdotai" target="_blank" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
