@@ -1,0 +1,800 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>AWS EFS Sync to S3 Using Lambda | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="AWS EFS Sync to S3 Using Lambda" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A tutorial to synchronize EFS with S3 bucket using a Lambda function." />
+<meta property="og:description" content="A tutorial to synchronize EFS with S3 bucket using a Lambda function." />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/2022/03/28/efs-s3-sync-lambda.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/2022/03/28/efs-s3-sync-lambda.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-03-28T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="AWS EFS Sync to S3 Using Lambda" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-03-28T00:00:00-05:00","datePublished":"2022-03-28T00:00:00-05:00","description":"A tutorial to synchronize EFS with S3 bucket using a Lambda function.","headline":"AWS EFS Sync to S3 Using Lambda","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/2022/03/28/efs-s3-sync-lambda.html"},"url":"https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/2022/03/28/efs-s3-sync-lambda.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">AWS EFS Sync to S3 Using Lambda</h1><p class="page-description">A tutorial to synchronize EFS with S3 bucket using a Lambda function.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-03-28T00:00:00-05:00" itemprop="datePublished">
+        Mar 28, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      10 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#aws">aws</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#lambda">lambda</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#efs">efs</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#s3">s3</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#synchonization">synchonization</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h1"><a href="#About">About </a></li>
+<li class="toc-entry toc-h1"><a href="#Environment-Details">Environment Details </a></li>
+<li class="toc-entry toc-h1"><a href="#Steps">Steps </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Create-an-S3-bucket">Create an S3 bucket </a></li>
+<li class="toc-entry toc-h2"><a href="#Create-a-Lambda-function">Create a Lambda function </a></li>
+<li class="toc-entry toc-h2"><a href="#Create-S3-event-notifications">Create S3 event notifications </a></li>
+<li class="toc-entry toc-h2"><a href="#Test-S3-notifications">Test S3 notifications </a></li>
+<li class="toc-entry toc-h2"><a href="#Create-an-EFS">Create an EFS </a></li>
+<li class="toc-entry toc-h2"><a href="#Note-on-EFS-security-group-settings">Note on EFS security group settings </a></li>
+<li class="toc-entry toc-h2"><a href="#Mount-EFS-to-Lambda-Function">Mount EFS to Lambda Function </a></li>
+<li class="toc-entry toc-h2"><a href="#Check-EFS-mount-point-from-Lambda">Check EFS mount point from Lambda </a></li>
+<li class="toc-entry toc-h2"><a href="#Configure-VPC-endpoint-for-S3">Configure VPC endpoint for S3 </a></li>
+<li class="toc-entry toc-h2"><a href="#Configure-S3-permissions-for-Lambda">Configure S3 permissions for Lambda </a></li>
+<li class="toc-entry toc-h2"><a href="#Process-S3-event-notifications">Process S3 event notifications </a></li>
+<li class="toc-entry toc-h2"><a href="#Verify-file-on-EFS">Verify file on EFS </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Summary">Summary </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-03-28-efs-s3-sync-lambda.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h1>
+<p>This post is to document all the steps required to synchronize <a href="https://aws.amazon.com/efs/">AWS EFS</a> with an <a href="https://aws.amazon.com/s3/">S3 bucket</a> using a <a href="https://aws.amazon.com/lambda/">lambda function</a>. The flow of information is from S3 to EFS and not vice versa.</p>
+<p>The approach is whenever a new file is uploaded or deleted from the S3 bucket, it will create an event notification. This event will trigger a lambda function. This lambda function will have the efs file system mounted to it. Lambda function synchronizes the files from S3 to EFS.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Environment-Details">
+<a class="anchor" href="#Environment-Details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Environment Details<a class="anchor-link" href="#Environment-Details"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Python = 3.9.x</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Steps">
+<a class="anchor" href="#Steps" aria-hidden="true"><span class="octicon octicon-link"></span></a>Steps<a class="anchor-link" href="#Steps"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-an-S3-bucket">
+<a class="anchor" href="#Create-an-S3-bucket" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create an S3 bucket<a class="anchor-link" href="#Create-an-S3-bucket"> </a>
+</h2>
+<p>Let's first create an S3 bucket that will contain our data, and this is the bucket we would like to be in sync with EFS. I am naming the bucket <code>mydata-202203</code>. You may name it as you please. Choose a region of your choice and leave the rest of the settings as defaults.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-a-Lambda-function">
+<a class="anchor" href="#Create-a-Lambda-function" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create a Lambda function<a class="anchor-link" href="#Create-a-Lambda-function"> </a>
+</h2>
+<p>Now create a lambda function that will receive event notifications from the S3 bucket, and sync files on efs. I am naming it <code>mydata-sync</code> and our runtime will be <code>Python 3.9</code>. Keep the rest of the settings as default, and create the function.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-S3-event-notifications">
+<a class="anchor" href="#Create-S3-event-notifications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create S3 event notifications<a class="anchor-link" href="#Create-S3-event-notifications"> </a>
+</h2>
+<p>From the bucket, <code>mydata-sync</code> go to <code>Properties</code>. Scroll down to <code>Event notifications</code> and click <strong>create</strong>. Give any name to the event. I am calling it <code>object-sync</code>. From the provided event types select</p>
+<ul>
+<li>s3:ObjectCreated:Put</li>
+<li>s3:ObjectRemoved:Delete</li>
+</ul>
+<p>From the section <strong>Destination</strong> select <code>Lambda Function</code>, and from the list choose the lambda function name we created in the last section <strong>mydata-sync</strong></p>
+<p>Click <strong>Save Changes</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Test-S3-notifications">
+<a class="anchor" href="#Test-S3-notifications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test S3 notifications<a class="anchor-link" href="#Test-S3-notifications"> </a>
+</h2>
+<p>Let's now test if S3 event notifications are being received by our lambda function. For this update lambda function code and simply print the event received. After updating the lambda function, make sure to deploy it.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+
+<span class="k">def</span> <span class="nf">lambda_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">'statusCode'</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s1">'body'</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="s1">'Hello from Lambda!'</span><span class="p">)</span>
+    <span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now upload some files in our S3 bucket, and it should trigger our lambda function. For testing, I have uploaded an empty <code>test1.txt</code> file in our bucket. Once successfully uploaded I check the Lambda function logs to see if any event is received. For this go to lambda function <strong>mydata-sync</strong> &gt; Monitor &gt; Logs &gt; <strong>View logs in CloudWatch</strong>. For the CloudWatch console view the latest log stream. Below is the event I have received in the logs</p>
+
+<pre><code>{'Records': [{'eventVersion': '2.1', 'eventSource': 'aws:s3', 'awsRegion': 'us-east-1', 'eventTime': '2022-03-28T16:08:00.896Z', 'eventName': 'ObjectCreated:Put', 'userIdentity': {'principalId': 'AWS:AIDA3VIXXJNKIVU6P5NY3'}, 'requestParameters': {'sourceIPAddress': '202.163.113.76'}, 'responseElements': {'x-amz-request-id': '39MD61ZS00SNK2RT', 'x-amz-id-2': 'U+zPUWOrfzTuVi7kbaBONLHoJXKqUICsVqyKBg4yPKYbUV7pQLGc4Z5A2fSIVvDFtSJHC6v29EDJoXhypWsj2wXanUu8YrLocr3z+yK1qoo='}, 's3': {'s3SchemaVersion': '1.0', 'configurationId': 'object-sync', 'bucket': {'name': 'mydata-202203', 'ownerIdentity': {'principalId': 'AYAQOSFZ1VPK'}, 'arn': 'arn:aws:s3:::mydata-202203'}, 'object': {'key': 'test1.txt', 'size': 0, 'eTag': 'd41d8cd98f00b204e9800998ecf8427e', 'sequencer': '006241DD60D67A4556'}}}]}</code></pre>
+<p>let's load this event in a dictionary and find some important parameters</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">event</span> <span class="o">=</span> <span class="p">{</span><span class="s1">'Records'</span><span class="p">:</span> <span class="p">[{</span><span class="s1">'eventVersion'</span><span class="p">:</span> <span class="s1">'2.1'</span><span class="p">,</span> <span class="s1">'eventSource'</span><span class="p">:</span> <span class="s1">'aws:s3'</span><span class="p">,</span> <span class="s1">'awsRegion'</span><span class="p">:</span> <span class="s1">'us-east-1'</span><span class="p">,</span> <span class="s1">'eventTime'</span><span class="p">:</span> <span class="s1">'2022-03-28T16:08:00.896Z'</span><span class="p">,</span> <span class="s1">'eventName'</span><span class="p">:</span> <span class="s1">'ObjectCreated:Put'</span><span class="p">,</span> <span class="s1">'userIdentity'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'principalId'</span><span class="p">:</span> <span class="s1">'AWS:AIDA3VIXXJNKIVU6P5NY3'</span><span class="p">},</span> <span class="s1">'requestParameters'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'sourceIPAddress'</span><span class="p">:</span> <span class="s1">'202.163.113.76'</span><span class="p">},</span> <span class="s1">'responseElements'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'x-amz-request-id'</span><span class="p">:</span> <span class="s1">'39MD61ZS00SNK2RT'</span><span class="p">,</span> <span class="s1">'x-amz-id-2'</span><span class="p">:</span> <span class="s1">'U+zPUWOrfzTuVi7kbaBONLHoJXKqUICsVqyKBg4yPKYbUV7pQLGc4Z5A2fSIVvDFtSJHC6v29EDJoXhypWsj2wXanUu8YrLocr3z+yK1qoo='</span><span class="p">},</span> <span class="s1">'s3'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'s3SchemaVersion'</span><span class="p">:</span> <span class="s1">'1.0'</span><span class="p">,</span> <span class="s1">'configurationId'</span><span class="p">:</span> <span class="s1">'object-sync'</span><span class="p">,</span> <span class="s1">'bucket'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'name'</span><span class="p">:</span> <span class="s1">'mydata-202203'</span><span class="p">,</span> <span class="s1">'ownerIdentity'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'principalId'</span><span class="p">:</span> <span class="s1">'AYAQOSFZ1VPK'</span><span class="p">},</span> <span class="s1">'arn'</span><span class="p">:</span> <span class="s1">'arn:aws:s3:::mydata-202203'</span><span class="p">},</span> <span class="s1">'object'</span><span class="p">:</span> <span class="p">{</span><span class="s1">'key'</span><span class="p">:</span> <span class="s1">'test1.txt'</span><span class="p">,</span> <span class="s1">'size'</span><span class="p">:</span> <span class="mi">0</span><span class="p">,</span> <span class="s1">'eTag'</span><span class="p">:</span> <span class="s1">'d41d8cd98f00b204e9800998ecf8427e'</span><span class="p">,</span> <span class="s1">'sequencer'</span><span class="p">:</span> <span class="s1">'006241DD60D67A4556'</span><span class="p">}}}]}</span>
+<span class="n">event</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'Records': [{'eventVersion': '2.1',
+   'eventSource': 'aws:s3',
+   'awsRegion': 'us-east-1',
+   'eventTime': '2022-03-28T16:08:00.896Z',
+   'eventName': 'ObjectCreated:Put',
+   'userIdentity': {'principalId': 'AWS:AIDA3VIXXJNKIVU6P5NY3'},
+   'requestParameters': {'sourceIPAddress': '202.163.113.76'},
+   'responseElements': {'x-amz-request-id': '39MD61ZS00SNK2RT',
+    'x-amz-id-2': 'U+zPUWOrfzTuVi7kbaBONLHoJXKqUICsVqyKBg4yPKYbUV7pQLGc4Z5A2fSIVvDFtSJHC6v29EDJoXhypWsj2wXanUu8YrLocr3z+yK1qoo='},
+   's3': {'s3SchemaVersion': '1.0',
+    'configurationId': 'object-sync',
+    'bucket': {'name': 'mydata-202203',
+     'ownerIdentity': {'principalId': 'AYAQOSFZ1VPK'},
+     'arn': 'arn:aws:s3:::mydata-202203'},
+    'object': {'key': 'test1.txt',
+     'size': 0,
+     'eTag': 'd41d8cd98f00b204e9800998ecf8427e',
+     'sequencer': '006241DD60D67A4556'}}}]}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># event name</span>
+<span class="n">event</span><span class="p">[</span><span class="s1">'Records'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'eventName'</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'ObjectCreated:Put'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># bucket name</span>
+<span class="n">event</span><span class="p">[</span><span class="s1">'Records'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'s3'</span><span class="p">][</span><span class="s1">'bucket'</span><span class="p">][</span><span class="s1">'name'</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'mydata-202203'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># uploaded object key</span>
+<span class="n">event</span><span class="p">[</span><span class="s1">'Records'</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s1">'s3'</span><span class="p">][</span><span class="s1">'object'</span><span class="p">][</span><span class="s1">'key'</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'test1.txt'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Alright, we have seen that we are receiving notifications from S3 bucket so let's now move on to the next section.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-an-EFS">
+<a class="anchor" href="#Create-an-EFS" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create an EFS<a class="anchor-link" href="#Create-an-EFS"> </a>
+</h2>
+<p>From EFS console give name as <code>mydata-efs</code>. I am using default VPC for this post. Use <code>Regional</code> availability settings. Click <strong>Create</strong>. Once file system is created, click on <strong>Access points</strong> and create an access point for this efs to be mounted in other service. For access point use following settings</p>
+<ul>
+<li>name = mydata-ap</li>
+<li>root dir path = /efs</li>
+<li>POSIX User<ul>
+<li>POSIX UID = 1000</li>
+<li>Group ID = 1000</li>
+</ul>
+</li>
+<li>Root directory creation permissions<ul>
+<li>Owner user id = 1000</li>
+<li>Owner group id = 1000</li>
+<li>POSIX permissions = 777</li>
+</ul>
+</li>
+</ul>
+<p>Click <strong>Create</strong>.</p>
+<p>Here I have used the root dir path as <code>/efs</code> this means that from this access point my access will be limited to folder <code>/efs</code>. If you want to provide full access to all folders then set to root path to <code>/</code>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Note-on-EFS-security-group-settings">
+<a class="anchor" href="#Note-on-EFS-security-group-settings" aria-hidden="true"><span class="octicon octicon-link"></span></a>Note on EFS security group settings<a class="anchor-link" href="#Note-on-EFS-security-group-settings"> </a>
+</h2>
+<p>In the last section, I have used a default VPC security group (sg) while creating EFS. default sg allows traffic for all protocols and all ports, both for inbound and outbound traffic. But if you are using a custom security group then make sure that you have an inbound rule for</p>
+<ul>
+<li>Type = NFS</li>
+<li>Protocol = TCP</li>
+<li>Port range = 2049</li>
+</ul>
+<p>Otherwise, you will not be able to access EFS using NFS clients.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Mount-EFS-to-Lambda-Function">
+<a class="anchor" href="#Mount-EFS-to-Lambda-Function" aria-hidden="true"><span class="octicon octicon-link"></span></a>Mount EFS to Lambda Function<a class="anchor-link" href="#Mount-EFS-to-Lambda-Function"> </a>
+</h2>
+<p>To mount an EFS to the Lambda function requires some additional steps.</p>
+<p>First add permissions to Lambda function. From lambda function &gt; Configurations &gt; Permissions &gt; <strong>Execution role</strong>. Click on the execution role to open it in IAM concole. For the selected role attach an additional policy <code>AmazonElasticFileSystemFullAccess</code>.</p>
+<p>Second, add the lambda to a VPC group in which efs was created. We have created efs in default VPC so let's add lambda to it. For this from lambda Configurations &gt; <strong>VPC</strong> click edit. For the next pane select default VPC, all subnets, default VPC security group, and click <strong>save</strong>.</p>
+<p>Now we can add EFS to lambda. Go to lambda Configurations &gt; File Systems &gt; <strong>Add file system</strong>. Select the file system <strong>mydata-efs</strong> and associated access point <strong>mydata-ap</strong> and local mount point as <code>/mnt/efs</code>. The local mount point is the mounted directory from where we can access our EFS from inside the lambda environment. Click <strong>Save</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Check-EFS-mount-point-from-Lambda">
+<a class="anchor" href="#Check-EFS-mount-point-from-Lambda" aria-hidden="true"><span class="octicon octicon-link"></span></a>Check EFS mount point from Lambda<a class="anchor-link" href="#Check-EFS-mount-point-from-Lambda"> </a>
+</h2>
+<p>Let's verify from lambda that EFS has been mounted and can we access it. So update the lambda code as below and deploy it.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="k">def</span> <span class="nf">lambda_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="n">mount_path</span> <span class="o">=</span> <span class="s1">'/mnt/efs'</span>
+    <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">mount_path</span><span class="p">):</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">mount_path</span><span class="si">}</span><span class="s2"> exists"</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="s1">'/mnt/efs'</span><span class="p">))</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="n">event</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">'statusCode'</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s1">'body'</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="s1">'Hello from Lambda!'</span><span class="p">)</span>
+    <span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now test this code using a test event <code>S3 Put</code>. For this go to lambda Test &gt; Create new event &gt; Template (<strong>s3-put</strong>). 'S3 Put' test event is similar to the one we saw in the last section. We can use this request template to simulate the event received from S3 bucket. Once the test is successfully executed, check the log output.</p>
+
+<pre><code>START RequestId: 2e307a14-f373-46d5-b763-594d5f406ae6 Version: $LATEST
+/mnt/efs exists
+[]
+{'Records': [{'eventVersion': '2.0', 'eventSource': 'aws:s3', 'awsRegion': 'us-east-1', 'eventTime': '1970-01-01T00:00:00.000Z', 'eventName': 'ObjectCreated:Put', 'userIdentity': {'principalId': 'EXAMPLE'}, 'requestParameters': {'sourceIPAddress': '127.0.0.1'}, 'responseElements': {'x-amz-request-id': 'EXAMPLE123456789', 'x-amz-id-2': 'EXAMPLE123/5678abcdefghijklambdaisawesome/mnopqrstuvwxyzABCDEFGH'}, 's3': {'s3SchemaVersion': '1.0', 'configurationId': 'testConfigRule', 'bucket': {'name': 'example-bucket', 'ownerIdentity': {'principalId': 'EXAMPLE'}, 'arn': 'arn:aws:s3:::example-bucket'}, 'object': {'key': 'test%2Fkey', 'size': 1024, 'eTag': '0123456789abcdef0123456789abcdef', 'sequencer': '0A1B2C3D4E5F678901'}}}]}
+END RequestId: 2e307a14-f373-46d5-b763-594d5f406ae6
+REPORT RequestId: 2e307a14-f373-46d5-b763-594d5f406ae6  Duration: 7.02 ms   Billed Duration: 8 ms   Memory Size: 128 MB Max Memory Used: 37 MB  Init Duration: 93.81 ms</code></pre>
+<p>From the logs we can see that the mounted EFS directory exists <code>/mnt/efs</code> but currently the folder is empty.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Configure-VPC-endpoint-for-S3">
+<a class="anchor" href="#Configure-VPC-endpoint-for-S3" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configure VPC endpoint for S3<a class="anchor-link" href="#Configure-VPC-endpoint-for-S3"> </a>
+</h2>
+<p>Till now we have configured S3 notifications to trigger a lambda function and also mounted EFS to it. Our next step is to process the event received in lambda, and download the file from S3 to EFS. But since our lambda function is configured for a VPC we cannot connect to S3 from it. Even though we can still receive S3 event notification, when we try to connect to S3 to download any file we will get a timeout error. To fix this we will create a VPC endpoint for S3 bucket.</p>
+<p>For this go to VPC console &gt; Endpoints &gt; <strong>Create endpoint</strong>, and set the following</p>
+<ul>
+<li>name = mydata-ep</li>
+<li>service category = aws services</li>
+<li>services = com.amazonaws.us-east-1.s3 (Gateway)</li>
+<li>vpc = default</li>
+<li>route table = default (main route table)</li>
+<li>policy = full access</li>
+</ul>
+<p>Click <strong>Create endpoint</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Configure-S3-permissions-for-Lambda">
+<a class="anchor" href="#Configure-S3-permissions-for-Lambda" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configure S3 permissions for Lambda<a class="anchor-link" href="#Configure-S3-permissions-for-Lambda"> </a>
+</h2>
+<p>For lambda to be able to connect to S3 we also need to give it proper permissions. For this go to Lambda &gt; Configurations &gt; Permissions &gt; Execution Role &gt; <strong>click on role name</strong>. From the IAM Role console select add permissions, and then select <code>AmazonS3FullAccess</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Process-S3-event-notifications">
+<a class="anchor" href="#Process-S3-event-notifications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Process S3 event notifications<a class="anchor-link" href="#Process-S3-event-notifications"> </a>
+</h2>
+<p>Our lambda and EFS are ready and we can now process S3 events. Update the lambda code as below to process S3 events. It will download and delete from EFS to keep it in sync with S3 bucket.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">boto3</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">s3</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s2">"s3"</span><span class="p">)</span>
+
+<span class="k">def</span> <span class="nf">lambda_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+
+    <span class="n">event_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">"Records"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"eventName"</span><span class="p">]</span>
+    <span class="n">bucket_name</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">"Records"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"s3"</span><span class="p">][</span><span class="s2">"bucket"</span><span class="p">][</span><span class="s2">"name"</span><span class="p">]</span>
+    <span class="n">object_key</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">"Records"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"s3"</span><span class="p">][</span><span class="s2">"object"</span><span class="p">][</span><span class="s2">"key"</span><span class="p">]</span>
+
+    <span class="n">efs_file_name</span> <span class="o">=</span> <span class="s2">"/mnt/efs/"</span> <span class="o">+</span> <span class="n">object_key</span>
+
+    <span class="c1"># S3 put</span>
+    <span class="k">if</span> <span class="n">event_name</span> <span class="o">==</span> <span class="s2">"ObjectCreated:Put"</span><span class="p">:</span>
+        <span class="n">s3</span><span class="o">.</span><span class="n">download_file</span><span class="p">(</span><span class="n">bucket_name</span><span class="p">,</span> <span class="n">object_key</span><span class="p">,</span> <span class="n">efs_file_name</span><span class="p">)</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"file downloaded: </span><span class="si">{</span><span class="n">efs_file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="c1"># S3 delete</span>
+    <span class="k">if</span> <span class="n">event_name</span> <span class="o">==</span> <span class="s2">"ObjectRemoved:Delete"</span><span class="p">:</span>
+        <span class="c1"># check if file exists on efs</span>
+        <span class="k">if</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="n">efs_file_name</span><span class="p">):</span>
+            <span class="n">os</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">efs_file_name</span><span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"file deleted: </span><span class="si">{</span><span class="n">efs_file_name</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"statusCode"</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span> <span class="s2">"body"</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">event</span><span class="p">)}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can test this code using the S3-put test event we used last time. Modify the event for bucket name and object key as below.</p>
+<div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">"Records"</span><span class="p">:</span> <span class="p">[</span>
+    <span class="p">{</span>
+      <span class="nt">"eventVersion"</span><span class="p">:</span> <span class="s2">"2.0"</span><span class="p">,</span>
+      <span class="nt">"eventSource"</span><span class="p">:</span> <span class="s2">"aws:s3"</span><span class="p">,</span>
+      <span class="nt">"awsRegion"</span><span class="p">:</span> <span class="s2">"us-east-1"</span><span class="p">,</span>
+      <span class="nt">"eventTime"</span><span class="p">:</span> <span class="s2">"1970-01-01T00:00:00.000Z"</span><span class="p">,</span>
+      <span class="nt">"eventName"</span><span class="p">:</span> <span class="s2">"ObjectCreated:Put"</span><span class="p">,</span>
+      <span class="nt">"userIdentity"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">"principalId"</span><span class="p">:</span> <span class="s2">"EXAMPLE"</span>
+      <span class="p">},</span>
+      <span class="nt">"requestParameters"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">"sourceIPAddress"</span><span class="p">:</span> <span class="s2">"127.0.0.1"</span>
+      <span class="p">},</span>
+      <span class="nt">"responseElements"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">"x-amz-request-id"</span><span class="p">:</span> <span class="s2">"EXAMPLE123456789"</span><span class="p">,</span>
+        <span class="nt">"x-amz-id-2"</span><span class="p">:</span> <span class="s2">"EXAMPLE123/5678abcdefghijklambdaisawesome/mnopqrstuvwxyzABCDEFGH"</span>
+      <span class="p">},</span>
+      <span class="nt">"s3"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="nt">"s3SchemaVersion"</span><span class="p">:</span> <span class="s2">"1.0"</span><span class="p">,</span>
+        <span class="nt">"configurationId"</span><span class="p">:</span> <span class="s2">"testConfigRule"</span><span class="p">,</span>
+        <span class="nt">"bucket"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">"name"</span><span class="p">:</span> <span class="s2">"mydata-202203"</span><span class="p">,</span>
+          <span class="nt">"ownerIdentity"</span><span class="p">:</span> <span class="p">{</span>
+            <span class="nt">"principalId"</span><span class="p">:</span> <span class="s2">"EXAMPLE"</span>
+          <span class="p">},</span>
+          <span class="nt">"arn"</span><span class="p">:</span> <span class="s2">"arn:aws:s3:::example-bucket"</span>
+        <span class="p">},</span>
+        <span class="nt">"object"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="nt">"key"</span><span class="p">:</span> <span class="s2">"test1.txt"</span><span class="p">,</span>
+          <span class="nt">"size"</span><span class="p">:</span> <span class="mi">1024</span><span class="p">,</span>
+          <span class="nt">"eTag"</span><span class="p">:</span> <span class="s2">"0123456789abcdef0123456789abcdef"</span><span class="p">,</span>
+          <span class="nt">"sequencer"</span><span class="p">:</span> <span class="s2">"0A1B2C3D4E5F678901"</span>
+        <span class="p">}</span>
+      <span class="p">}</span>
+    <span class="p">}</span>
+  <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+<p>Click <strong>test</strong>. From the output logs, we can see that our code was able to download the file from S3 bucket and write it on EFS.</p>
+
+<pre><code>START RequestId: 7e9c0dc2-f970-426e-8372-e59b07f5536c Version: $LATEST
+file downloaded: /mnt/efs/test1.txt
+END RequestId: 7e9c0dc2-f970-426e-8372-e59b07f5536c
+REPORT RequestId: 7e9c0dc2-f970-426e-8372-e59b07f5536c  Duration: 370.00 ms Billed Duration: 371 ms Memory Size: 128 MB Max Memory Used: 72 MB  Init Duration: 367.68 ms</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note that if you get any permission errors then it could be due to the mounting path errors. Please do check the access point path and lambda mount path.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Verify-file-on-EFS">
+<a class="anchor" href="#Verify-file-on-EFS" aria-hidden="true"><span class="octicon octicon-link"></span></a>Verify file on EFS<a class="anchor-link" href="#Verify-file-on-EFS"> </a>
+</h2>
+<p>We can verify files on EFS by directly mounting them to an EC2 machine and verifying from there. So let's do that.</p>
+<p>Create an EC2 machine</p>
+<ul>
+<li>AMI = Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type</li>
+<li>Intance type = t2.micro (free tier)</li>
+<li>Instance details<ul>
+<li>Network = default VPC</li>
+<li>Auto-assign Public IP = Enable</li>
+</ul>
+</li>
+<li>Review and Lanunch &gt; Launch &gt; Proceed without key pair.</li>
+</ul>
+<p>Once the instance is up and running, click on it and connect using EC2 instance connect option. Create a dir 'efs' using the command</p>
+
+<pre><code>mkdir efs</code></pre>
+<p>In a separate tab open EFS, and click on the file system we have created. Click <strong>Attach</strong>. From "Mount via DNS" copy command for NFS client. paste that in EC2 bash terminal</p>
+
+<pre><code>sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-0c9526e2f48ece247.efs.us-east-1.amazonaws.com:/ efs</code></pre>
+<p>Once successfully mounted verify that the file 'test1.txt' exists in EFS. We can also delete the file from S3 and similarly verify from EFS that the file has been removed.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Summary">
+<a class="anchor" href="#Summary" aria-hidden="true"><span class="octicon octicon-link"></span></a>Summary<a class="anchor-link" href="#Summary"> </a>
+</h1>
+<p>A summary of all the steps</p>
+<ul>
+<li>Create an S3 bucket</li>
+<li>Create a Lambda function</li>
+<li>Create event notifications on the S3 bucket to trigger the lambda function</li>
+<li>Create an EFS file system and its access point. Check the security group setting for inbound rules for NFS traffic</li>
+<li>Add EFS and S3 permissions to lambda</li>
+<li>Add lambda to VPC</li>
+<li>Create VPC endpoint for S3 bucket</li>
+<li>Update lambda code to process event notifications</li>
+<li>Use EC2 to mount EFS and verify the files</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hassaanbinaslam/myblog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/myblog/aws/lambda/efs/s3/synchonization/2022/03/28/efs-s3-sync-lambda.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/fastai" target="_blank" title="fastai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/fastdotai" target="_blank" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
