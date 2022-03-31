@@ -1,0 +1,663 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>AWS EFS Sync to S3 Using DataSync | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="AWS EFS Sync to S3 Using DataSync" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A tutorial to synchronize EFS with S3 bucket using DataSync service." />
+<meta property="og:description" content="A tutorial to synchronize EFS with S3 bucket using DataSync service." />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/datasync/2022/03/29/efs-s3-datasync.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/datasync/2022/03/29/efs-s3-datasync.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-03-29T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="AWS EFS Sync to S3 Using DataSync" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-03-29T00:00:00-05:00","datePublished":"2022-03-29T00:00:00-05:00","description":"A tutorial to synchronize EFS with S3 bucket using DataSync service.","headline":"AWS EFS Sync to S3 Using DataSync","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/datasync/2022/03/29/efs-s3-datasync.html"},"url":"https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/datasync/2022/03/29/efs-s3-datasync.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">AWS EFS Sync to S3 Using DataSync</h1><p class="page-description">A tutorial to synchronize EFS with S3 bucket using DataSync service.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-03-29T00:00:00-05:00" itemprop="datePublished">
+        Mar 29, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      8 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#aws">aws</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#lambda">lambda</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#efs">efs</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#s3">s3</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#synchonization">synchonization</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#datasync">datasync</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h1"><a href="#About">About </a></li>
+<li class="toc-entry toc-h1"><a href="#Environment-Details">Environment Details </a></li>
+<li class="toc-entry toc-h1"><a href="#Steps-for-trigger-based-approach">Steps for trigger based approach </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Create-an-S3-bucket">Create an S3 bucket </a></li>
+<li class="toc-entry toc-h2"><a href="#Create-an-EFS">Create an EFS </a></li>
+<li class="toc-entry toc-h2"><a href="#Note-on-EFS-security-group-settings">Note on EFS security group settings </a></li>
+<li class="toc-entry toc-h2"><a href="#Create-DataSync-service-task">Create DataSync service task </a></li>
+<li class="toc-entry toc-h2"><a href="#Test-DataSync-Service">Test DataSync Service </a></li>
+<li class="toc-entry toc-h2"><a href="#DataSync-can-work-without-Internet-Gateway-or-VPC-Endpoint">DataSync can work without Internet Gateway or VPC Endpoint </a></li>
+<li class="toc-entry toc-h2"><a href="#Verify-EFS-by-mounting-it-to-the-EC2-machine">Verify EFS by mounting it to the EC2 machine </a></li>
+<li class="toc-entry toc-h2"><a href="#Create-Lambda-function-to-trigger-DataSync-task">Create Lambda function to trigger DataSync task </a></li>
+<li class="toc-entry toc-h2"><a href="#Configure-S3-bucket-event-notifications">Configure S3 bucket event notifications </a></li>
+<li class="toc-entry toc-h2"><a href="#Test-DataSync-task-through-S3-events-trigger">Test DataSync task through S3 events trigger </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Steps-for-scheduled-based-approach">Steps for scheduled based approach </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Create-a-lambda-function">Create a lambda function </a></li>
+<li class="toc-entry toc-h2"><a href="#Create-EventBridge-event">Create EventBridge event </a></li>
+<li class="toc-entry toc-h2"><a href="#Verify-event-and-datasync-task-execution">Verify event and datasync task execution </a></li>
+</ul>
+</li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-03-29-efs-s3-datasync.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h1>
+<p>This post is to document all the steps required to synchronize <a href="https://aws.amazon.com/efs/">AWS EFS</a> with an <a href="https://aws.amazon.com/s3/">S3 bucket</a> using <a href="https://aws.amazon.com/datasync/">DataSync service</a>. The flow of information is from S3 to EFS and not vice versa.</p>
+<p>We will discuss two approaches to trigger the datasync service</p>
+<ul>
+<li>Trigger-based. Whenever there is a new file uploaded in S3 bucket</li>
+<li>Schedule-based. A trigger will run datasync at scheduled intervals</li>
+</ul>
+<p>Once a datasync service is invoked it will take care of syncing files from S3 bucket to EFS.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Environment-Details">
+<a class="anchor" href="#Environment-Details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Environment Details<a class="anchor-link" href="#Environment-Details"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Python = 3.9.x</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Steps-for-trigger-based-approach">
+<a class="anchor" href="#Steps-for-trigger-based-approach" aria-hidden="true"><span class="octicon octicon-link"></span></a>Steps for trigger based approach<a class="anchor-link" href="#Steps-for-trigger-based-approach"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-29-efs-s3-datasync/trigger-based-approach.png" alt="trigger-based-approach"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-an-S3-bucket">
+<a class="anchor" href="#Create-an-S3-bucket" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create an S3 bucket<a class="anchor-link" href="#Create-an-S3-bucket"> </a>
+</h2>
+<p>Let's first create an S3 bucket that will contain our data, and this is the bucket we would like to be in sync with EFS. I am naming the bucket as <code>mydata-202203</code>. You may name it as you please. Choose a region of your choice and leave the rest of the settings as defaults.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-an-EFS">
+<a class="anchor" href="#Create-an-EFS" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create an EFS<a class="anchor-link" href="#Create-an-EFS"> </a>
+</h2>
+<p>From EFS console give name as <code>mydata-efs</code>. I am using default VPC for this post. Use <code>Regional</code> availability settings. Click <strong>Create</strong>. Once file system is created, click on <strong>Access points</strong> and create an access point for this efs to be mounted in other service. For access point use following settings</p>
+<ul>
+<li>name = mydata-ap</li>
+<li>root dir path = /</li>
+<li>POSIX User<ul>
+<li>POSIX UID = 1000</li>
+<li>Group ID = 1000</li>
+</ul>
+</li>
+<li>Root directory creation permissions<ul>
+<li>Owner user id = 1000</li>
+<li>Owner group id = 1000</li>
+<li>POSIX permissions = 777</li>
+</ul>
+</li>
+</ul>
+<p>Click <strong>Create</strong>.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Note-on-EFS-security-group-settings">
+<a class="anchor" href="#Note-on-EFS-security-group-settings" aria-hidden="true"><span class="octicon octicon-link"></span></a>Note on EFS security group settings<a class="anchor-link" href="#Note-on-EFS-security-group-settings"> </a>
+</h2>
+<p>In the last section, I have used a default VPC security group (sg) while creating EFS. Default sg allows traffic for all protocols and all ports, both inbound and outbound. But if you are using a custom security group then make sure that you have an inbound rule for</p>
+<ul>
+<li>Type = NFS</li>
+<li>Protocol = TCP</li>
+<li>Port range = 2049</li>
+</ul>
+<p>Otherwise, you will not be able to access EFS using NFS clients, and if you find an error similar to the below then it means you need to check the security group settings.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-29-efs-s3-datasync/security-group-error.png" alt="security-group-error"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-DataSync-service-task">
+<a class="anchor" href="#Create-DataSync-service-task" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create DataSync service task<a class="anchor-link" href="#Create-DataSync-service-task"> </a>
+</h2>
+<ul>
+<li>configure source location = create a new location<ul>
+<li>location type = Amazon S3</li>
+<li>region = us-east-1</li>
+<li>s3 bucket = mydata-202203</li>
+<li>s3 storage class = standard</li>
+<li>folder = [leave empty]</li>
+<li>IAM role = click on auto generate</li>
+</ul>
+</li>
+<li>configure destination location = create a new location<ul>
+<li>location type = EFS</li>
+<li>region = us-east-1</li>
+<li>efs file system = mydata-efs</li>
+<li>mount path = /efs</li>
+<li>subnet = us-east-1a</li>
+<li>security group = default</li>
+</ul>
+</li>
+<li>configure settings<ul>
+<li>task name = mydata-datasync</li>
+<li>task execution configuration<ul>
+<li>verify data = verify only the data transferred</li>
+<li>set bandwidth limit = use available</li>
+</ul>
+</li>
+<li>data transfer configuration<ul>
+<li>data to scan = entire source location</li>
+<li>transfer mode = transfer only the data that has changed</li>
+<li>uncheck "keep deleted files"</li>
+<li>check "overwrite files"</li>
+</ul>
+</li>
+<li>schedule<ul>
+<li>frequency = not scheduled</li>
+</ul>
+</li>
+<li>task logging<ul>
+<li>cloudwatch log group = autogenerate</li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<p>Click "next". Review and Launch.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Test-DataSync-Service">
+<a class="anchor" href="#Test-DataSync-Service" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test DataSync Service<a class="anchor-link" href="#Test-DataSync-Service"> </a>
+</h2>
+<p>Let's test datasync service by manually starting it. If S3 bucket is empty then datasync will throw an exception as below</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-29-efs-s3-datasync/s3-empty.png" alt="s3-empty"></p>
+<p>This is not an issue. Just place some files (<strong>test1.txt</strong> in my case) in the bucket and start the datasync service again. If it executes successfully then you will get a message as <code>Execution Status = Success</code></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="DataSync-can-work-without-Internet-Gateway-or-VPC-Endpoint">
+<a class="anchor" href="#DataSync-can-work-without-Internet-Gateway-or-VPC-Endpoint" aria-hidden="true"><span class="octicon octicon-link"></span></a>DataSync can work without Internet Gateway or VPC Endpoint<a class="anchor-link" href="#DataSync-can-work-without-Internet-Gateway-or-VPC-Endpoint"> </a>
+</h2>
+<p>One thing I noticed is that DataSync service can work even without the presence of an internet gateway or S3 service endpoint. EFS is VPC bound and S3 is global but DataSync can still communicate with both of them. This was different for Lambda. Once Lambda is configured for a VPC then it is not able to access S3 without an internet gateway or VPC endpoint.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Verify-EFS-by-mounting-it-to-the-EC2-machine">
+<a class="anchor" href="#Verify-EFS-by-mounting-it-to-the-EC2-machine" aria-hidden="true"><span class="octicon octicon-link"></span></a>Verify EFS by mounting it to the EC2 machine<a class="anchor-link" href="#Verify-EFS-by-mounting-it-to-the-EC2-machine"> </a>
+</h2>
+<p>In the last section, we ran DataSync and it successfully copied files from S3 to EFS. So let's verify our files from EFS by mounting it to an EC2 instance.</p>
+<p>Create an EC2 machine</p>
+<ul>
+<li>AMI = Amazon Linux 2 AMI (HVM) - Kernel 5.10, SSD Volume Type</li>
+<li>Intance type = t2.micro (free tier)</li>
+<li>Instance details<ul>
+<li>Network = default VPC</li>
+<li>Auto-assign Public IP = Enable</li>
+</ul>
+</li>
+<li>Review and Lanunch &gt; Launch &gt; Proceed without key pair.</li>
+</ul>
+<p>Once the instance is up and running, click on it and connect using EC2 instance connect option. Create a dir 'efs' using the command</p>
+
+<pre><code>mkdir efs</code></pre>
+<p>In a separate tab open EFS, and click on the file system we have created. Click <strong>Attach</strong>. From "Mount via DNS" copy command for NFS client. paste that in EC2 bash terminal</p>
+
+<pre><code>sudo mount -t nfs4 -o nfsvers=4.1,rsize=1048576,wsize=1048576,hard,timeo=600,retrans=2,noresvport fs-01acd308743098251.efs.us-east-1.amazonaws.com:/ efs</code></pre>
+<p>Once successfully mounted, verify that the file '<strong>test1.txt</strong>' exists in EFS.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-29-efs-s3-datasync/efs-verify.png" alt="efs-verify"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-Lambda-function-to-trigger-DataSync-task">
+<a class="anchor" href="#Create-Lambda-function-to-trigger-DataSync-task" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create Lambda function to trigger DataSync task<a class="anchor-link" href="#Create-Lambda-function-to-trigger-DataSync-task"> </a>
+</h2>
+<p>Now let's create a lambda function that will trigger the datasync task. This function will itself be triggered by an S3 event notification whenever a file is uploaded or deleted.</p>
+<ul>
+<li>Create a lambda function as</li>
+<li>name = datasync-trigger-s3</li>
+<li>runtime = Python 3.9</li>
+</ul>
+<p>Leave the rest of the settings as default, update the code as below, and deploy.</p>
+<p>In the code, we are first filtering the object key for which the event is generated. Then we trigger the datasync task and pass the object key as a filter string. With the filter key provided datasync job will only sync provided object from S3 to EFS.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>  
+<span class="kn">import</span> <span class="nn">boto3</span>  
+<span class="kn">import</span> <span class="nn">os</span>  
+  
+<span class="n">DataSync_task_arn</span> <span class="o">=</span> <span class="s1">'arn:aws:datasync:us-east-1:801598032724:task/task-0c04a4a15668b6b8a'</span>  
+<span class="n">DataSync</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">'datasync'</span><span class="p">)</span>
+      
+<span class="k">def</span> <span class="nf">lambda_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>  
+    <span class="n">objectKey</span> <span class="o">=</span> <span class="s1">''</span>  
+    <span class="k">try</span><span class="p">:</span>  
+        <span class="n">objectKey</span> <span class="o">=</span> <span class="n">event</span><span class="p">[</span><span class="s2">"Records"</span><span class="p">][</span><span class="mi">0</span><span class="p">][</span><span class="s2">"s3"</span><span class="p">][</span><span class="s2">"object"</span><span class="p">][</span><span class="s2">"key"</span><span class="p">]</span>  
+    <span class="k">except</span> <span class="ne">KeyError</span><span class="p">:</span>  
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="s2">"Received invalid event - unable to locate Object key to upload."</span><span class="p">,</span> <span class="n">event</span><span class="p">)</span>  
+          
+    <span class="n">response</span> <span class="o">=</span> <span class="n">DataSync</span><span class="o">.</span><span class="n">start_task_execution</span><span class="p">(</span>  
+        <span class="n">TaskArn</span><span class="o">=</span><span class="n">DataSync_task_arn</span><span class="p">,</span>  
+        <span class="n">OverrideOptions</span><span class="o">=</span><span class="p">{</span>  
+            <span class="s1">'OverwriteMode'</span> <span class="p">:</span> <span class="s1">'ALWAYS'</span><span class="p">,</span>
+            <span class="s1">'PreserveDeletedFiles'</span> <span class="p">:</span> <span class="s1">'REMOVE'</span><span class="p">,</span>
+        <span class="p">},</span>  
+        <span class="n">Includes</span><span class="o">=</span><span class="p">[</span>  
+            <span class="p">{</span>  
+                <span class="s1">'FilterType'</span><span class="p">:</span> <span class="s1">'SIMPLE_PATTERN'</span><span class="p">,</span>  
+                <span class="s1">'Value'</span><span class="p">:</span> <span class="s1">'/'</span> <span class="o">+</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">basename</span><span class="p">(</span><span class="n">objectKey</span><span class="p">)</span>  
+            <span class="p">}</span>  
+        <span class="p">]</span>  
+    <span class="p">)</span>  
+      
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"response= </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>  
+        <span class="s1">'response'</span> <span class="p">:</span> <span class="n">response</span>  
+    <span class="p">}</span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Add policy <code>AWSDataSyncFullAccess</code> to this lambda function role otherwise it will not be able to trigger datasync task.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Configure-S3-bucket-event-notifications">
+<a class="anchor" href="#Configure-S3-bucket-event-notifications" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configure S3 bucket event notifications<a class="anchor-link" href="#Configure-S3-bucket-event-notifications"> </a>
+</h2>
+<p>Our lambda function is ready. Now we can enable S3 bucket event notifications as put the lambda function as a target. For this from S3 bucket Properties &gt; Event notifications &gt; <strong>Create event notifications</strong></p>
+<ul>
+<li>event name = object-put-delete</li>
+<li>event type = s3:ObjectCreated:Put, and s3:ObjectRemoved:Delete</li>
+<li>destination = lambda function (datasync-trigger-s3)</li>
+</ul>
+<p>Click <strong>Save changes</strong></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Test-DataSync-task-through-S3-events-trigger">
+<a class="anchor" href="#Test-DataSync-task-through-S3-events-trigger" aria-hidden="true"><span class="octicon octicon-link"></span></a>Test DataSync task through S3 events trigger<a class="anchor-link" href="#Test-DataSync-task-through-S3-events-trigger"> </a>
+</h2>
+<p>Now let's test our trigger by placing a new file in S3 bucket. In my case it is '<strong>test2.txt</strong>'. Once file is successfully uploaded we can check the EC2 instance to verify the file presence.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-29-efs-s3-datasync/ec2-verify-files.png" alt="ec2-verify-files"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can also verify that the datasync job was triggered from lambda CloudWatch logs.</p>
+<div class="highlight"><pre><span></span><span class="nx">response</span><span class="o">=</span> <span class="p">{</span><span class="s1">'TaskExecutionArn'</span><span class="o">:</span> <span class="s1">'arn:aws:datasync:us-east-1:801598032724:task/task-0c04a4a15668b6b8a/execution/exec-020e456f670ca2419'</span><span class="p">,</span> <span class="s1">'ResponseMetadata'</span><span class="o">:</span> <span class="p">{</span><span class="s1">'RequestId'</span><span class="o">:</span> <span class="s1">'c8166ce4-ef14-415c-beff-09cc7720f4a3'</span><span class="p">,</span> <span class="s1">'HTTPStatusCode'</span><span class="o">:</span> <span class="mf">200</span><span class="p">,</span> <span class="s1">'HTTPHeaders'</span><span class="o">:</span> <span class="p">{</span><span class="s1">'date'</span><span class="o">:</span> <span class="s1">'Wed, 30 Mar 2022 13:27:45 GMT'</span><span class="p">,</span> <span class="s1">'content-type'</span><span class="o">:</span> <span class="s1">'application/x-amz-json-1.1'</span><span class="p">,</span> <span class="s1">'content-length'</span><span class="o">:</span> <span class="s1">'123'</span><span class="p">,</span> <span class="s1">'connection'</span><span class="o">:</span> <span class="s1">'keep-alive'</span><span class="p">,</span> <span class="s1">'x-amzn-requestid'</span><span class="o">:</span> <span class="s1">'c8166ce4-ef14-415c-beff-09cc7720f4a3'</span><span class="p">},</span> <span class="s1">'RetryAttempts'</span><span class="o">:</span> <span class="mf">0</span><span class="p">}}</span>
+</pre></div>
+<p>In the logs we have task execution id <code>exec-020e456f670ca2419</code> , and we can use that to verify task's status from datasync console.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-29-efs-s3-datasync/datasync-task-status.png" alt="datasync-task-status"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Steps-for-scheduled-based-approach">
+<a class="anchor" href="#Steps-for-scheduled-based-approach" aria-hidden="true"><span class="octicon octicon-link"></span></a>Steps for scheduled based approach<a class="anchor-link" href="#Steps-for-scheduled-based-approach"> </a>
+</h1>
+<p>We have seen in the last section that we can use S3 event notifications to trigger datasync tasks. Now we will discuss a schedule-based trigger for datasync task. This can be done in two ways</p>
+<ul>
+<li>While creating a datasync task we can define a frequency for it to follow. But the limitation on this is that it can not be lower than a 1 hour window.</li>
+<li>If we want to schedule a datasync task on a smaller than 1 hour window then we can use AWS EventBridge (previously CloudWatch Events) to trigger a lambda function that can inturn invoke a datasync task. In the coming section, we will follow this approach.</li>
+</ul>
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-29-efs-s3-datasync/scheduled-based-approach.png" alt="scheduled-based-approach"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-a-lambda-function">
+<a class="anchor" href="#Create-a-lambda-function" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create a lambda function<a class="anchor-link" href="#Create-a-lambda-function"> </a>
+</h2>
+<p>Let's create a new lambda function with the following code. This lambda will invoke the datasync task.
+Add permissions to this lambda <code>AWSDataSyncFullAccess</code></p>
+<ul>
+<li>function name = datasync-trigger-scheduled</li>
+<li>runtime = Python 3.9</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>  
+<span class="kn">import</span> <span class="nn">boto3</span>  
+<span class="kn">import</span> <span class="nn">os</span>  
+  
+<span class="n">DataSync_task_arn</span> <span class="o">=</span> <span class="s1">'arn:aws:datasync:us-east-1:801598032724:task/task-0c04a4a15668b6b8a'</span>  
+<span class="n">DataSync</span> <span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">'datasync'</span><span class="p">)</span>
+      
+<span class="k">def</span> <span class="nf">lambda_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="n">response</span> <span class="o">=</span> <span class="n">DataSync</span><span class="o">.</span><span class="n">start_task_execution</span><span class="p">(</span>  
+        <span class="n">TaskArn</span><span class="o">=</span><span class="n">DataSync_task_arn</span><span class="p">,</span>  
+        <span class="n">OverrideOptions</span><span class="o">=</span><span class="p">{</span>  
+            <span class="s1">'OverwriteMode'</span> <span class="p">:</span> <span class="s1">'ALWAYS'</span><span class="p">,</span>
+            <span class="s1">'PreserveDeletedFiles'</span> <span class="p">:</span> <span class="s1">'REMOVE'</span><span class="p">,</span>
+        <span class="p">}</span>
+    <span class="p">)</span>  
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"response= </span><span class="si">{</span><span class="n">response</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">{</span>  
+        <span class="s1">'response'</span> <span class="p">:</span> <span class="n">response</span>  
+    <span class="p">}</span> 
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-EventBridge-event">
+<a class="anchor" href="#Create-EventBridge-event" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create EventBridge event<a class="anchor-link" href="#Create-EventBridge-event"> </a>
+</h2>
+<p>Go to EventBridge Events &gt; Rules &gt; select <strong>Create Rule</strong></p>
+<ul>
+<li>Define rule details<ul>
+<li>name = datasync-trigger</li>
+<li>event bus = default</li>
+<li>rule type = scheduled</li>
+</ul>
+</li>
+<li>Define schedule<ul>
+<li>Sample event = {}</li>
+<li>Schedule Pattern<ul>
+<li>Rate expression = 5 min</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>Select Targets<ul>
+<li>target = Lambda function</li>
+<li>function = datasync-trigger-scheduled</li>
+</ul>
+</li>
+</ul>
+<p>Click <strong>Next</strong> and <strong>Create Rule</strong></p>
+<p>EventBridge will automatically add a policy statement to lambda function (datasync-trigger-scheduled) allowing it to trigger lambda. You can verify the policy from lambda Configurations &gt; Permissions &gt; <strong>Resource based policy</strong>. If no resource policy exists then you need to manually add a policy to allow EventBridge to invoke it. For this click on Resource based policy &gt; Policy statements &gt; <strong>Add permissions</strong>.</p>
+<ul>
+<li>policy statement = AWS service</li>
+<li>service = EventBridge</li>
+<li>statement id = eventbridge-1000 (or any unique id)</li>
+<li>principal = events.amazonaws.com</li>
+<li>source ARN = arn:aws:events:us-east-1:801598032724:rule/datasync-trigger (arn for eventbridge event)</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Verify-event-and-datasync-task-execution">
+<a class="anchor" href="#Verify-event-and-datasync-task-execution" aria-hidden="true"><span class="octicon octicon-link"></span></a>Verify event and datasync task execution<a class="anchor-link" href="#Verify-event-and-datasync-task-execution"> </a>
+</h2>
+<ul>
+<li>We have configured eventbridge to fire an event after every 5 min we can verify it from eventbrige monitoring tab and its cloudwatch logs.</li>
+<li>Lambda function invocations can be verified from its cloudwatch logs</li>
+<li>Datasync task execution status can be verified from its history tab and cloudwatch logs.</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hassaanbinaslam/myblog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/myblog/aws/lambda/efs/s3/synchonization/datasync/2022/03/29/efs-s3-datasync.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/fastai" target="_blank" title="fastai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/fastdotai" target="_blank" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
