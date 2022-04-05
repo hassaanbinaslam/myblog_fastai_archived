@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Machine Learning Nomenclature | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Machine Learning Nomenclature" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A collection of machine learning terminologies" />
+<meta property="og:description" content="A collection of machine learning terminologies" />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/ml/2022/03/31/ml-nomenclature.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/ml/2022/03/31/ml-nomenclature.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-03-31T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Machine Learning Nomenclature" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-03-31T00:00:00-05:00","datePublished":"2022-03-31T00:00:00-05:00","description":"A collection of machine learning terminologies","headline":"Machine Learning Nomenclature","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/ml/2022/03/31/ml-nomenclature.html"},"url":"https://hassaanbinaslam.github.io/myblog/ml/2022/03/31/ml-nomenclature.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Machine Learning Nomenclature</h1><p class="page-description">A collection of machine learning terminologies</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-03-31T00:00:00-05:00" itemprop="datePublished">
+        Mar 31, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      3 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#ml">ml</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h1"><a href="#About">About </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Dataset">Dataset </a></li>
+<li class="toc-entry toc-h2"><a href="#Instance">Instance </a></li>
+<li class="toc-entry toc-h2"><a href="#Feature">Feature </a></li>
+<li class="toc-entry toc-h2"><a href="#Target">Target </a></li>
+<li class="toc-entry toc-h2"><a href="#Labeled-Data">Labeled Data </a></li>
+<li class="toc-entry toc-h2"><a href="#Unlabeled-Data">Unlabeled Data </a></li>
+<li class="toc-entry toc-h2"><a href="#Categorical-Feature">Categorical Feature </a></li>
+<li class="toc-entry toc-h2"><a href="#Nominal-feature">Nominal feature </a></li>
+<li class="toc-entry toc-h2"><a href="#Ordinal-feature">Ordinal feature </a></li>
+<li class="toc-entry toc-h2"><a href="#Numerical-feature">Numerical feature </a></li>
+<li class="toc-entry toc-h2"><a href="#Discrete-feature">Discrete feature </a></li>
+<li class="toc-entry toc-h2"><a href="#Continous-feature">Continous feature </a></li>
+<li class="toc-entry toc-h2"><a href="#Classification">Classification </a></li>
+<li class="toc-entry toc-h2"><a href="#Regression">Regression </a></li>
+<li class="toc-entry toc-h2"><a href="#Positive-class">Positive class </a></li>
+<li class="toc-entry toc-h2"><a href="#Negative-class">Negative class </a></li>
+<li class="toc-entry toc-h2"><a href="#True-positive-(TP)">True positive (TP) </a></li>
+<li class="toc-entry toc-h2"><a href="#True-negative-(TN)">True negative (TN) </a></li>
+<li class="toc-entry toc-h2"><a href="#False-positive-(FP)">False positive (FP) </a></li>
+<li class="toc-entry toc-h2"><a href="#False-negative-(FN)">False negative (FN) </a></li>
+<li class="toc-entry toc-h2"><a href="#Accuracy">Accuracy </a></li>
+<li class="toc-entry toc-h2"><a href="#Precision">Precision </a></li>
+<li class="toc-entry toc-h2"><a href="#True-Positive-Rate-(TPR)">True Positive Rate (TPR) </a></li>
+<li class="toc-entry toc-h2"><a href="#False-Positive-Rate-(FPR)">False Positive Rate (FPR) </a></li>
+<li class="toc-entry toc-h2"><a href="#ROC-Curve">ROC Curve </a></li>
+<li class="toc-entry toc-h2"><a href="#True-Negative-Rate-(TNR)">True Negative Rate (TNR) </a></li>
+</ul>
+</li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-03-31-ml-nomenclature.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h1>
+<p>This post is a collection of commonly used machine learning (ML) terminologies.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Dataset">
+<a class="anchor" href="#Dataset" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dataset<a class="anchor-link" href="#Dataset"> </a>
+</h2>
+<p>The data we use in ML is usually defined as dataset, and datasets are a collection of data. The dataset contains the features and target to predict.</p>
+<p>It has other names</p>
+<ul>
+<li>data</li>
+<li>input data</li>
+<li>train and test data</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Instance">
+<a class="anchor" href="#Instance" aria-hidden="true"><span class="octicon octicon-link"></span></a>Instance<a class="anchor-link" href="#Instance"> </a>
+</h2>
+<p>An instance is a row in the dataset.</p>
+<p>Is has other names</p>
+<ul>
+<li>row</li>
+<li>observation</li>
+<li>sample</li>
+<li>(data) point</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Feature">
+<a class="anchor" href="#Feature" aria-hidden="true"><span class="octicon octicon-link"></span></a>Feature<a class="anchor-link" href="#Feature"> </a>
+</h2>
+<p>Feature is a column in the dataset. It is used as an input used for prediction or classification. Features are commonly represented by <code>x</code> variable.</p>
+<p>It has other names</p>
+<ul>
+<li>column</li>
+<li>attribute</li>
+<li>(input) variable</li>
+</ul>
+<p>Features are of two types</p>
+<ul>
+<li>Categorical or qualitative</li>
+<li>Numerical or quantitative</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Target">
+<a class="anchor" href="#Target" aria-hidden="true"><span class="octicon octicon-link"></span></a>Target<a class="anchor-link" href="#Target"> </a>
+</h2>
+<p>It is the information a machine learning algorithm learns to predict. Target is commonly represented by <code>y</code> variable.</p>
+<p>It has other names</p>
+<ul>
+<li>label</li>
+<li>output</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Labeled-Data">
+<a class="anchor" href="#Labeled-Data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Labeled Data<a class="anchor-link" href="#Labeled-Data"> </a>
+</h2>
+<p>A data that has both the feature and target attributes defined</p>
+<h2 id="Unlabeled-Data">
+<a class="anchor" href="#Unlabeled-Data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Unlabeled Data<a class="anchor-link" href="#Unlabeled-Data"> </a>
+</h2>
+<p>A data that has the features defined but has no target attribute.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Categorical-Feature">
+<a class="anchor" href="#Categorical-Feature" aria-hidden="true"><span class="octicon octicon-link"></span></a>Categorical Feature<a class="anchor-link" href="#Categorical-Feature"> </a>
+</h2>
+<p>A feature that is not measureable and has discrete set of values like gender, family retionships, movie categories etc. We commonly use bar charts and pie graphs for categorical features.</p>
+<p>It has other names</p>
+<ul>
+<li>qualitative feature</li>
+</ul>
+<p>Categorical features are of two types</p>
+<ul>
+<li>Nominal</li>
+<li>Ordinal</li>
+</ul>
+<h2 id="Nominal-feature">
+<a class="anchor" href="#Nominal-feature" aria-hidden="true"><span class="octicon octicon-link"></span></a>Nominal feature<a class="anchor-link" href="#Nominal-feature"> </a>
+</h2>
+<p>Nominal (categorical) feature is one that can not be measured and has no order assgined to it e.g. eye colors, gender etc.</p>
+<h2 id="Ordinal-feature">
+<a class="anchor" href="#Ordinal-feature" aria-hidden="true"><span class="octicon octicon-link"></span></a>Ordinal feature<a class="anchor-link" href="#Ordinal-feature"> </a>
+</h2>
+<p>Ordinal (categorical) feature is one that can not be measured but has some order assgined to it like movie ratings, military ranks etc.</p>
+<h2 id="Numerical-feature">
+<a class="anchor" href="#Numerical-feature" aria-hidden="true"><span class="octicon octicon-link"></span></a>Numerical feature<a class="anchor-link" href="#Numerical-feature"> </a>
+</h2>
+<p>Numerical features are those that can be measured or counted and have some ascending or descending order assigned to them.</p>
+<p>It has other names</p>
+<ul>
+<li>Continious feature</li>
+<li>Quantitative feature</li>
+</ul>
+<p>Numerical features can be of two types</p>
+<ul>
+<li>Discrete</li>
+<li>Continous</li>
+</ul>
+<h2 id="Discrete-feature">
+<a class="anchor" href="#Discrete-feature" aria-hidden="true"><span class="octicon octicon-link"></span></a>Discrete feature<a class="anchor-link" href="#Discrete-feature"> </a>
+</h2>
+<p>Discrete (numerical) feature is one that has specified values and are usually counted e.g. number of facebook like, number of tickets sold etc.</p>
+<h2 id="Continous-feature">
+<a class="anchor" href="#Continous-feature" aria-hidden="true"><span class="octicon octicon-link"></span></a>Continous feature<a class="anchor-link" href="#Continous-feature"> </a>
+</h2>
+<p>Continous (numerical) feature is one that can have any value assigned to it, and is usually measured e.g. temperature, wind speed etc.</p>
+
+<pre><code>Data
+├── Categorical / Qualitative
+│   ├── Nominal
+│   └── Ordinal
+└── Numerical / Quantitative
+    ├── Discrete
+    └── Continous</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Classification">
+<a class="anchor" href="#Classification" aria-hidden="true"><span class="octicon octicon-link"></span></a>Classification<a class="anchor-link" href="#Classification"> </a>
+</h2>
+<p>If the target feature is categorical then the ML task is called classification.</p>
+<h2 id="Regression">
+<a class="anchor" href="#Regression" aria-hidden="true"><span class="octicon octicon-link"></span></a>Regression<a class="anchor-link" href="#Regression"> </a>
+</h2>
+<p>If the target feature is numerical then the ML task is called regression.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Positive-class">
+<a class="anchor" href="#Positive-class" aria-hidden="true"><span class="octicon octicon-link"></span></a>Positive class<a class="anchor-link" href="#Positive-class"> </a>
+</h2>
+<p>In binary classification the output class is usually labelled as positive or negative. The positive class is the thing we are testing for. For example, positive class for an email classifier is 'spam', and positive class for a medical test can be 'tumor'.</p>
+<h2 id="Negative-class">
+<a class="anchor" href="#Negative-class" aria-hidden="true"><span class="octicon octicon-link"></span></a>Negative class<a class="anchor-link" href="#Negative-class"> </a>
+</h2>
+<p>Negative class is the opposite to positive class. For example, negative class for an email classifier is 'not spam', and a negative class for a medical test can be 'not tumor'.</p>
+<h2 id="True-positive-(TP)">
+<a class="anchor" href="#True-positive-(TP)" aria-hidden="true"><span class="octicon octicon-link"></span></a>True positive (TP)<a class="anchor-link" href="#True-positive-(TP)"> </a>
+</h2>
+<p>Model correctly predicted the positve class</p>
+<h2 id="True-negative-(TN)">
+<a class="anchor" href="#True-negative-(TN)" aria-hidden="true"><span class="octicon octicon-link"></span></a>True negative (TN)<a class="anchor-link" href="#True-negative-(TN)"> </a>
+</h2>
+<p>Model correctly predicted the negative class</p>
+<h2 id="False-positive-(FP)">
+<a class="anchor" href="#False-positive-(FP)" aria-hidden="true"><span class="octicon octicon-link"></span></a>False positive (FP)<a class="anchor-link" href="#False-positive-(FP)"> </a>
+</h2>
+<p>Model incorrectly predicted the positive class. Actual class is negative.
+It has other names</p>
+<ul>
+<li>Type I error</li>
+</ul>
+<h2 id="False-negative-(FN)">
+<a class="anchor" href="#False-negative-(FN)" aria-hidden="true"><span class="octicon octicon-link"></span></a>False negative (FN)<a class="anchor-link" href="#False-negative-(FN)"> </a>
+</h2>
+<p>Model incorrectly predicted the negative class. Actual class is positive.
+It has other names</p>
+<ul>
+<li>Type II error</li>
+</ul>
+<h2 id="Accuracy">
+<a class="anchor" href="#Accuracy" aria-hidden="true"><span class="octicon octicon-link"></span></a>Accuracy<a class="anchor-link" href="#Accuracy"> </a>
+</h2>
+<p>Accuracy = (TP + TN) / (TP + TN + FP + FN)</p>
+<h2 id="Precision">
+<a class="anchor" href="#Precision" aria-hidden="true"><span class="octicon octicon-link"></span></a>Precision<a class="anchor-link" href="#Precision"> </a>
+</h2>
+<p>It tells how accurate the positive predictions are.</p>
+<p>Precision = TP / (TP + FP)</p>
+<p>It is a good metric when cost of false positives is high.</p>
+<h2 id="True-Positive-Rate-(TPR)">
+<a class="anchor" href="#True-Positive-Rate-(TPR)" aria-hidden="true"><span class="octicon octicon-link"></span></a>True Positive Rate (TPR)<a class="anchor-link" href="#True-Positive-Rate-(TPR)"> </a>
+</h2>
+<p>TPR = TP / (TP + FN)</p>
+<p>It is the probability that an actual positive class will test positive.</p>
+<p>It has other names</p>
+<ul>
+<li>Recall</li>
+<li>Sensitivity</li>
+</ul>
+<p>True positive is the y-axis in an ROC curve. It is a good metric when cost of false negatives is high.</p>
+<h2 id="False-Positive-Rate-(FPR)">
+<a class="anchor" href="#False-Positive-Rate-(FPR)" aria-hidden="true"><span class="octicon octicon-link"></span></a>False Positive Rate (FPR)<a class="anchor-link" href="#False-Positive-Rate-(FPR)"> </a>
+</h2>
+<p>FPR = FP / (FP + TN)</p>
+<p>It has other names</p>
+<ul>
+<li>1 - specificity</li>
+</ul>
+<p>It is x-axis on ROC curve.</p>
+<h2 id="ROC-Curve">
+<a class="anchor" href="#ROC-Curve" aria-hidden="true"><span class="octicon octicon-link"></span></a>ROC Curve<a class="anchor-link" href="#ROC-Curve"> </a>
+</h2>
+<p>Receiver Operating Characteristic (ROC) is a curve of TPR vs FPR at different classification thresholds.</p>
+<h2 id="True-Negative-Rate-(TNR)">
+<a class="anchor" href="#True-Negative-Rate-(TNR)" aria-hidden="true"><span class="octicon octicon-link"></span></a>True Negative Rate (TNR)<a class="anchor-link" href="#True-Negative-Rate-(TNR)"> </a>
+</h2>
+<p>TNR = TN / (TN + FP)</p>
+<p>It is the probability of a negative class to test negative.</p>
+<p>It has other names</p>
+<ul>
+<li>Specificity</li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hassaanbinaslam/myblog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/myblog/ml/2022/03/31/ml-nomenclature.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/fastai" target="_blank" title="fastai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/fastdotai" target="_blank" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
