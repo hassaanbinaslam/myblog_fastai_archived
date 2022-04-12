@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Docker - Send Container Logs to AWS CloudWatch | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Docker - Send Container Logs to AWS CloudWatch" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A tutorial on sending docker application logs to aws cloudwatch." />
+<meta property="og:description" content="A tutorial on sending docker application logs to aws cloudwatch." />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/docker/python/aws/cloudwatch/2022/04/11/docker-logs-cloudwatch.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/docker/python/aws/cloudwatch/2022/04/11/docker-logs-cloudwatch.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-04-11T00:00:00-05:00" />
+<meta name="twitter:card" content="summary" />
+<meta property="twitter:title" content="Docker - Send Container Logs to AWS CloudWatch" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-04-11T00:00:00-05:00","datePublished":"2022-04-11T00:00:00-05:00","description":"A tutorial on sending docker application logs to aws cloudwatch.","headline":"Docker - Send Container Logs to AWS CloudWatch","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/docker/python/aws/cloudwatch/2022/04/11/docker-logs-cloudwatch.html"},"url":"https://hassaanbinaslam.github.io/myblog/docker/python/aws/cloudwatch/2022/04/11/docker-logs-cloudwatch.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper">
+<a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger">
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewbox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"></path>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger">
+<a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a>
+</div>
+      </nav>
+</div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Docker - Send Container Logs to AWS CloudWatch</h1>
+<p class="page-description">A tutorial on sending docker application logs to aws cloudwatch.</p>
+<p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-04-11T00:00:00-05:00" itemprop="datePublished">
+        Apr 11, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      5 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#docker">docker</a>
+         
+      
+        <a class="category-tags-link" href="/myblog/categories/#python">python</a>
+         
+      
+        <a class="category-tags-link" href="/myblog/categories/#aws">aws</a>
+         
+      
+        <a class="category-tags-link" href="/myblog/categories/#cloudwatch">cloudwatch</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h1"><a href="#About">About </a></li>
+<li class="toc-entry toc-h1">
+<a href="#Environment-Details">Environment Details </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Sample-Application">Sample Application </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1">
+<a href="#Dockerize-the-application">Dockerize the application </a>
+<ul>
+<li class="toc-entry toc-h2">
+<a href="#Get-AWS-Credentials">Get AWS Credentials </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Create-IAM-Policy">Create IAM Policy </a></li>
+<li class="toc-entry toc-h3"><a href="#Create-IAM-Group-and-User">Create IAM Group and User </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Configure-AWS-credentials-for-docker-daemon">Configure AWS credentials for docker daemon </a></li>
+<li class="toc-entry toc-h2"><a href="#Run-docker-container-with-awslogs-driver">Run docker container with awslogs driver </a></li>
+<li class="toc-entry toc-h2"><a href="#Verify-Logs-from-CloudWatch">Verify Logs from CloudWatch </a></li>
+<li class="toc-entry toc-h2">
+<a href="#Error-Messages">Error Messages </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#Other-method-to-provide-AWS-credentials-to-docker-daemon">Other method to provide AWS credentials to docker daemon </a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Important-References">Important References </a></li>
+</ul>
+<!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-04-11-docker-logs-cloudwatch.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h1>
+<p>This post is about configuring docker container to send application logs to <a href="https://aws.amazon.com/cloudwatch/details/#log-monitoring">Amazon CloudWatch</a>. Logs entries can be retrieved from AWS Management Console.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Environment-Details">
+<a class="anchor" href="#Environment-Details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Environment Details<a class="anchor-link" href="#Environment-Details"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<ul>
+<li>Python = 3.8.x</li>
+<li>Docker version = 20.10.7</li>
+<li>OS = Amazon Linux 2</li>
+</ul>
+<div class="highlight"><pre><span></span>iamadmin:~/environment $ docker version
+Client:
+ Version:           <span class="m">20</span>.10.7
+ API version:       <span class="m">1</span>.41
+ Go version:        go1.15.14
+ Git commit:        f0df350
+ Built:             Wed Nov <span class="m">17</span> <span class="m">03</span>:05:36 <span class="m">2021</span>
+ OS/Arch:           linux/amd64
+ Context:           default
+ Experimental:      <span class="nb">true</span>
+
+Server:
+ Engine:
+  Version:          <span class="m">20</span>.10.7
+  API version:      <span class="m">1</span>.41 <span class="o">(</span>minimum version <span class="m">1</span>.12<span class="o">)</span>
+  Go version:       go1.15.14
+  Git commit:       b0f5bc3
+  Built:            Wed Nov <span class="m">17</span> <span class="m">03</span>:06:14 <span class="m">2021</span>
+  OS/Arch:          linux/amd64
+  Experimental:     <span class="nb">false</span>
+ containerd:
+  Version:          <span class="m">1</span>.4.6
+  GitCommit:        d71fcd7d8303cbf684402823e425e9dd2e99285d
+ runc:
+  Version:          <span class="m">1</span>.0.0
+  GitCommit:        84113eef6fc27af1b01b3181f31bbaf708715301
+ docker-init:
+  Version:          <span class="m">0</span>.19.0
+  GitCommit:        de40ad0
+
+iamadmin:~/environment $ cat /etc/os-release
+<span class="nv">NAME</span><span class="o">=</span><span class="s2">"Amazon Linux"</span>
+<span class="nv">VERSION</span><span class="o">=</span><span class="s2">"2"</span>
+<span class="nv">ID</span><span class="o">=</span><span class="s2">"amzn"</span>
+<span class="nv">ID_LIKE</span><span class="o">=</span><span class="s2">"centos rhel fedora"</span>
+<span class="nv">VERSION_ID</span><span class="o">=</span><span class="s2">"2"</span>
+<span class="nv">PRETTY_NAME</span><span class="o">=</span><span class="s2">"Amazon Linux 2"</span>
+<span class="nv">ANSI_COLOR</span><span class="o">=</span><span class="s2">"0;33"</span>
+<span class="nv">CPE_NAME</span><span class="o">=</span><span class="s2">"cpe:2.3:o:amazon:amazon_linux:2"</span>
+<span class="nv">HOME_URL</span><span class="o">=</span><span class="s2">"https://amazonlinux.com/"</span>
+</pre></div>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Sample-Application">
+<a class="anchor" href="#Sample-Application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Sample Application<a class="anchor-link" href="#Sample-Application"> </a>
+</h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let us create a simple hello world application that will print "hello world" message to stdout. After each message the application sleeps for 5 seconds, and keeps on doing this for 5 mins (300 sec). After this the program exists.</p>
+<p>Project structure of this application is</p>
+
+<pre><code>app/
+└── src/
+    └── hello.py</code></pre>
+<p>Where</p>
+<ul>
+<li>
+<code>app/</code> is the project root folder</li>
+<li>
+<code>src/</code> folder contain the python application code</li>
+<li>
+<code>src/hello.py</code> is the main application</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Code files are provided below</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># app/src/hello.py</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<span class="k">def</span> <span class="nf">main</span><span class="p">():</span>
+    <span class="c1"># run for about 5 min: 300 sec</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">60</span><span class="p">):</span>
+        <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+        <span class="n">dt_string</span> <span class="o">=</span> <span class="n">now</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">"</span><span class="si">%d</span><span class="s2">/%m/%Y %H:%M:%S"</span><span class="p">)</span>
+
+        <span class="c1"># prepare message</span>
+        <span class="n">msg</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">"hello world at </span><span class="si">{</span><span class="n">dt_string</span><span class="si">}</span><span class="s2">"</span>
+
+        <span class="c1"># put message to stdout and logs</span>
+        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="p">)</span>
+
+        <span class="c1"># sleep for some seconds</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+
+
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
+    <span class="n">main</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>When I run the hello.py file I get the output on the termial with hello world messages like this.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-04-11-docker-logs-cloudwatch/helloworld_output.png" alt="helloworld_output"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Dockerize-the-application">
+<a class="anchor" href="#Dockerize-the-application" aria-hidden="true"><span class="octicon octicon-link"></span></a>Dockerize the application<a class="anchor-link" href="#Dockerize-the-application"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's put it inside a docker container. For this let's create a <code>Dockerfile</code> and place it in <code>app/</code> folder.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># app/Dockerfile</span>
+
+<span class="n">FROM</span> <span class="n">python</span><span class="p">:</span><span class="mf">3.8</span><span class="o">-</span><span class="n">slim</span><span class="o">-</span><span class="n">buster</span>
+
+<span class="c1"># set the working directory in the container</span>
+<span class="n">WORKDIR</span> <span class="o">/</span><span class="n">app</span>
+
+<span class="c1"># copy the content of the local src directory to the working directory</span>
+<span class="n">COPY</span> <span class="n">src</span><span class="o">/</span> <span class="o">.</span>
+
+<span class="c1"># command to run on container start</span>
+<span class="n">CMD</span> <span class="p">[</span> <span class="s2">"python3"</span><span class="p">,</span> <span class="s2">"./hello.py"</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can build our docker image by running the command from terminal at folder <code>app/</code></p>
+
+<pre><code>docker build --tag python-docker .</code></pre>
+<p>Output of this command will look like this
+<img src="/myblog/images/copied_from_nb/images/2022-04-11-docker-logs-cloudwatch/docker-build-cmd.png" alt="docker-build-cmd"></p>
+<p>We can check the created docker image using command from terminal</p>
+
+<pre><code>docker images</code></pre>
+<p>Output of this command will look like this
+<img src="/myblog/images/copied_from_nb/images/2022-04-11-docker-logs-cloudwatch/docker-image.png" alt="docker-images-cmd"></p>
+<p>So our docker image is ready, we can now run it using command</p>
+
+<pre><code>docker run python-docker</code></pre>
+<p>After running this command you will see the application logs on the terminal.
+<img src="/myblog/images/copied_from_nb/images/2022-04-11-docker-logs-cloudwatch/docker-run-output.png" alt="docker-images-cmd"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Get-AWS-Credentials">
+<a class="anchor" href="#Get-AWS-Credentials" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get AWS Credentials<a class="anchor-link" href="#Get-AWS-Credentials"> </a>
+</h2>
+<h3 id="Create-IAM-Policy">
+<a class="anchor" href="#Create-IAM-Policy" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create IAM Policy<a class="anchor-link" href="#Create-IAM-Policy"> </a>
+</h3>
+<ul>
+<li>From AWS Console go to IAM Console</li>
+<li>Select Policies, and click 'Create Policy'</li>
+<li>From Create Policy window, select<ul>
+<li>Service = CloudWatch Logs</li>
+<li>Actions = CreateLogStream, GetLogRecord, DescribeLogGroups, DescribeLogStreams, GetLogEvents, CreateLogGroup, PutLogEvents</li>
+<li>Resources = All</li>
+</ul>
+</li>
+</ul>
+<p>After giving required permissions, policy summary will be like</p>
+
+<pre><code>{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "DockerContainerLogs",
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:GetLogRecord",
+                "logs:DescribeLogGroups",
+                "logs:DescribeLogStreams",
+                "logs:GetLogEvents",
+                "logs:CreateLogGroup",
+                "logs:PutLogEvents"
+            ],
+            "Resource": "*"
+        }
+    ]
+}</code></pre>
+<h3 id="Create-IAM-Group-and-User">
+<a class="anchor" href="#Create-IAM-Group-and-User" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create IAM Group and User<a class="anchor-link" href="#Create-IAM-Group-and-User"> </a>
+</h3>
+<ul>
+<li>From IAM console create a new IAM group and give it some appropriate name 'docker-logs-group'</li>
+<li>Attach the above created policy to that group</li>
+<li>From the console create a new IAM user with "Access key - Programmatic access". Give it some appropriate name 'docker-logs-user'</li>
+<li>Store <strong>access key ID</strong> and <strong>secret access key</strong>
+</li>
+<li>Add the user to the group created in last step</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Configure-AWS-credentials-for-docker-daemon">
+<a class="anchor" href="#Configure-AWS-credentials-for-docker-daemon" aria-hidden="true"><span class="octicon octicon-link"></span></a>Configure AWS credentials for docker daemon<a class="anchor-link" href="#Configure-AWS-credentials-for-docker-daemon"> </a>
+</h2>
+<p>From the terminal execute <code>sudo systemctl edit docker</code>. A terminal will open and add the following lines to it. Replace <code>access key</code> and <code>secret key</code> from the last step.</p>
+
+<pre><code>[Service]
+Environment="AWS_ACCESS_KEY_ID=my-aws-access-key"
+Environment="AWS_SECRET_ACCESS_KEY=my-secret-access-key"</code></pre>
+<p>This command will update the credentials in file <code>/etc/systemd/system/docker.service.d/override.conf</code>. Verify it using command</p>
+<div class="highlight"><pre><span></span>$ cat /etc/systemd/system/docker.service.d/override.conf
+<span class="o">[</span>Service<span class="o">]</span>
+<span class="nv">Environment</span><span class="o">=</span><span class="s2">"AWS_ACCESS_KEY_ID=AKIA3VIXXJNKPUSIOR3Y"</span>
+<span class="nv">Environment</span><span class="o">=</span><span class="s2">"AWS_SECRET_ACCESS_KEY=XhjlKVkZm1XdXedjgBcfLVM3FBU6zkGU"</span>
+</pre></div>
+<p>After making changes to Docker daemon we need to restart it. For this</p>
+<ul>
+<li>Flush the change with command <code>sudo systemctl daemon-reload</code>
+</li>
+<li>Restart the docker daemon with command <code>sudo systemctl restart docker</code>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Run-docker-container-with-awslogs-driver">
+<a class="anchor" href="#Run-docker-container-with-awslogs-driver" aria-hidden="true"><span class="octicon octicon-link"></span></a>Run docker container with awslogs driver<a class="anchor-link" href="#Run-docker-container-with-awslogs-driver"> </a>
+</h2>
+<p>We can now run the docker image with awslogs driver using command</p>
+<div class="highlight"><pre><span></span>docker run <span class="se">\</span>
+--log-driver<span class="o">=</span>awslogs <span class="se">\</span>
+--log-opt awslogs-region<span class="o">=</span>us-east-1 <span class="se">\</span>
+--log-opt awslogs-group<span class="o">=</span>myLogGroup <span class="se">\</span>
+--log-opt awslogs-create-group<span class="o">=</span><span class="nb">true</span> <span class="se">\</span>
+python-docker
+</pre></div>
+<ul>
+<li>
+<code>log-driver</code> configures the driver to be used for logs. Default driver is 'json-file'</li>
+<li>
+<code>awslogs-region</code> specifies the region for AWS CloudWatch logs</li>
+<li>
+<code>awslogs-group</code> specifies the log group for CloudWatch</li>
+<li>
+<code>awslogs-create-group</code> specifes that if provided log group does not exists on CloudWatch then create one</li>
+</ul>
+<p><img src="/myblog/images/copied_from_nb/images/2022-04-11-docker-logs-cloudwatch/docker-run-awslogs.png" alt="docker-images-cmd"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Verify-Logs-from-CloudWatch">
+<a class="anchor" href="#Verify-Logs-from-CloudWatch" aria-hidden="true"><span class="octicon octicon-link"></span></a>Verify Logs from CloudWatch<a class="anchor-link" href="#Verify-Logs-from-CloudWatch"> </a>
+</h2>
+<p>Go to CloudWatch console and select <code>Log Groups</code> and then <code>myLogGroup</code>. You will find the logs generated by docker container.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-04-11-docker-logs-cloudwatch/cloudwatch-logs.png" alt="docker-images-cmd"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Error-Messages">
+<a class="anchor" href="#Error-Messages" aria-hidden="true"><span class="octicon octicon-link"></span></a>Error Messages<a class="anchor-link" href="#Error-Messages"> </a>
+</h2>
+<p>If docker daemon is not able to find AWS credentails then it will generate an error message similar to pasted below</p>
+
+<pre><code>docker: Error response from daemon: failed to initialize logging driver: failed to create Cloudwatch log stream: NoCredentialProviders: no valid providers in chain. Deprecated.
+        For verbose messaging see aws.Config.CredentialsChainVerboseErrors.</code></pre>
+<p>If you get this message then you need to recheck the credentails passed to docker daemon.</p>
+<p>One thing I noticed is that on Windows there is no way to pass AWS credentials to docker daemon. People have reported similar issues with docker running on MAC OS as well. Refer to below link for this discussion</p>
+<ul>
+<li><a href="https://github.com/docker/for-win/issues/9684">https://github.com/docker/for-win/issues/9684</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="Other-method-to-provide-AWS-credentials-to-docker-daemon">
+<a class="anchor" href="#Other-method-to-provide-AWS-credentials-to-docker-daemon" aria-hidden="true"><span class="octicon octicon-link"></span></a>Other method to provide AWS credentials to docker daemon<a class="anchor-link" href="#Other-method-to-provide-AWS-credentials-to-docker-daemon"> </a>
+</h3>
+<p><a href="https://docs.docker.com/config/containers/logging/awslogs/#credentials">Docker documentation</a> mentions that AWS credentails can also be set</p>
+<ul>
+<li>By configuring the environment variables <code>AWS_ACCESS_KEY_ID</code> and <code>AWS_SECRET_ACCESS_KEY</code>. I have tried this approach and docker daemon is not able to pick AWS credentials from environment variables</li>
+<li>By using AWS credentials file <code>~/.aws/credentials</code>. I have also tried this approach and it does not work</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Important-References">
+<a class="anchor" href="#Important-References" aria-hidden="true"><span class="octicon octicon-link"></span></a>Important References<a class="anchor-link" href="#Important-References"> </a>
+</h1>
+<ul>
+<li><a href="https://docs.docker.com/config/containers/logging/configure/">Docker configuring logging drivers</a></li>
+<li><a href="https://docs.docker.com/config/containers/logging/awslogs/">Amazon CloudWatch Logs logging driver</a></li>
+<li><a href="https://transang.me/configure-docker-to-send-log-to-aws/">https://transang.me/configure-docker-to-send-log-to-aws/</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div>
+<!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js" repo="hassaanbinaslam/myblog" issue-term="title" label="blogpost-comment" theme="github-light" crossorigin="anonymous" async>
+</script><a class="u-url" href="/myblog/docker/python/aws/cloudwatch/2022/04/11/docker-logs-cloudwatch.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links">
+<ul class="social-media-list">
+<li><a rel="me" href="https://github.com/fastai" target="_blank" title="fastai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li>
+<li><a rel="me" href="https://twitter.com/fastdotai" target="_blank" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li>
+</ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
