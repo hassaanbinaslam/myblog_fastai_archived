@@ -194,7 +194,7 @@ iamadmin:~/environment $ cat /etc/os-release
 <span class="n">COPY</span> <span class="n">src</span><span class="o">/</span> <span class="o">.</span>
 
 <span class="c1"># command to run on container start</span>
-<span class="n">CMD</span> <span class="p">[</span> <span class="s2">&quot;python3&quot;</span><span class="p">,</span> <span class="s2">&quot;./hello.py&quot;</span><span class="p">]</span>
+<span class="n">CMD</span> <span class="p">[</span> <span class="s2">&quot;python3&quot;</span><span class="p">,</span> <span class="s2">&quot;-u&quot;</span><span class="p">,</span> <span class="s2">&quot;./hello.py&quot;</span><span class="p">]</span>
 </pre></div>
 
     </div>
@@ -227,7 +227,13 @@ iamadmin:~/environment $ cat /etc/os-release
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Get-AWS-Credentials">Get AWS Credentials<a class="anchor-link" href="#Get-AWS-Credentials"> </a></h2><h3 id="Create-IAM-Policy">Create IAM Policy<a class="anchor-link" href="#Create-IAM-Policy"> </a></h3><ul>
+<h2 id="Get-AWS-Credentials">Get AWS Credentials<a class="anchor-link" href="#Get-AWS-Credentials"> </a></h2><p>Now that we have our sample application and it's docker container ready, we can work on pushing the docker logs to AWS CloudWatch. For this we need access credentials to AWS account  where we want our logs to be available. We will create a separate account in AWS with CloudWatch access and use it's credentials with docker daemon. Our steps will be</p>
+<ul>
+<li>Create IAM policy with CloudWatch access</li>
+<li>Create IAM group with that policy</li>
+<li>Create IAM user and add that to this group</li>
+</ul>
+<h3 id="Create-IAM-Policy">Create IAM Policy<a class="anchor-link" href="#Create-IAM-Policy"> </a></h3><ul>
 <li>From AWS Console go to IAM Console</li>
 <li>Select Policies, and click 'Create Policy'</li>
 <li>From Create Policy window, select<ul>
@@ -271,7 +277,7 @@ iamadmin:~/environment $ cat /etc/os-release
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Configure-AWS-credentials-for-docker-daemon">Configure AWS credentials for docker daemon<a class="anchor-link" href="#Configure-AWS-credentials-for-docker-daemon"> </a></h2><p>From the terminal execute <code>sudo systemctl edit docker</code>. A terminal will open and add the following lines to it. Replace <code>access key</code> and <code>secret key</code> from the last step.</p>
+<h2 id="Configure-AWS-credentials-for-docker-daemon">Configure AWS credentials for docker daemon<a class="anchor-link" href="#Configure-AWS-credentials-for-docker-daemon"> </a></h2><p>To configure docker daemon to use AWS access credentials, execute command from the terminal <code>sudo systemctl edit docker</code>. A new window will open for text to edit, and add the following lines to it. Replace <code>my-aws-access-key</code> and <code>my-secret-access-key</code> with your access keys.</p>
 
 <pre><code>[Service]
 Environment="AWS_ACCESS_KEY_ID=my-aws-access-key"
@@ -293,7 +299,7 @@ Environment="AWS_SECRET_ACCESS_KEY=my-secret-access-key"</code></pre>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Run-docker-container-with-awslogs-driver">Run docker container with awslogs driver<a class="anchor-link" href="#Run-docker-container-with-awslogs-driver"> </a></h2><p>We can now run the docker image with awslogs driver using command</p>
+<h2 id="Run-docker-container-with-awslogs-driver">Run docker container with awslogs driver<a class="anchor-link" href="#Run-docker-container-with-awslogs-driver"> </a></h2><p>We can now run the docker image with <code>awslogs</code> driver using command</p>
 <div class="highlight"><pre><span></span>docker run <span class="se">\</span>
 --log-driver<span class="o">=</span>awslogs <span class="se">\</span>
 --log-opt awslogs-region<span class="o">=</span>us-east-1 <span class="se">\</span>
@@ -302,7 +308,7 @@ Environment="AWS_SECRET_ACCESS_KEY=my-secret-access-key"</code></pre>
 python-docker
 </pre></div>
 <ul>
-<li><code>log-driver</code> configures the driver to be used for logs. Default driver is 'json-file'</li>
+<li><code>log-driver</code> configures the driver to be used for logs. Default driver is 'json-file' and <code>awslogs</code> is for CloudWatch</li>
 <li><code>awslogs-region</code> specifies the region for AWS CloudWatch logs</li>
 <li><code>awslogs-group</code> specifies the log group for CloudWatch</li>
 <li><code>awslogs-create-group</code> specifes that if provided log group does not exists on CloudWatch then create one</li>
@@ -327,7 +333,7 @@ python-docker
 <pre><code>docker: Error response from daemon: failed to initialize logging driver: failed to create Cloudwatch log stream: NoCredentialProviders: no valid providers in chain. Deprecated.
         For verbose messaging see aws.Config.CredentialsChainVerboseErrors.</code></pre>
 <p>If you get this message then you need to recheck the credentails passed to docker daemon.</p>
-<p>One thing I noticed is that on Windows there is no way to pass AWS credentials to docker daemon. People have reported similar issues with docker running on MAC OS as well. Refer to below link for this discussion</p>
+<p>One thing I noticed is that on Windows there is no way to pass AWS credentials to docker daemon. People have reported similar issues with docker running on MAC OS. Refer to below link for this discussion</p>
 <ul>
 <li><a href="https://github.com/docker/for-win/issues/9684">https://github.com/docker/for-win/issues/9684</a></li>
 </ul>
@@ -339,8 +345,8 @@ python-docker
 <div class="text_cell_render border-box-sizing rendered_html">
 <h3 id="Other-method-to-provide-AWS-credentials-to-docker-daemon">Other method to provide AWS credentials to docker daemon<a class="anchor-link" href="#Other-method-to-provide-AWS-credentials-to-docker-daemon"> </a></h3><p><a href="https://docs.docker.com/config/containers/logging/awslogs/#credentials">Docker documentation</a> mentions that AWS credentails can also be set</p>
 <ul>
-<li>By configuring the environment variables <code>AWS_ACCESS_KEY_ID</code> and <code>AWS_SECRET_ACCESS_KEY</code>. I have tried this approach and docker daemon is not able to pick AWS credentials from environment variables</li>
-<li>By using AWS credentials file <code>~/.aws/credentials</code>. I have also tried this approach and it does not work</li>
+<li>By configuring the environment variables <code>AWS_ACCESS_KEY_ID</code> and <code>AWS_SECRET_ACCESS_KEY</code>. I have tried this approach but docker daemon is not able to pick AWS credentials from environment variables</li>
+<li>By using AWS credentials file <code>~/.aws/credentials</code>. I have also tried this approach and it does not work either</li>
 </ul>
 
 </div>
