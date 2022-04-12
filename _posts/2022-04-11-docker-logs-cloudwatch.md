@@ -328,6 +328,17 @@ python-docker
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
+<p>All the code used for this post can be obtained from the GitHub repository <a href="https://github.com/hassaanbinaslam/2022-04-11-docker-logs-cloudwatch">hassaanbinaslam/2022-04-11-docker-logs-cloudwatch</a></p>
+<ul>
+<li><a href="https://github.com/hassaanbinaslam/2022-04-11-docker-logs-cloudwatch/tree/fd1e272bf35026a1de1e95064d454214ce982fdb">Project code files</a></li>
+<li><a href="https://github.com/hassaanbinaslam/2022-04-11-docker-logs-cloudwatch/releases/tag/snapshot-01">Project zip file</a></li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="Error-Messages">Error Messages<a class="anchor-link" href="#Error-Messages"> </a></h2><p>If docker daemon is not able to find AWS credentails then it will generate an error message similar to pasted below</p>
 
 <pre><code>docker: Error response from daemon: failed to initialize logging driver: failed to create Cloudwatch log stream: NoCredentialProviders: no valid providers in chain. Deprecated.
