@@ -1,6 +1,6 @@
 ---
 keywords: fastai
-description: My notes for the AWS ML speciality exam passed on May 14, 2022.
+description: My notes for AWS ML speciality exam passed on May 14, 2022.
 title: AWS Machine Learning Certification Notes (MLS-C01)
 toc: true 
 badges: false
@@ -21,6 +21,13 @@ layout: notebook
 
 <div class="container" id="notebook-container">
         
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-14-aws-ml-cert-notes/AWS-Certified-Machine-Learning-Specialty_badge.png" alt="AWS ML Speciality Badge"></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>This post is a compilation of important notes and references for AWS Machine Learning Certification MLSC01.</p>
@@ -264,14 +271,14 @@ layout: notebook
 <h1 id="Courses">Courses<a class="anchor-link" href="#Courses"> </a></h1><h2 id="Exam-Readiness:-AWS-Certified-Machine-Learning---Specialty">Exam Readiness: AWS Certified Machine Learning - Specialty<a class="anchor-link" href="#Exam-Readiness:-AWS-Certified-Machine-Learning---Specialty"> </a></h2><p><a href="https://explore.skillbuilder.aws/learn/course/27/play/54/exam-readiness-aws-certified-machine-learning-specialty">https://explore.skillbuilder.aws/learn/course/27/play/54/exam-readiness-aws-certified-machine-learning-specialty</a></p>
 <p>This is overall a very good short course that can help you identify your strengths and weaknesses in each exam domain so you know where to focus when studying for the exam.</p>
 <h2 id="ACloudGuru-AWS-Certified-Machine-Learning---Specialty-2020">ACloudGuru AWS Certified Machine Learning - Specialty 2020<a class="anchor-link" href="#ACloudGuru-AWS-Certified-Machine-Learning---Specialty-2020"> </a></h2><p><a href="https://acloudguru.com/course/aws-certified-machine-learning-specialty">https://acloudguru.com/course/aws-certified-machine-learning-specialty</a></p>
-<p>This is a good detailed course on the topics covered in the exam. But this course lacks on "Modeling" domain and hands on labs. Beside taking this course you should have a good knowledge and working experience in data science and machine learning domain. I already have AI/ML backgorund so it was not a issue for me. Some people have recommended to take <a href="https://www.udemy.com/course/data-science-and-machine-learning-with-python-hands-on/">Machine Learning, Data Science and Deep Learning with Python</a> from Frank Kane on Udemy if you don't have ML backgound but I am not sure about it's worth.</p>
+<p>This is a detailed course on the topics covered in the exam. But this course lacks on "Modeling" domain and hands-on labs. Besides taking this course you should have a good knowledge and working experience in data science and machine learning domain. I already have AI/ML background so it was not an issue for me. Some people have recommended taking <a href="https://www.udemy.com/course/data-science-and-machine-learning-with-python-hands-on/">Machine Learning, Data Science and Deep Learning with Python</a> from Frank Kane on Udemy if you don't have an ML background but I am not sure about it's worth.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Practice-Projects">Practice Projects<a class="anchor-link" href="#Practice-Projects"> </a></h1><p>Beside preparing for the exam you should definity do some projects to build a good hands-on knowledge. For this you can use How-To Guides from AWS Getting Started Resource Center (<a href="https://aws.amazon.com/getting-started/hands-on/?awsf.getting-started-category=category%23machine-learning&amp;awsf.getting-started-content-type=content-type%23hands-on&amp;getting-started-all.sort-by=item.additionalFields.sortOrder&amp;getting-started-all.sort-order=asc&amp;awsf.getting-started-level=level%23200%7Clevel%23300">Link Here</a>). Some of my favorite projects are</p>
+<h1 id="Practice-Projects">Practice Projects<a class="anchor-link" href="#Practice-Projects"> </a></h1><p>Besides preparing for the exam you should do some projects to build good hands-on knowledge. For this you can use How-To Guides from AWS Getting Started Resource Center (<a href="https://aws.amazon.com/getting-started/hands-on/?awsf.getting-started-category=category%23machine-learning&amp;awsf.getting-started-content-type=content-type%23hands-on&amp;getting-started-all.sort-by=item.additionalFields.sortOrder&amp;getting-started-all.sort-order=asc&amp;awsf.getting-started-level=level%23200%7Clevel%23300">Link Here</a>). Some of my favorite projects are</p>
 <ul>
 <li><a href="https://aws.amazon.com/getting-started/hands-on/build-train-deploy-monitor-machine-learning-model-sagemaker-studio/">Build, train, deploy, and monitor a machine learning model with Amazon SageMaker Studio</a></li>
 <li><a href="https://aws.amazon.com/getting-started/hands-on/managed-spot-training-sagemaker/">Optimizing and Scaling Machine Learning Training with Managed Spot Training for Amazon SageMaker</a></li>
@@ -289,7 +296,7 @@ layout: notebook
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Other-Tips">Other Tips<a class="anchor-link" href="#Other-Tips"> </a></h1><p>About a week before your exam date start checking <a href="https://www.reddit.com/r/AWSCertifications/">Reddit Communities</a>. From time to time people post about their achivements and experiences on taking the exam. People also mention about the services or topics that they were asked about during the exam. Keep a close eye on such post and try to find any topic that you have not covered before.</p>
+<h1 id="Other-Tips">Other Tips<a class="anchor-link" href="#Other-Tips"> </a></h1><p>About a week before your exam date start checking <a href="https://www.reddit.com/r/AWSCertifications/">Reddit Communities</a>. From time to time people post about their achievements and experiences on taking the exam. People also mention the services or topics that they were asked about during the exam. Keep a close eye on such posts and try to find any topic that you have not covered before.</p>
 
 </div>
 </div>
