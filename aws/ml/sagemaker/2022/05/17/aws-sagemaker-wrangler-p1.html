@@ -1,0 +1,1205 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Data Preparation with SageMaker Data Wrangler (Part 1) | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Data Preparation with SageMaker Data Wrangler (Part 1)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A detailed guide on AWS SageMaker Data Wrangler to prepare data for machine learning models. This is a five parts series where we will prepare, import, explore, process, and export data using AWS Data Wrangler. You are reading Part 1:Prepare synthetic data and place it on multiple sources." />
+<meta property="og:description" content="A detailed guide on AWS SageMaker Data Wrangler to prepare data for machine learning models. This is a five parts series where we will prepare, import, explore, process, and export data using AWS Data Wrangler. You are reading Part 1:Prepare synthetic data and place it on multiple sources." />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/17/aws-sagemaker-wrangler-p1.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/17/aws-sagemaker-wrangler-p1.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/images/2022-05-17-aws-sagemaker-wrangler-p1.jpeg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-05-17T00:00:00-05:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://hassaanbinaslam.github.io/myblog/images/2022-05-17-aws-sagemaker-wrangler-p1.jpeg" />
+<meta property="twitter:title" content="Data Preparation with SageMaker Data Wrangler (Part 1)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-05-17T00:00:00-05:00","datePublished":"2022-05-17T00:00:00-05:00","description":"A detailed guide on AWS SageMaker Data Wrangler to prepare data for machine learning models. This is a five parts series where we will prepare, import, explore, process, and export data using AWS Data Wrangler. You are reading Part 1:Prepare synthetic data and place it on multiple sources.","headline":"Data Preparation with SageMaker Data Wrangler (Part 1)","image":"https://hassaanbinaslam.github.io/myblog/images/2022-05-17-aws-sagemaker-wrangler-p1.jpeg","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/17/aws-sagemaker-wrangler-p1.html"},"url":"https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/17/aws-sagemaker-wrangler-p1.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Data Preparation with SageMaker Data Wrangler (Part 1)</h1><p class="page-description">A detailed guide on AWS SageMaker Data Wrangler to prepare data for machine learning models. This is a five parts series where we will prepare, import, explore, process, and export data using AWS Data Wrangler. You are reading **Part 1:Prepare synthetic data and place it on multiple sources**.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-05-17T00:00:00-05:00" itemprop="datePublished">
+        May 17, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      9 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#aws">aws</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#ml">ml</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#sagemaker">sagemaker</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-justify-center">
+          <div class="px-2">
+
+    <a href="https://github.com/hassaanbinaslam/myblog/tree/master/_notebooks/2022-05-17-aws-sagemaker-wrangler-p1.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/myblog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/hassaanbinaslam/myblog/master?filepath=_notebooks%2F2022-05-17-aws-sagemaker-wrangler-p1.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/myblog/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/hassaanbinaslam/myblog/blob/master/_notebooks/2022-05-17-aws-sagemaker-wrangler-p1.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/myblog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+          <div class="px-2">
+  <a href="https://deepnote.com/launch?url=https%3A%2F%2Fgithub.com%2Fhassaanbinaslam%2Fmyblog%2Fblob%2Fmaster%2F_notebooks%2F2022-05-17-aws-sagemaker-wrangler-p1.ipynb" target="_blank">
+      <img class="notebook-badge-image" src="/myblog/assets/badges/deepnote.svg" alt="Launch in Deepnote"/>
+  </a>
+</div>
+
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h1"><a href="#Enviornment">Enviornment </a></li>
+<li class="toc-entry toc-h1"><a href="#About">About </a></li>
+<li class="toc-entry toc-h1"><a href="#Credits">Credits </a></li>
+<li class="toc-entry toc-h1"><a href="#Part-1:-Prepare-synthetic-data-and-place-it-on-multiple-sources">Part 1: Prepare synthetic data and place it on multiple sources </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Data">Data </a></li>
+<li class="toc-entry toc-h2"><a href="#Preparation">Preparation </a></li>
+<li class="toc-entry toc-h2"><a href="#Summary">Summary </a></li>
+</ul>
+</li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-05-17-aws-sagemaker-wrangler-p1.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-17-aws-sagemaker-wrangler-p1.jpeg" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Enviornment">
+<a class="anchor" href="#Enviornment" aria-hidden="true"><span class="octicon octicon-link"></span></a>Enviornment<a class="anchor-link" href="#Enviornment"> </a>
+</h1>
+<p>This notebook is prepared with Amazon SageMaker Studio using <code>Python 3 (Data Science)</code> Kernel and <code>ml.t3.medium</code> instance.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h1>
+<p>This is a detailed guide on using <strong>AWS SageMaker Data Wrangler</strong> service to prepare data for machine learning models. SageMaker Data Wrangler is a multipurpose tool with which you can</p>
+<ul>
+<li>import data from multiple sources</li>
+<li>explore data with visualizations</li>
+<li>apply transformations</li>
+<li>export data for ml training</li>
+</ul>
+<p>There will be five parts if the post</p>
+<ul>
+<li><strong>Part 1: Prepare synthetic data and place it on multiple sources (You are here now)</strong></li>
+<li>Part 2: Import data from multiple sources using Data Wrangler</li>
+<li>Part 3: Explore data with Data Wrangler visualizations</li>
+<li>Part 4: Preprocess data using Data Wrangler</li>
+<li>Part 5: Export data for ML training</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Credits">
+<a class="anchor" href="#Credits" aria-hidden="true"><span class="octicon octicon-link"></span></a>Credits<a class="anchor-link" href="#Credits"> </a>
+</h1>
+<p><a href="https://www.packtpub.com/product/getting-started-with-amazon-sagemaker-studio/9781801070157">Getting Started with Amazon SageMaker Studio</a> book by Michael Hsieh. Michael Hsieh is a senior AI/machine learning (ML) solutions architect at Amazon Web Services. He creates and evangelizes for ML solutions centered around Amazon SageMaker. He also works with enterprise customers to advance their ML journeys.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Part-1:-Prepare-synthetic-data-and-place-it-on-multiple-sources">
+<a class="anchor" href="#Part-1:-Prepare-synthetic-data-and-place-it-on-multiple-sources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part 1: Prepare synthetic data and place it on multiple sources<a class="anchor-link" href="#Part-1:-Prepare-synthetic-data-and-place-it-on-multiple-sources"> </a>
+</h1>
+<p>Let's prepare some dataset and place it on the S3 bucket and AWS Glue tables. Then we will use Data Wrangler to pull and join data from these two sources. The idea is to simulate some real project challenges where data is not coming from a single source but is distributed in multiple stores, and is in different formats. It is usually the preprocessing pipeline job to get data from these sources and join and preprocess it.</p>
+<h2 id="Data">
+<a class="anchor" href="#Data" aria-hidden="true"><span class="octicon octicon-link"></span></a>Data<a class="anchor-link" href="#Data"> </a>
+</h2>
+<p>Mobile operators have historical records on which customers ultimately ended up churning and which continued using the service. We can use this historical information to construct an ML model of one mobile operator’s churn using a process called training. After training the model, we can pass the profile information of an arbitrary customer (the same profile information that we used to train the model) to the model, and have the model predict whether this customer is going to churn. Of course, we expect the model to make mistakes. After all, predicting the future is a tricky business! But we’ll learn how to deal with prediction errors.</p>
+<p>The dataset we use is publicly available and was mentioned in the book <a href="https://www.amazon.com/dp/0470908742/">Discovering Knowledge in Data</a> by Daniel T. Larose.  It is attributed by the author to the <a href="https://archive.ics.uci.edu/ml/datasets/Iranian+Churn+Dataset">University of California Irvine Repository of Machine Learning Datasets</a> (Jafari-Marandi, R., Denton, J., Idris, A., Smith, B. K., &amp; Keramati, A. (2020).</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Preparation">
+<a class="anchor" href="#Preparation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Preparation<a class="anchor-link" href="#Preparation"> </a>
+</h2>
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># install aws data wrangler package</span>
+<span class="c1"># restart kernel after installation</span>
+<span class="c1"># more on this package later in the notebook.</span>
+<span class="o">!</span>pip install -q awswrangler
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre><span class="ansi-yellow-fg">WARNING: Running pip as the 'root' user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv</span><span class="ansi-yellow-fg">
+</span><span class="ansi-yellow-fg">WARNING: You are using pip version 22.0.4; however, version 22.1 is available.
+You should consider upgrading via the '/opt/conda/bin/python -m pip install --upgrade pip' command.</span><span class="ansi-yellow-fg">
+</span></pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">sagemaker</span>
+
+<span class="n">sess</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="n">prefix</span> <span class="o">=</span> <span class="s1">'myblog/demo-customer-churn'</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>aws s3 cp s3://sagemaker-sample-files/datasets/tabular/synthetic/churn.txt ./
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>download: s3://sagemaker-sample-files/datasets/tabular/synthetic/churn.txt to ./churn.txt
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s2">"./churn.txt"</span><span class="p">)</span>
+
+<span class="c1"># make 'CustomerID' column from the index</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">'CustomerID'</span><span class="p">]</span><span class="o">=</span><span class="n">df</span><span class="o">.</span><span class="n">index</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">"display.max_columns"</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>State</th>
+      <th>Account Length</th>
+      <th>Area Code</th>
+      <th>Phone</th>
+      <th>Int'l Plan</th>
+      <th>VMail Plan</th>
+      <th>VMail Message</th>
+      <th>Day Mins</th>
+      <th>Day Calls</th>
+      <th>Day Charge</th>
+      <th>Eve Mins</th>
+      <th>Eve Calls</th>
+      <th>Eve Charge</th>
+      <th>Night Mins</th>
+      <th>Night Calls</th>
+      <th>Night Charge</th>
+      <th>Intl Mins</th>
+      <th>Intl Calls</th>
+      <th>Intl Charge</th>
+      <th>CustServ Calls</th>
+      <th>Churn?</th>
+      <th>CustomerID</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>PA</td>
+      <td>163</td>
+      <td>806</td>
+      <td>403-2562</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>300</td>
+      <td>8.162204</td>
+      <td>3</td>
+      <td>7.579174</td>
+      <td>3.933035</td>
+      <td>4</td>
+      <td>6.508639</td>
+      <td>4.065759</td>
+      <td>100</td>
+      <td>5.111624</td>
+      <td>4.928160</td>
+      <td>6</td>
+      <td>5.673203</td>
+      <td>3</td>
+      <td>True.</td>
+      <td>0</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>SC</td>
+      <td>15</td>
+      <td>836</td>
+      <td>158-8416</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>0</td>
+      <td>10.018993</td>
+      <td>4</td>
+      <td>4.226289</td>
+      <td>2.325005</td>
+      <td>0</td>
+      <td>9.972592</td>
+      <td>7.141040</td>
+      <td>200</td>
+      <td>6.436188</td>
+      <td>3.221748</td>
+      <td>6</td>
+      <td>2.559749</td>
+      <td>8</td>
+      <td>False.</td>
+      <td>1</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>MO</td>
+      <td>131</td>
+      <td>777</td>
+      <td>896-6253</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>300</td>
+      <td>4.708490</td>
+      <td>3</td>
+      <td>4.768160</td>
+      <td>4.537466</td>
+      <td>3</td>
+      <td>4.566715</td>
+      <td>5.363235</td>
+      <td>100</td>
+      <td>5.142451</td>
+      <td>7.139023</td>
+      <td>2</td>
+      <td>6.254157</td>
+      <td>4</td>
+      <td>False.</td>
+      <td>2</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>WY</td>
+      <td>75</td>
+      <td>878</td>
+      <td>817-5729</td>
+      <td>yes</td>
+      <td>yes</td>
+      <td>700</td>
+      <td>1.268734</td>
+      <td>3</td>
+      <td>2.567642</td>
+      <td>2.528748</td>
+      <td>5</td>
+      <td>2.333624</td>
+      <td>3.773586</td>
+      <td>450</td>
+      <td>3.814413</td>
+      <td>2.245779</td>
+      <td>6</td>
+      <td>1.080692</td>
+      <td>6</td>
+      <td>False.</td>
+      <td>3</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>WY</td>
+      <td>146</td>
+      <td>878</td>
+      <td>450-4942</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>0</td>
+      <td>2.696177</td>
+      <td>3</td>
+      <td>5.908916</td>
+      <td>6.015337</td>
+      <td>3</td>
+      <td>3.670408</td>
+      <td>3.751673</td>
+      <td>250</td>
+      <td>2.796812</td>
+      <td>6.905545</td>
+      <td>4</td>
+      <td>7.134343</td>
+      <td>6</td>
+      <td>True.</td>
+      <td>4</td>
+    </tr>
+    <tr>
+      <th>5</th>
+      <td>VA</td>
+      <td>83</td>
+      <td>866</td>
+      <td>454-9110</td>
+      <td>no</td>
+      <td>no</td>
+      <td>0</td>
+      <td>3.634776</td>
+      <td>7</td>
+      <td>4.804892</td>
+      <td>6.051944</td>
+      <td>5</td>
+      <td>5.278437</td>
+      <td>2.937880</td>
+      <td>300</td>
+      <td>4.817958</td>
+      <td>4.948816</td>
+      <td>4</td>
+      <td>5.135323</td>
+      <td>5</td>
+      <td>False.</td>
+      <td>5</td>
+    </tr>
+    <tr>
+      <th>6</th>
+      <td>IN</td>
+      <td>140</td>
+      <td>737</td>
+      <td>331-5751</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>0</td>
+      <td>3.229420</td>
+      <td>4</td>
+      <td>3.165082</td>
+      <td>2.440153</td>
+      <td>8</td>
+      <td>0.264543</td>
+      <td>2.352274</td>
+      <td>300</td>
+      <td>3.869176</td>
+      <td>5.393439</td>
+      <td>4</td>
+      <td>1.784765</td>
+      <td>4</td>
+      <td>False.</td>
+      <td>6</td>
+    </tr>
+    <tr>
+      <th>7</th>
+      <td>LA</td>
+      <td>54</td>
+      <td>766</td>
+      <td>871-3612</td>
+      <td>no</td>
+      <td>no</td>
+      <td>0</td>
+      <td>0.567920</td>
+      <td>6</td>
+      <td>1.950098</td>
+      <td>4.507027</td>
+      <td>0</td>
+      <td>4.473086</td>
+      <td>0.688785</td>
+      <td>400</td>
+      <td>6.132137</td>
+      <td>5.012747</td>
+      <td>5</td>
+      <td>0.417421</td>
+      <td>8</td>
+      <td>False.</td>
+      <td>7</td>
+    </tr>
+    <tr>
+      <th>8</th>
+      <td>MO</td>
+      <td>195</td>
+      <td>777</td>
+      <td>249-5723</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>0</td>
+      <td>5.811116</td>
+      <td>6</td>
+      <td>4.331065</td>
+      <td>8.104126</td>
+      <td>2</td>
+      <td>4.475034</td>
+      <td>4.208352</td>
+      <td>250</td>
+      <td>5.974575</td>
+      <td>4.750153</td>
+      <td>7</td>
+      <td>3.320311</td>
+      <td>7</td>
+      <td>True.</td>
+      <td>8</td>
+    </tr>
+    <tr>
+      <th>9</th>
+      <td>AL</td>
+      <td>104</td>
+      <td>657</td>
+      <td>767-7682</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>0</td>
+      <td>2.714430</td>
+      <td>7</td>
+      <td>5.138669</td>
+      <td>8.529944</td>
+      <td>6</td>
+      <td>3.321121</td>
+      <td>2.342177</td>
+      <td>300</td>
+      <td>4.328966</td>
+      <td>3.433554</td>
+      <td>5</td>
+      <td>5.677058</td>
+      <td>4</td>
+      <td>False.</td>
+      <td>9</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(5000, 22)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>By modern standards, it’s a relatively small dataset, with only 5,000 records, where each record uses 21 attributes to describe the profile of a customer of an unknown US mobile operator. The attributes are:</p>
+<ul>
+<li>
+<code>State</code>: the US state in which the customer resides, indicated by a two-letter abbreviation; for example, OH or NJ</li>
+<li>
+<code>Account Length</code>: the number of days that this account has been active</li>
+<li>
+<code>Area Code</code>: the three-digit area code of the corresponding customer’s phone number</li>
+<li>
+<code>Phone</code>: the remaining seven-digit phone number</li>
+<li>
+<code>Int’l Plan</code>: whether the customer has an international calling plan: yes/no</li>
+<li>
+<code>VMail Plan</code>: whether the customer has a voice mail feature: yes/no</li>
+<li>
+<code>VMail Message</code>: the average number of voice mail messages per month</li>
+<li>
+<code>Day Mins</code>: the total number of calling minutes used during the day</li>
+<li>
+<code>Day Calls</code>: the total number of calls placed during the day</li>
+<li>
+<code>Day Charge</code>: the billed cost of daytime calls</li>
+<li>
+<code>Eve Mins, Eve Calls, Eve Charge</code>: the billed cost for calls placed during the evening</li>
+<li>
+<code>Night Mins, Night Calls, Night Charge</code>: the billed cost for calls placed during nighttime</li>
+<li>
+<code>Intl Mins, Intl Calls, Intl Charge</code>: the billed cost for international calls</li>
+<li>
+<code>CustServ Calls</code>: the number of calls placed to Customer Service</li>
+<li>
+<code>Churn?</code>: whether the customer left the service: true/false</li>
+</ul>
+<p>The last attribute, <strong>Churn?</strong>, is known as the target attribute: the attribute that we want the ML model to predict. Because the target attribute is binary, our model will be performing binary prediction, also known as binary classification.</p>
+<p>We have our dataset. Now we will split this dataset into three subsets</p>
+<ul>
+<li>
+<code>customer</code>: customer data, and place it as a CSV file on the S3 bucket</li>
+<li>
+<code>account</code>: accounts data, and place it as CSV on the same S3 bucket</li>
+<li>
+<code>utility</code>: utility data, and place it as Glue tables</li>
+</ul>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">customer_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'CustomerID'</span><span class="p">,</span> <span class="s1">'State'</span><span class="p">,</span> <span class="s1">'Area Code'</span><span class="p">,</span> <span class="s1">'Phone'</span><span class="p">]</span>
+<span class="n">account_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'CustomerID'</span><span class="p">,</span> <span class="s1">'Account Length'</span><span class="p">,</span> <span class="s2">"Int'l Plan"</span><span class="p">,</span> <span class="s1">'VMail Plan'</span><span class="p">,</span> <span class="s1">'Churn?'</span><span class="p">]</span>
+<span class="n">utility_columns</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'CustomerID'</span><span class="p">,</span> <span class="s1">'VMail Message'</span><span class="p">,</span> <span class="s1">'Day Mins'</span><span class="p">,</span> <span class="s1">'Day Calls'</span><span class="p">,</span> <span class="s1">'Day Charge'</span><span class="p">,</span> 
+                   <span class="s1">'Eve Mins'</span><span class="p">,</span> <span class="s1">'Eve Calls'</span><span class="p">,</span> <span class="s1">'Eve Charge'</span><span class="p">,</span> <span class="s1">'Night Mins'</span><span class="p">,</span> <span class="s1">'Night Calls'</span><span class="p">,</span> 
+                   <span class="s1">'Night Charge'</span><span class="p">,</span> <span class="s1">'Intl Mins'</span><span class="p">,</span> <span class="s1">'Intl Calls'</span><span class="p">,</span> <span class="s1">'Intl Charge'</span><span class="p">,</span> <span class="s1">'CustServ Calls'</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will use the default bucket associated with our SageMaker session. You may use any other bucket with proper access permissions.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">bucket</span> <span class="o">=</span> <span class="n">sess</span><span class="o">.</span><span class="n">default_bucket</span><span class="p">()</span>
+<span class="n">bucket</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>'sagemaker-us-east-1-801598032724'</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Next, we will use AWS Data Wrangler Python package (<code>awswrangler</code>) to create an AWS Glue database.</p>
+<p><strong>awswrangler</strong> is an open source Python library maintained by AWS team, as is defined as</p>
+<blockquote>
+<p>An AWS Professional Service open source python initiative that extends the power of Pandas library to AWS connecting DataFrames and AWS data related services. Easy integration with Athena, Glue, Redshift, Timestream, OpenSearch, Neptune, QuickSight, Chime, CloudWatchLogs, DynamoDB, EMR, SecretManager, PostgreSQL, MySQL, SQLServer and S3 (Parquet, CSV, JSON and EXCEL).</p>
+</blockquote>
+<p>You may read more about this library here</p>
+<ul>
+<li>Documentation:<a href="https://aws-data-wrangler.readthedocs.io/en/stable/what.html*">https://aws-data-wrangler.readthedocs.io/en/stable/what.html*</a> Github repo: <a href="https://github.com/awslabs/aws-data-wrangler">https://github.com/awslabs/aws-data-wrangler</a>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Please note that AWS SageMaker session needs some additional AWS Glue permissions to create a database. If you get an error while creating a Glue database in following steps then add those permissions.</p>
+<p><strong>Error</strong>:
+<code>AccessDeniedException: An error occurred (AccessDeniedException) when calling the GetDatabase operation: User: arn:aws:sts::801598032724:assumed-role/AmazonSageMaker-ExecutionRole-20220516T161743/SageMaker is not authorized to perform: glue:GetDatabase on resource: arn:aws:glue:us-east-1:801598032724:database/telco_db because no identity-based policy allows the glue:GetDatabase action</code></p>
+<p><strong>Fix</strong>:
+Go to your SageMaker Execution Role and add permission <code>AWSGlueConsoleFullAccess</code></p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># define the Glue DB name</span>
+<span class="n">db_name</span> <span class="o">=</span> <span class="s1">'telco_db'</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">awswrangler</span> <span class="k">as</span> <span class="nn">wr</span>
+
+<span class="c1"># get all the existing Glue db list</span>
+<span class="n">databases</span> <span class="o">=</span> <span class="n">wr</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">databases</span><span class="p">()</span>
+
+<span class="c1"># print existing db names</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">"*** existing databases ***</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">databases</span><span class="p">)</span>
+
+<span class="c1"># if our db does not exist then create it</span>
+<span class="k">if</span> <span class="n">db_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">databases</span><span class="o">.</span><span class="n">values</span><span class="p">:</span>
+    <span class="n">wr</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">create_database</span><span class="p">(</span><span class="n">db_name</span><span class="p">,</span> <span class="n">description</span> <span class="o">=</span> <span class="s1">'Demo DB for telco churn dataset'</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">*** existing + new databases ***</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">wr</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">databases</span><span class="p">())</span>
+<span class="k">else</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Database </span><span class="si">{</span><span class="n">db_name</span><span class="si">}</span><span class="s2"> already exists"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>*** existing databases ***
+
+                  Database Description
+0  sagemaker_data_wrangler            
+1     sagemaker_processing            
+
+*** existing + new databases ***
+
+                  Database                      Description
+0  sagemaker_data_wrangler                                 
+1     sagemaker_processing                                 
+2                 telco_db  Demo DB for telco churn dataset
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># in case you want to delete a database using this notebook</span>
+<span class="c1"># wr.catalog.delete_database(db_name)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Similarly you can go to AWS Glue console to see that the new database has been created.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-17-aws-sagemaker-wrangler-p1/aws-glue-database.png" alt="aws-glue-database"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we will place the three data subsets into their respective locations.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">suffix</span> <span class="o">=</span> <span class="p">[</span><span class="s1">'customer_info'</span><span class="p">,</span> <span class="s1">'account_info'</span><span class="p">,</span> <span class="s1">'utility'</span><span class="p">]</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">columns</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">([</span><span class="n">customer_columns</span><span class="p">,</span> <span class="n">account_columns</span><span class="p">,</span> <span class="n">utility_columns</span><span class="p">]):</span>
+    
+    <span class="c1"># get the data subset</span>
+    <span class="n">df_tmp</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">columns</span><span class="p">]</span>
+
+    <span class="c1"># prepare filename and output path</span>
+    <span class="n">fname</span> <span class="o">=</span> <span class="s1">'telco_churn_</span><span class="si">%s</span><span class="s1">'</span> <span class="o">%</span> <span class="n">suffix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+    <span class="n">outputpath</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">'s3://</span><span class="si">{</span><span class="n">bucket</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">prefix</span><span class="si">}</span><span class="s1">/data/</span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s1">'</span>
+    
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="se">\n</span><span class="s2">*** working on </span><span class="si">{</span><span class="n">suffix</span><span class="p">[</span><span class="n">i</span><span class="p">]</span><span class="si">}</span><span class="s2">***"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"filename: </span><span class="si">{</span><span class="n">fname</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"output path: </span><span class="si">{</span><span class="n">outputpath</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+    
+    <span class="k">if</span> <span class="n">i</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span> <span class="c1"># for utility</span>
+        <span class="n">wr</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">df_tmp</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="n">outputpath</span><span class="p">,</span>
+            <span class="n">dataset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+            <span class="n">database</span><span class="o">=</span><span class="n">db_name</span><span class="p">,</span>  <span class="c1"># Athena/Glue database</span>
+            <span class="n">table</span><span class="o">=</span><span class="n">fname</span><span class="p">,</span>  <span class="c1"># Athena/Glue table</span>
+            <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="n">mode</span><span class="o">=</span><span class="s1">'overwrite'</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span> <span class="c1"># for customer and account</span>
+        <span class="n">wr</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span>
+            <span class="n">df</span><span class="o">=</span><span class="n">df_tmp</span><span class="p">,</span>
+            <span class="n">path</span><span class="o">=</span><span class="sa">f</span><span class="s1">'</span><span class="si">{</span><span class="n">outputpath</span><span class="si">}</span><span class="s1">.csv'</span><span class="p">,</span>
+            <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>
+*** working on customer_info***
+filename: telco_churn_customer_info
+output path: s3://sagemaker-us-east-1-801598032724/myblog/demo-customer-churn/data/telco_churn_customer_info
+
+*** working on account_info***
+filename: telco_churn_account_info
+output path: s3://sagemaker-us-east-1-801598032724/myblog/demo-customer-churn/data/telco_churn_account_info
+
+*** working on utility***
+filename: telco_churn_utility
+output path: s3://sagemaker-us-east-1-801598032724/myblog/demo-customer-churn/data/telco_churn_utility
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can verify the uploaded data from the S3 bucket.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-17-aws-sagemaker-wrangler-p1/aws-s3-churn-data.png" alt="aws-s3-churn-data"></p>
+<p>Similarly, from Glue console we can verify that the utility table has been created.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-17-aws-sagemaker-wrangler-p1/aws-glue-churn-data.png" alt="aws-glue-churn-data"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>If you want to remain within the notebook and do the verification then that can also be done.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># list s3 objects</span>
+<span class="n">wr</span><span class="o">.</span><span class="n">s3</span><span class="o">.</span><span class="n">list_objects</span><span class="p">(</span><span class="s1">'s3://sagemaker-us-east-1-801598032724/myblog/demo-customer-churn/data/'</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>['s3://sagemaker-us-east-1-801598032724/myblog/demo-customer-churn/data/telco_churn_account_info.csv',
+ 's3://sagemaker-us-east-1-801598032724/myblog/demo-customer-churn/data/telco_churn_customer_info.csv',
+ 's3://sagemaker-us-east-1-801598032724/myblog/demo-customer-churn/data/telco_churn_utility/b4003acdf33e48ce989401e92146923c.csv']</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># list glue catalog tables</span>
+<span class="n">wr</span><span class="o">.</span><span class="n">catalog</span><span class="o">.</span><span class="n">tables</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped="">
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Database</th>
+      <th>Table</th>
+      <th>Description</th>
+      <th>TableType</th>
+      <th>Columns</th>
+      <th>Partitions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>telco_db</td>
+      <td>telco_churn_utility</td>
+      <td></td>
+      <td>EXTERNAL_TABLE</td>
+      <td>customerid, vmail_message, day_mins, day_calls...</td>
+      <td></td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Summary">
+<a class="anchor" href="#Summary" aria-hidden="true"><span class="octicon octicon-link"></span></a>Summary<a class="anchor-link" href="#Summary"> </a>
+</h2>
+<p>At this point we have our dataset ready in AWS S3 and Glue, and in the next part we will use AWS SageMaker Data Wrangler to import and join this data.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hassaanbinaslam/myblog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/myblog/aws/ml/sagemaker/2022/05/17/aws-sagemaker-wrangler-p1.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>An easy to use blogging platform with support for Jupyter Notebooks.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/fastai" target="_blank" title="fastai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/fastdotai" target="_blank" title="fastdotai"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
