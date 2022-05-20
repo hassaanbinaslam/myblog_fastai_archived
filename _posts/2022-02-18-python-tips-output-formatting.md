@@ -7,6 +7,7 @@ badges: true
 comments: true
 categories: [python]
 show_tags: true
+image: images/copied_from_nb/images/2022-02-18-python-tips-output-formatting.jpeg
 nb_path: _notebooks/2022-02-18-python-tips-output-formatting.ipynb
 layout: notebook
 ---
@@ -20,6 +21,13 @@ layout: notebook
 
 <div class="container" id="notebook-container">
         
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-02-18-python-tips-output-formatting.jpeg" alt=""></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="About">About<a class="anchor-link" href="#About"> </a></h2><p>This notebook is a collection of useful tips to format Python string literals and output.</p>
