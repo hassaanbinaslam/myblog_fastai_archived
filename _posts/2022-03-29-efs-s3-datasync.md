@@ -6,6 +6,7 @@ toc: true
 badges: false
 comments: true
 categories: [aws, lambda, efs, s3, synchonization, datasync]
+image: images/copied_from_nb/images/2022-03-29-efs-s3-datasync.jpeg
 nb_path: _notebooks/2022-03-29-efs-s3-datasync.ipynb
 layout: notebook
 ---
@@ -19,6 +20,13 @@ layout: notebook
 
 <div class="container" id="notebook-container">
         
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-29-efs-s3-datasync.jpeg" alt=""></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>This post is to document all the steps required to synchronize <a href="https://aws.amazon.com/efs/">AWS EFS</a> with an <a href="https://aws.amazon.com/s3/">S3 bucket</a> using <a href="https://aws.amazon.com/datasync/">DataSync service</a>. The flow of information is from S3 to EFS and not vice versa.</p>
