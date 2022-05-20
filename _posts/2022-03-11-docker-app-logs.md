@@ -6,6 +6,7 @@ toc: true
 badges: false
 comments: true
 categories: [docker, python]
+image: images/copied_from_nb/images/2022-03-11-docker-app-logs.jpeg
 nb_path: _notebooks/2022-03-11-docker-app-logs.ipynb
 layout: notebook
 ---
@@ -19,6 +20,13 @@ layout: notebook
 
 <div class="container" id="notebook-container">
         
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-11-docker-app-logs.jpeg" alt=""></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>This post is about the challenges on accessing Python application logs running on a Docker container inside WSL2 linux environment.</p>
