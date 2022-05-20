@@ -6,7 +6,7 @@ toc: true
 badges: true
 comments: true
 categories: [ml]
-image: images/2022-04-25-bluebook-for-bulldozers/toy-bulldozer.png
+image: images/copied_from_nb/images/2022-04-25-bluebook-for-bulldozers.jpeg
 nb_path: _notebooks/2022-04-25-bluebook-for-bulldozers.ipynb
 layout: notebook
 ---
@@ -22,7 +22,7 @@ layout: notebook
         
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p><img src="/myblog/images/copied_from_nb/images/2022-04-25-bluebook-for-bulldozers/heavy-machinery.jpeg" alt=""></p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-04-25-bluebook-for-bulldozers.jpeg" alt=""></p>
 
 </div>
 </div>
