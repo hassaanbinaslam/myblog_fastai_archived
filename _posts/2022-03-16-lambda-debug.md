@@ -6,6 +6,7 @@ toc: true
 badges: false
 comments: true
 categories: [aws, lambda, docker]
+image: images/copied_from_nb/images/2022-03-16-lambda-debug.jpeg
 nb_path: _notebooks/2022-03-16-lambda-debug.ipynb
 layout: notebook
 ---
@@ -19,6 +20,13 @@ layout: notebook
 
 <div class="container" id="notebook-container">
         
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-03-16-lambda-debug.jpeg" alt=""></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>This post is about running, and debugging <a href="https://aws.amazon.com/lambda/">AWS Lambda</a> function locally from <a href="https://code.visualstudio.com/">Visual Studio Code</a> environment and it extensions <a href="https://marketplace.visualstudio.com/items?itemName=AmazonWebServices.AWSToolkitforVisualStudio2022">AWS Toolkit</a>.</p>
