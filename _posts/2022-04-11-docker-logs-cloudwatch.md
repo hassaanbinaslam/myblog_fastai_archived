@@ -6,6 +6,7 @@ toc: true
 badges: false
 comments: true
 categories: [docker, python, aws, cloudwatch]
+image: images/2022-04-11-docker-logs-cloudwatch.jpg
 nb_path: _notebooks/2022-04-11-docker-logs-cloudwatch.ipynb
 layout: notebook
 ---
@@ -19,6 +20,13 @@ layout: notebook
 
 <div class="container" id="notebook-container">
         
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-04-11-docker-logs-cloudwatch.jpg" alt=""></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>This post is about configuring docker container to send application logs to <a href="https://aws.amazon.com/cloudwatch/details/#log-monitoring">Amazon CloudWatch</a>. Logs entries can be retrieved from AWS Management Console.</p>
