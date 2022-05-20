@@ -7,7 +7,7 @@ badges: true
 comments: true
 categories: [aws, ml, sagemaker]
 keyword: [aws, ml, sagemaker, wrangler]
-image: images/2022-05-17-aws-sagemaker-wrangler-p1.jpeg
+image: images/copied_from_nb/images/2022-05-17-aws-sagemaker-wrangler-p1.jpeg
 nb_path: _notebooks/2022-05-17-aws-sagemaker-wrangler-p1.ipynb
 layout: notebook
 ---

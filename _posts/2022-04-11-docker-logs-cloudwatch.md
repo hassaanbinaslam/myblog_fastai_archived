@@ -6,7 +6,7 @@ toc: true
 badges: false
 comments: true
 categories: [docker, python, aws, cloudwatch]
-image: images/2022-04-11-docker-logs-cloudwatch.jpg
+image: images/copied_from_nb/images/2022-04-11-docker-logs-cloudwatch.jpg
 nb_path: _notebooks/2022-04-11-docker-logs-cloudwatch.ipynb
 layout: notebook
 ---
