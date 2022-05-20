@@ -7,6 +7,7 @@ badges: true
 comments: true
 categories: [python]
 show_tags: true
+image: images/copied_from_nb/images/2022-02-10-python-dictionary.jpeg
 nb_path: _notebooks/2022-02-10-python-dictionary.ipynb
 layout: notebook
 ---
@@ -20,6 +21,13 @@ layout: notebook
 
 <div class="container" id="notebook-container">
         
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-02-10-python-dictionary.jpeg" alt=""></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="About">About<a class="anchor-link" href="#About"> </a></h2><p>This notebook demonstrates multiple ways to get items from a Python dictionary.</p>
