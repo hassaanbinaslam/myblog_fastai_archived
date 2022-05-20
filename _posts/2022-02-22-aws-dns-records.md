@@ -6,7 +6,7 @@ toc: true
 badges: false
 comments: true
 categories: [aws]
-image: images/2022-02-22-aws-dns-records.png
+image: images/copied_from_nb/images/2022-02-22-aws-dns-records.jpeg
 nb_path: _notebooks/2022-02-22-aws-dns-records.ipynb
 layout: notebook
 ---
@@ -20,6 +20,13 @@ layout: notebook
 
 <div class="container" id="notebook-container">
         
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-02-22-aws-dns-records.jpeg" alt=""></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>This post summarizes the differences between AWS Route53 DNS records namely A record, CNAME, ALIAS, and MX. Knowledge about these differences is commonly checked in AWS certifications.</p>
