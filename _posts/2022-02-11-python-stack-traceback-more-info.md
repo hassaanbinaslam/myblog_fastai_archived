@@ -6,7 +6,7 @@ toc: true
 badges: true
 comments: true
 categories: [python]
-image: images/2022-02-11-python-traceback.png
+image: images/copied_from_nb/images/2022-02-11-python-stack-traceback-more-info.jpeg
 nb_path: _notebooks/2022-02-11-python-stack-traceback-more-info.ipynb
 layout: notebook
 ---
@@ -20,6 +20,13 @@ layout: notebook
 
 <div class="container" id="notebook-container">
         
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-02-11-python-stack-traceback-more-info.jpeg" alt=""></p>
+
+</div>
+</div>
+</div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h2 id="About">About<a class="anchor-link" href="#About"> </a></h2><p>This notebook demonstrates what the Python Traceback object is, and how can we get more information out of it to better diagnose exception messages.</p>
