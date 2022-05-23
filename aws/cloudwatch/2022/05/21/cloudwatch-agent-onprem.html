@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Collecting metrics and logs from on-premises servers with the CloudWatch agent | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Collecting metrics and logs from on-premises servers with the CloudWatch agent" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A detailed guide on using cloudwatch agent to collect logs and metrics from an on-premises Ubuntu server." />
+<meta property="og:description" content="A detailed guide on using cloudwatch agent to collect logs and metrics from an on-premises Ubuntu server." />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/aws/cloudwatch/2022/05/21/cloudwatch-agent-onprem.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/aws/cloudwatch/2022/05/21/cloudwatch-agent-onprem.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem.jpeg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-05-21T00:00:00-05:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://hassaanbinaslam.github.io/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem.jpeg" />
+<meta property="twitter:title" content="Collecting metrics and logs from on-premises servers with the CloudWatch agent" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-05-21T00:00:00-05:00","datePublished":"2022-05-21T00:00:00-05:00","description":"A detailed guide on using cloudwatch agent to collect logs and metrics from an on-premises Ubuntu server.","headline":"Collecting metrics and logs from on-premises servers with the CloudWatch agent","image":"https://hassaanbinaslam.github.io/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem.jpeg","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/aws/cloudwatch/2022/05/21/cloudwatch-agent-onprem.html"},"url":"https://hassaanbinaslam.github.io/myblog/aws/cloudwatch/2022/05/21/cloudwatch-agent-onprem.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Collecting metrics and logs from on-premises servers with the CloudWatch agent</h1><p class="page-description">A detailed guide on using cloudwatch agent to collect logs and metrics from an on-premises Ubuntu server.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-05-21T00:00:00-05:00" itemprop="datePublished">
+        May 21, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      7 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#aws">aws</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#cloudwatch">cloudwatch</a>
+        
+      
+      </p>
+    
+
+    
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h1"><a href="#About">About </a></li>
+<li class="toc-entry toc-h1"><a href="#Environment-Details">Environment Details </a></li>
+<li class="toc-entry toc-h1"><a href="#CloudWatch-Agent-Installation-and-Configuration-Steps">CloudWatch Agent Installation and Configuration Steps </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Create-IAM-roles-and-users-for-use-with-CloudWatch-agent">Create IAM roles and users for use with CloudWatch agent </a></li>
+<li class="toc-entry toc-h2"><a href="#Install-and-configure-AWS-CLI-on-Ubuntu-server">Install and configure AWS CLI on Ubuntu server </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#1.-Download-AWS-CLI-package">1. Download AWS CLI package </a></li>
+<li class="toc-entry toc-h3"><a href="#2.-Install-UNZIP-package">2. Install UNZIP package </a></li>
+<li class="toc-entry toc-h3"><a href="#3.-Unzip-AWSCLI-Package">3. Unzip AWSCLI Package </a></li>
+<li class="toc-entry toc-h3"><a href="#4.-Install-AWS-CLI">4. Install AWS CLI </a></li>
+<li class="toc-entry toc-h3"><a href="#6.-Configure-AWS-CLI">6. Configure AWS CLI </a></li>
+<li class="toc-entry toc-h3"><a href="#7.-Verify-credentials-in-User-home-directory">7. Verify credentials in User home directory </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Install-and-run-the-CloudWatch-agent-on-Ubuntu-server">Install and run the CloudWatch agent on Ubuntu server </a>
+<ul>
+<li class="toc-entry toc-h3"><a href="#1.-Download-the-agent">1. Download the agent </a></li>
+<li class="toc-entry toc-h3"><a href="#2.-Install-the-agent">2. Install the agent </a></li>
+<li class="toc-entry toc-h3"><a href="#3.-Prepare-agent-configuration-file">3. Prepare agent configuration file </a></li>
+<li class="toc-entry toc-h3"><a href="#4.-Update-shared-configuration-file">4. Update shared configuration file </a></li>
+<li class="toc-entry toc-h3"><a href="#5.-Start-the-agent">5. Start the agent </a></li>
+<li class="toc-entry toc-h3"><a href="#6.-Check-agent-status">6. Check agent status </a></li>
+<li class="toc-entry toc-h3"><a href="#7.-Check-agent-logs">7. Check agent logs </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h2"><a href="#Check-the-agent-logs-on-AWS-CloudWatch-console">Check the agent logs on AWS CloudWatch console </a></li>
+<li class="toc-entry toc-h2"><a href="#Check-the-machine-metrics-on-CloudWatch-console">Check the machine metrics on CloudWatch console </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Common-scenarios-with-the-CloudWatch-agent">Common scenarios with the CloudWatch agent </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#To-stop-the-CloudWatch-agent-locally-using-the-command-line">To stop the CloudWatch agent locally using the command line </a></li>
+<li class="toc-entry toc-h2"><a href="#I-updated-my-agent-configuration-but-don’t-see-the-new-metrics-or-logs-in-the-CloudWatch-console">I updated my agent configuration but don’t see the new metrics or logs in the CloudWatch console </a></li>
+</ul>
+</li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-05-21-cloudwatch-agent-onprem.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem.jpeg" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h1>
+<p>This post is a detailed guide on using <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/WhatIsCloudWatch.html">AWS CloudWatch</a> Agent to collect logs and metrics from on-premises Ubuntu server.</p>
+<ul>
+<li>The CloudWatch agent is open-source tool under the MIT license, and is hosted on GitHub <a href="https://github.com/aws/amazon-cloudwatch-agent/">amazon-cloudwatch-agent</a>
+</li>
+<li>With this agent you can collect more system-level metrics from Amazon EC2 instances or onprem servers across operating systems. You can retrieve custom metrics from your applications or services using the StatsD and collectd protocols. <strong>StatsD</strong> is supported on both Linux servers and servers running Windows Server. <strong>collectd</strong> is supported only on Linux servers</li>
+<li>For the list of metrics that can be collected by CloudWatch agent follow this link <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/metrics-collected-by-CloudWatch-agent.html">metrics-collected-by-CloudWatch-agent</a>
+</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Environment-Details">
+<a class="anchor" href="#Environment-Details" aria-hidden="true"><span class="octicon octicon-link"></span></a>Environment Details<a class="anchor-link" href="#Environment-Details"> </a>
+</h1>
+<p>For on-premises Ubuntu server, we will use an EC2 machine with Ubuntu OS. Enable Auto-assign public IP and keep all the default settings. Once the instance is in a running state use SSH Key to connect to it.</p>
+<p>If you are using Windows OS and while connecting to Ubuntu machine you are getting "Permissions for 'ssh-key.pem' are too open." then take help from this post to resolve it <a href="https://superuser.com/questions/1296024/windows-ssh-permissions-for-private-key-are-too-open">windows-ssh-permissions-for-private-key-are-too-open</a></p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem/windows-ssh-permissions-for-private-key-are-too-open.png" alt="windows-ssh-permissions-for-private-key-are-too-open"></p>
+<p>Once you are successfully connected to EC2 Ubuntu machine you will get the following message on the terminal.
+<img src="/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem/ubuntu-ec2-ssh-connect.png" alt="ubuntu-ec2-ssh-connect"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="CloudWatch-Agent-Installation-and-Configuration-Steps">
+<a class="anchor" href="#CloudWatch-Agent-Installation-and-Configuration-Steps" aria-hidden="true"><span class="octicon octicon-link"></span></a>CloudWatch Agent Installation and Configuration Steps<a class="anchor-link" href="#CloudWatch-Agent-Installation-and-Configuration-Steps"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-IAM-roles-and-users-for-use-with-CloudWatch-agent">
+<a class="anchor" href="#Create-IAM-roles-and-users-for-use-with-CloudWatch-agent" aria-hidden="true"><span class="octicon octicon-link"></span></a>Create IAM roles and users for use with CloudWatch agent<a class="anchor-link" href="#Create-IAM-roles-and-users-for-use-with-CloudWatch-agent"> </a>
+</h2>
+<p>Access to AWS resources requires permissions. You create an IAM role, an IAM user, or both to grant permissions that the CloudWatch agent needs to write metrics to CloudWatch.</p>
+<ul>
+<li>If you're going to use the agent on Amazon EC2 instances, you should create an IAM role.</li>
+<li>f you're going to use the agent on on-premises servers, you should create an IAM user.</li>
+</ul>
+<p>Since we want to use EC2 machine as an on-premises machine so we will create an IAM user.</p>
+<p><strong>To create the IAM user necessary for the CloudWatch agent to run on on-premises servers follow these steps</strong></p>
+<ol>
+<li>Sign in to the AWS Management Console and open the IAM console at <a href="https://console.aws.amazon.com/iam/">https://console.aws.amazon.com/iam/</a>.</li>
+<li>In the navigation pane on the left, choose <strong>Users</strong> and then <strong>Add users</strong>.</li>
+<li>Enter the user name for the new user.</li>
+<li>Select <strong>Access key - Programmatic access</strong> and choose <strong>Next: Permissions</strong>.</li>
+<li>Choose <strong>Attach existing policies directly</strong>.</li>
+<li>In the list of policies, select the check box next to <strong>CloudWatchAgentServerPolicy</strong>. If necessary, use the search box to find the policy.</li>
+<li>Choose <strong>Next: Tags</strong>.</li>
+<li>Optionally create tags for the new IAM user, and then choose <strong>Next:Review</strong>.</li>
+<li>Confirm that the correct policy is listed, and choose <strong>Create user</strong>.</li>
+<li>Next to the name of the new user, choose <strong>Show</strong>. Copy the access key and secret key to a file so that you can use them when installing the agent. Choose <strong>Close</strong>.</li>
+</ol>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Install-and-configure-AWS-CLI-on-Ubuntu-server">
+<a class="anchor" href="#Install-and-configure-AWS-CLI-on-Ubuntu-server" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install and configure AWS CLI on Ubuntu server<a class="anchor-link" href="#Install-and-configure-AWS-CLI-on-Ubuntu-server"> </a>
+</h2>
+<p>Connect to the Ubuntu server using any SSH client. We need to first download and install AWS CLI. Follow the below commands to download and install it. For installing AWS CLI on macOS and Windows take help from this post <a href="https://docs.aws.amazon.com/cli/latest/userguide/getting-started-install.html">awscli-getting-started-install</a></p>
+<h3 id="1.-Download-AWS-CLI-package">
+<a class="anchor" href="#1.-Download-AWS-CLI-package" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Download AWS CLI package<a class="anchor-link" href="#1.-Download-AWS-CLI-package"> </a>
+</h3>
+<pre><code>curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"</code></pre>
+<h3 id="2.-Install-UNZIP-package">
+<a class="anchor" href="#2.-Install-UNZIP-package" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Install UNZIP package<a class="anchor-link" href="#2.-Install-UNZIP-package"> </a>
+</h3>
+<pre><code>sudo apt install unzip</code></pre>
+<h3 id="3.-Unzip-AWSCLI-Package">
+<a class="anchor" href="#3.-Unzip-AWSCLI-Package" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Unzip AWSCLI Package<a class="anchor-link" href="#3.-Unzip-AWSCLI-Package"> </a>
+</h3>
+<pre><code>unzip awscliv2.zip</code></pre>
+<h3 id="4.-Install-AWS-CLI">
+<a class="anchor" href="#4.-Install-AWS-CLI" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Install AWS CLI<a class="anchor-link" href="#4.-Install-AWS-CLI"> </a>
+</h3>
+<pre><code>sudo ./aws/install</code></pre>
+<p><strong>5. Verify AWS CLI Installation</strong></p>
+
+<pre><code>aws --version</code></pre>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem/aws-cli-installation-complete.png" alt="aws-cli-installation-complete"></p>
+<h3 id="6.-Configure-AWS-CLI">
+<a class="anchor" href="#6.-Configure-AWS-CLI" aria-hidden="true"><span class="octicon octicon-link"></span></a>6. Configure AWS CLI<a class="anchor-link" href="#6.-Configure-AWS-CLI"> </a>
+</h3>
+<p>Make sure that you use <strong>AmazonCloudWatchAgent</strong> profile name as this is used by the <code>OnPremise</code> case by default. For more details, you may take help from this post <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Agent-commandline-fleet.html">install-CloudWatch-Agent-commandline-fleet</a></p>
+
+<pre><code>aws configure --profile AmazonCloudWatchAgent</code></pre>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem/configure-aws-cli.png" alt="configure-aws-cli"></p>
+<h3 id="7.-Verify-credentials-in-User-home-directory">
+<a class="anchor" href="#7.-Verify-credentials-in-User-home-directory" aria-hidden="true"><span class="octicon octicon-link"></span></a>7. Verify credentials in User home directory<a class="anchor-link" href="#7.-Verify-credentials-in-User-home-directory"> </a>
+</h3>
+<pre><code>cat /home/ubuntu/.aws/credentials</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Install-and-run-the-CloudWatch-agent-on-Ubuntu-server">
+<a class="anchor" href="#Install-and-run-the-CloudWatch-agent-on-Ubuntu-server" aria-hidden="true"><span class="octicon octicon-link"></span></a>Install and run the CloudWatch agent on Ubuntu server<a class="anchor-link" href="#Install-and-run-the-CloudWatch-agent-on-Ubuntu-server"> </a>
+</h2>
+<h3 id="1.-Download-the-agent">
+<a class="anchor" href="#1.-Download-the-agent" aria-hidden="true"><span class="octicon octicon-link"></span></a>1. Download the agent<a class="anchor-link" href="#1.-Download-the-agent"> </a>
+</h3>
+<p>The following download link is for Ubuntu. For any other OS you can take help from this post for downloaded agent <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/download-cloudwatch-agent-commandline.html">download-cloudwatch-agent-commandline</a></p>
+
+<pre><code>wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb</code></pre>
+<h3 id="2.-Install-the-agent">
+<a class="anchor" href="#2.-Install-the-agent" aria-hidden="true"><span class="octicon octicon-link"></span></a>2. Install the agent<a class="anchor-link" href="#2.-Install-the-agent"> </a>
+</h3>
+<pre><code>sudo dpkg -i -E ./amazon-cloudwatch-agent.deb</code></pre>
+<h3 id="3.-Prepare-agent-configuration-file">
+<a class="anchor" href="#3.-Prepare-agent-configuration-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>3. Prepare agent configuration file<a class="anchor-link" href="#3.-Prepare-agent-configuration-file"> </a>
+</h3>
+<p>Prepare agent configuration file. This config file will be provided to the agent in the run command. One such sample is provided below. For more details on this config file you may take help from this link <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/create-cloudwatch-agent-configuration-file.html">create-cloudwatch-agent-configuration-file</a>. Note the path of this config file (<strong>agent config</strong>) as we will need it in later commands.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">//</span> <span class="n">config</span><span class="o">-</span><span class="n">cloudwatchagent</span><span class="o">.</span><span class="n">json</span>
+<span class="p">{</span>
+    <span class="s2">"agent"</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">"metrics_collection_interval"</span><span class="p">:</span> <span class="mi">10</span><span class="p">,</span>
+      <span class="s2">"logfile"</span><span class="p">:</span> <span class="s2">"/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log"</span><span class="p">,</span>
+      <span class="s2">"run_as_user"</span><span class="p">:</span> <span class="s2">"ubuntu"</span><span class="p">,</span>
+      <span class="s2">"debug"</span><span class="p">:</span> <span class="n">false</span>
+    <span class="p">},</span>
+    <span class="s2">"metrics"</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">"namespace"</span><span class="p">:</span> <span class="s2">"myblog/cloudwatchagent/demo"</span><span class="p">,</span>
+      <span class="s2">"metrics_collected"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"cpu"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">"resources"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"*"</span>
+          <span class="p">],</span>
+          <span class="s2">"measurement"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"cpu_usage_idle"</span><span class="p">,</span> <span class="s2">"rename"</span><span class="p">:</span> <span class="s2">"CPU_USAGE_IDLE"</span><span class="p">,</span> <span class="s2">"unit"</span><span class="p">:</span> <span class="s2">"Percent"</span><span class="p">},</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"cpu_usage_nice"</span><span class="p">,</span> <span class="s2">"unit"</span><span class="p">:</span> <span class="s2">"Percent"</span><span class="p">},</span>
+            <span class="s2">"cpu_usage_guest"</span><span class="p">,</span>
+            <span class="s2">"cpu_usage_active"</span>
+            
+          <span class="p">],</span>
+          <span class="s2">"totalcpu"</span><span class="p">:</span> <span class="n">true</span><span class="p">,</span>
+          <span class="s2">"metrics_collection_interval"</span><span class="p">:</span> <span class="mi">10</span>
+        <span class="p">},</span>
+        <span class="s2">"disk"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">"resources"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"/"</span><span class="p">,</span>
+            <span class="s2">"/tmp"</span>
+          <span class="p">],</span>
+          <span class="s2">"measurement"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span><span class="s2">"name"</span><span class="p">:</span> <span class="s2">"free"</span><span class="p">,</span> <span class="s2">"rename"</span><span class="p">:</span> <span class="s2">"DISK_FREE"</span><span class="p">,</span> <span class="s2">"unit"</span><span class="p">:</span> <span class="s2">"Gigabytes"</span><span class="p">},</span>
+            <span class="s2">"total"</span><span class="p">,</span>
+            <span class="s2">"used"</span>
+          <span class="p">],</span>
+           <span class="s2">"ignore_file_system_types"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"sysfs"</span><span class="p">,</span> <span class="s2">"devtmpfs"</span>
+          <span class="p">],</span>
+          <span class="s2">"metrics_collection_interval"</span><span class="p">:</span> <span class="mi">60</span>
+        <span class="p">},</span>
+        <span class="s2">"diskio"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">"resources"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"*"</span>
+          <span class="p">],</span>
+          <span class="s2">"measurement"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"reads"</span><span class="p">,</span>
+            <span class="s2">"writes"</span><span class="p">,</span>
+            <span class="s2">"read_time"</span><span class="p">,</span>
+            <span class="s2">"write_time"</span><span class="p">,</span>
+            <span class="s2">"io_time"</span>
+          <span class="p">],</span>
+          <span class="s2">"metrics_collection_interval"</span><span class="p">:</span> <span class="mi">60</span>
+        <span class="p">},</span>
+        <span class="s2">"swap"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">"measurement"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"swap_used"</span><span class="p">,</span>
+            <span class="s2">"swap_free"</span><span class="p">,</span>
+            <span class="s2">"swap_used_percent"</span>
+          <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">"mem"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">"measurement"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"mem_used"</span><span class="p">,</span>
+            <span class="s2">"mem_cached"</span><span class="p">,</span>
+            <span class="s2">"mem_total"</span>
+          <span class="p">],</span>
+          <span class="s2">"metrics_collection_interval"</span><span class="p">:</span> <span class="mi">1</span>
+        <span class="p">},</span>
+        <span class="s2">"net"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">"resources"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"eth0"</span>
+          <span class="p">],</span>
+          <span class="s2">"measurement"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"bytes_sent"</span><span class="p">,</span>
+            <span class="s2">"bytes_recv"</span><span class="p">,</span>
+            <span class="s2">"drop_in"</span><span class="p">,</span>
+            <span class="s2">"drop_out"</span>
+          <span class="p">]</span>
+        <span class="p">},</span>
+        <span class="s2">"netstat"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">"measurement"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"tcp_established"</span><span class="p">,</span>
+            <span class="s2">"tcp_syn_sent"</span><span class="p">,</span>
+            <span class="s2">"tcp_close"</span>
+          <span class="p">],</span>
+          <span class="s2">"metrics_collection_interval"</span><span class="p">:</span> <span class="mi">60</span>
+        <span class="p">},</span>
+        <span class="s2">"processes"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">"measurement"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="s2">"running"</span><span class="p">,</span>
+            <span class="s2">"sleeping"</span><span class="p">,</span>
+            <span class="s2">"dead"</span>
+          <span class="p">]</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="s2">"force_flush_interval"</span> <span class="p">:</span> <span class="mi">30</span>
+    <span class="p">},</span>
+    <span class="s2">"logs"</span><span class="p">:</span> <span class="p">{</span>
+      <span class="s2">"logs_collected"</span><span class="p">:</span> <span class="p">{</span>
+        <span class="s2">"files"</span><span class="p">:</span> <span class="p">{</span>
+          <span class="s2">"collect_list"</span><span class="p">:</span> <span class="p">[</span>
+            <span class="p">{</span>
+              <span class="s2">"file_path"</span><span class="p">:</span> <span class="s2">"/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log"</span><span class="p">,</span>
+              <span class="s2">"log_group_name"</span><span class="p">:</span> <span class="s2">"myblog/onprem/ubuntu/amazon-cloudwatch-agent"</span><span class="p">,</span>
+              <span class="s2">"log_stream_name"</span><span class="p">:</span> <span class="s2">"myblog-cloudwatchagent-demo.log"</span><span class="p">,</span>
+              <span class="s2">"timezone"</span><span class="p">:</span> <span class="s2">"UTC"</span>
+            <span class="p">}</span>
+          <span class="p">]</span>
+        <span class="p">}</span>
+      <span class="p">},</span>
+      <span class="s2">"log_stream_name"</span><span class="p">:</span> <span class="s2">"my_log_stream_name"</span><span class="p">,</span>
+      <span class="s2">"force_flush_interval"</span> <span class="p">:</span> <span class="mi">15</span>
+    <span class="p">}</span>
+  <span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Some important parts of this config file</p>
+<p><strong>logfile</strong></p>
+
+<pre><code>"logfile": "/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log"</code></pre>
+<p>CloudWatch agent log file location on on-premise server is specified by this tag. After running the agent you can check this log file for any exception messages.</p>
+<p><strong>log_group_name</strong></p>
+
+<pre><code>"log_group_name": "myblog/onprem/ubuntu/amazon-cloudwatch-agent"</code></pre>
+<p>An on-premise logfile is also uploaded to CloudWatch under <code>log-group-name</code> specified by this tag.</p>
+<p><strong>log_stream_name</strong></p>
+
+<pre><code>"log_stream_name": "myblog-cloudwatchagent-demo.log"</code></pre>
+<p>Log stream name of the CloudWatch where logfile log steam will be uploaded.</p>
+<p><strong>namespace</strong></p>
+
+<pre><code>"namespace": "myblog/cloudwatchagent/demo"</code></pre>
+<p>On CloudWatch console you find the uploaded metrics under the custom namespace specified by this tag. In our case, it is "myblog/cloudwatchagent/demo"</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h3 id="4.-Update-shared-configuration-file">
+<a class="anchor" href="#4.-Update-shared-configuration-file" aria-hidden="true"><span class="octicon octicon-link"></span></a>4. Update shared configuration file<a class="anchor-link" href="#4.-Update-shared-configuration-file"> </a>
+</h3>
+<p>From the config file</p>
+<ol>
+<li>Uncomment the <code>[credentails]</code> tag</li>
+<li>Update <code>shared_credentails_profile</code> name. This is the profile name with which we have configured our AWS CLI 'AmazonCloudWatchAgent'. If you have used any other name then use that name here.</li>
+<li>Update <code>shared_credentials_file</code> path. This is the path for AWS user credentails file created by AWS CLI. '/home/<code>username</code>/.aws/credentials' and in our case it is <code>/home/ubuntu/.aws/credentials</code>
+</li>
+</ol>
+<p>Configuration file is located at <code>/opt/aws/amazon-cloudwatch-agent/etc/common-config.toml</code>. For more details on this shared configuration file follow this link <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Agent-commandline-fleet.html#CloudWatch-Agent-profile-instance-first">CloudWatch-Agent-profile-instance-first</a></p>
+
+<pre><code>sudo vim /opt/aws/amazon-cloudwatch-agent/etc/common-config.toml</code></pre>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem/agent-shared-config.png" alt="agent-shared-config"></p>
+<h3 id="5.-Start-the-agent">
+<a class="anchor" href="#5.-Start-the-agent" aria-hidden="true"><span class="octicon octicon-link"></span></a>5. Start the agent<a class="anchor-link" href="#5.-Start-the-agent"> </a>
+</h3>
+<pre><code>sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m onPremise -s -c file:/home/ubuntu/config-cloudwatchagent.json</code></pre>
+<p>Make sure that you provide the correct path to the JSON config file. In our case, it is <strong>file:/home/ubuntu/config-cloudwatchagent.json</strong>. For more details check this link <a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/install-CloudWatch-Agent-on-premise.html#start-CloudWatch-Agent-on-premise-SSM-onprem">start-CloudWatch-Agent-on-premise-SSM-onprem</a></p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem/run-agent-success.png" alt="run-agent-success"></p>
+<h3 id="6.-Check-agent-status">
+<a class="anchor" href="#6.-Check-agent-status" aria-hidden="true"><span class="octicon octicon-link"></span></a>6. Check agent status<a class="anchor-link" href="#6.-Check-agent-status"> </a>
+</h3>
+<pre><code>sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -m ec2 -a status</code></pre>
+<p>If the agent is running you will get <strong>status : running</strong> otherwise you will get <strong>status : stopped</strong></p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem/check-agent-status.png" alt="check-agent-status"></p>
+<h3 id="7.-Check-agent-logs">
+<a class="anchor" href="#7.-Check-agent-logs" aria-hidden="true"><span class="octicon octicon-link"></span></a>7. Check agent logs<a class="anchor-link" href="#7.-Check-agent-logs"> </a>
+</h3>
+<p>The agent generates a log while it runs. This log includes troubleshooting information. This log is the <code>amazon-cloudwatch-agent.log</code> file. This file is located in <code>/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log</code> on Linux servers. This is the same logfile path we also defined in the JSON config file. If you are using multiple agents on the machine then you can give them separate log file paths using their JSON configurations.</p>
+
+<pre><code>sudo tail -f /var/log/amazon/amazon-cloudwatch-agent/amazon-cloudwatch-agent.log</code></pre>
+<p>Check the logs if there is an exception message or not.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem/agent-logs.png" alt="agent-logs"></p>
+<p>Please note that both the log files are the same. It could be that agent is keeping multiple copies for internal processing.</p>
+
+<pre><code>/opt/aws/amazon-cloudwatch-agent/logs/amazon-cloudwatch-agent.log</code></pre>
+<p>or</p>
+
+<pre><code>/var/log/amazon/amazon-cloudwatch-agent/amazon-cloudwatch-agent.log</code></pre>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Check-the-agent-logs-on-AWS-CloudWatch-console">
+<a class="anchor" href="#Check-the-agent-logs-on-AWS-CloudWatch-console" aria-hidden="true"><span class="octicon octicon-link"></span></a>Check the agent logs on AWS CloudWatch console<a class="anchor-link" href="#Check-the-agent-logs-on-AWS-CloudWatch-console"> </a>
+</h2>
+<p>Agent logs are also uploaded to CloudWatch console under log <strong>group</strong> and <strong>stream</strong> that we mentioned in JSON config file. In our case it is</p>
+
+<pre><code>"log_group_name": "myblog/onprem/ubuntu/amazon-cloudwatch-agent"
+"log_stream_name": "myblog-cloudwatchagent-demo.log"</code></pre>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem/agent-log-group.png" alt="agent-log-group"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Check-the-machine-metrics-on-CloudWatch-console">
+<a class="anchor" href="#Check-the-machine-metrics-on-CloudWatch-console" aria-hidden="true"><span class="octicon octicon-link"></span></a>Check the machine metrics on CloudWatch console<a class="anchor-link" href="#Check-the-machine-metrics-on-CloudWatch-console"> </a>
+</h2>
+<p>Now finally we can check the metrics uploaded by the agent on CloudWatch console under <code>CloudWatch &gt; Metrics &gt; ALL metrics &gt; Custom namespaces</code></p>
+<p>The name of the metrics namespace is the same as what we defined in our JSON config file</p>
+
+<pre><code>"metrics": {
+      "namespace": "myblog/cloudwatchagent/demo"</code></pre>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-21-cloudwatch-agent-onprem/agent-metrics.png" alt="agent-metrics"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Common-scenarios-with-the-CloudWatch-agent">
+<a class="anchor" href="#Common-scenarios-with-the-CloudWatch-agent" aria-hidden="true"><span class="octicon octicon-link"></span></a>Common scenarios with the CloudWatch agent<a class="anchor-link" href="#Common-scenarios-with-the-CloudWatch-agent"> </a>
+</h1>
+<p>For more trouble shooting scenerios follow these link</p>
+<ul>
+<li><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/troubleshooting-CloudWatch-Agent.html">troubleshooting-CloudWatch-Agent</a></li>
+<li><a href="https://docs.aws.amazon.com/AmazonCloudWatch/latest/monitoring/CloudWatch-Agent-common-scenarios.html">CloudWatch-Agent-common-scenarios</a></li>
+</ul>
+<h2 id="To-stop-the-CloudWatch-agent-locally-using-the-command-line">
+<a class="anchor" href="#To-stop-the-CloudWatch-agent-locally-using-the-command-line" aria-hidden="true"><span class="octicon octicon-link"></span></a>To stop the CloudWatch agent locally using the command line<a class="anchor-link" href="#To-stop-the-CloudWatch-agent-locally-using-the-command-line"> </a>
+</h2>
+<p>On a Linux server, enter the following</p>
+
+<pre><code>sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -m ec2 -a stop</code></pre>
+<h2 id="I-updated-my-agent-configuration-but-don’t-see-the-new-metrics-or-logs-in-the-CloudWatch-console">
+<a class="anchor" href="#I-updated-my-agent-configuration-but-don%E2%80%99t-see-the-new-metrics-or-logs-in-the-CloudWatch-console" aria-hidden="true"><span class="octicon octicon-link"></span></a>I updated my agent configuration but don’t see the new metrics or logs in the CloudWatch console<a class="anchor-link" href="#I-updated-my-agent-configuration-but-don%E2%80%99t-see-the-new-metrics-or-logs-in-the-CloudWatch-console"> </a>
+</h2>
+<p>If you update your CloudWatch agent configuration file, the next time that you start the agent, you need to use the fetch-config option. For example, if you stored the updated file on the local computer, enter the following command. Replace <code>&lt;configuration-file-path&gt;</code> with the actual config file path.</p>
+
+<pre><code>sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -s -m ec2 -c file:&lt;configuration-file-path&gt;</code></pre>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hassaanbinaslam/myblog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/myblog/aws/cloudwatch/2022/05/21/cloudwatch-agent-onprem.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A log of my mistakes, thoughts, and learning.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/hassaanbinaslam" target="_blank" title="hassaanbinaslam"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/hassaanbinaslam" target="_blank" title="hassaanbinaslam"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
