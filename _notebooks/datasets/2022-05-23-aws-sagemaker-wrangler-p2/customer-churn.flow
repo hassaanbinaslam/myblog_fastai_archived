@@ -1,0 +1,251 @@
+{
+  "metadata": {
+    "version": 1,
+    "disable_limits": false,
+    "instance_type": "ml.m5.4xlarge"
+  },
+  "nodes": [
+    {
+      "node_id": "b5561103-3296-4655-b8b7-f847fd85a8c2",
+      "type": "SOURCE",
+      "operator": "sagemaker.s3_source_0.1",
+      "parameters": {
+        "dataset_definition": {
+          "__typename": "S3CreateDatasetDefinitionOutput",
+          "datasetSourceType": "S3",
+          "name": "telco_churn_customer_info.csv",
+          "description": null,
+          "s3ExecutionContext": {
+            "__typename": "S3ExecutionContext",
+            "s3Uri": "s3://sagemaker-us-east-1-801598032724/myblog/demo-customer-churn/data/telco_churn_customer_info.csv",
+            "s3ContentType": "csv",
+            "s3HasHeader": true,
+            "s3FieldDelimiter": ",",
+            "s3DirIncludesNested": false,
+            "s3AddsFilenameColumn": false
+          }
+        }
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "default",
+          "sampling": {
+            "sampling_method": "sample_by_limit",
+            "limit_rows": 50000
+          }
+        }
+      ]
+    },
+    {
+      "node_id": "afa14d89-2589-4682-a8f2-bb0dd5c7582b",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.infer_and_cast_type_0.1",
+      "parameters": {},
+      "trained_parameters": {
+        "schema": {
+          "CustomerID": "long",
+          "State": "string",
+          "Area Code": "string",
+          "Phone": "string"
+        }
+      },
+      "inputs": [
+        {
+          "name": "default",
+          "node_id": "b5561103-3296-4655-b8b7-f847fd85a8c2",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "9842f9d7-d348-43e6-a23f-350bb10618ea",
+      "type": "SOURCE",
+      "operator": "sagemaker.s3_source_0.1",
+      "parameters": {
+        "dataset_definition": {
+          "__typename": "S3CreateDatasetDefinitionOutput",
+          "datasetSourceType": "S3",
+          "name": "telco_churn_account_info.csv",
+          "description": null,
+          "s3ExecutionContext": {
+            "__typename": "S3ExecutionContext",
+            "s3Uri": "s3://sagemaker-us-east-1-801598032724/myblog/demo-customer-churn/data/telco_churn_account_info.csv",
+            "s3ContentType": "csv",
+            "s3HasHeader": true,
+            "s3FieldDelimiter": ",",
+            "s3DirIncludesNested": false,
+            "s3AddsFilenameColumn": false
+          }
+        }
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "default",
+          "sampling": {
+            "sampling_method": "sample_by_limit",
+            "limit_rows": 50000
+          }
+        }
+      ]
+    },
+    {
+      "node_id": "480f80f9-7da6-4057-b05e-f7070a7024fa",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.infer_and_cast_type_0.1",
+      "parameters": {},
+      "trained_parameters": {
+        "schema": {
+          "CustomerID": "long",
+          "Account Length": "long",
+          "Int'l Plan": "string",
+          "VMail Plan": "string",
+          "Churn?": "string"
+        }
+      },
+      "inputs": [
+        {
+          "name": "default",
+          "node_id": "9842f9d7-d348-43e6-a23f-350bb10618ea",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "e3b3d489-b82e-4bfe-832f-1534cb8e9adb",
+      "type": "SOURCE",
+      "operator": "sagemaker.athena_source_0.1",
+      "parameters": {
+        "dataset_definition": {
+          "datasetSourceType": "Athena",
+          "name": "telco_churn_utility",
+          "catalogName": "AwsDataCatalog",
+          "databaseName": "telco_db",
+          "queryString": "select * from telco_churn_utility",
+          "s3OutputLocation": "s3://sagemaker-us-east-1-801598032724/athena/",
+          "outputFormat": "parquet",
+          "workgroup": null,
+          "workgroupOutputLocation": null,
+          "enforceWorkgroupConfiguration": false
+        }
+      },
+      "trained_parameters": {
+        "query_execution_id": "80897ac8-44f6-4cb4-a254-cdbd7869cc8d",
+        "ctas_table_name": "sagemaker_tmp_9dfc0e85d0b6423fade4d1bead4e0d41",
+        "ctas_s3_output_location": "s3://sagemaker-us-east-1-801598032724/athena/9dfc0e85d0b6423fade4d1bead4e0d41/data/"
+      },
+      "inputs": [],
+      "outputs": [
+        {
+          "name": "default",
+          "sampling": {
+            "sampling_method": "sample_by_limit",
+            "limit_rows": 50000
+          }
+        }
+      ]
+    },
+    {
+      "node_id": "de68cd98-8916-49f0-9f91-6b75055c8fac",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.infer_and_cast_type_0.1",
+      "parameters": {},
+      "trained_parameters": {
+        "schema": {
+          "customerid": "long",
+          "vmail_message": "long",
+          "day_mins": "float",
+          "day_calls": "long",
+          "day_charge": "float",
+          "eve_mins": "float",
+          "eve_calls": "long",
+          "eve_charge": "float",
+          "night_mins": "float",
+          "night_calls": "long",
+          "night_charge": "float",
+          "intl_mins": "float",
+          "intl_calls": "long",
+          "intl_charge": "float",
+          "custserv_calls": "long"
+        }
+      },
+      "inputs": [
+        {
+          "name": "default",
+          "node_id": "e3b3d489-b82e-4bfe-832f-1534cb8e9adb",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "75f45355-3ccf-4e33-a8ac-4b6087e17e82",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.join_tables_0.1",
+      "parameters": {
+        "left_column": "CustomerID",
+        "right_column": "CustomerID",
+        "join_type": "fullouter"
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "afa14d89-2589-4682-a8f2-bb0dd5c7582b",
+          "output_name": "default"
+        },
+        {
+          "name": "df",
+          "node_id": "480f80f9-7da6-4057-b05e-f7070a7024fa",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "78923853-f030-4945-9eda-d18b9dd51e6f",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.join_tables_0.1",
+      "parameters": {
+        "left_column": "CustomerID_0",
+        "right_column": "customerid",
+        "join_type": "fullouter"
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "75f45355-3ccf-4e33-a8ac-4b6087e17e82",
+          "output_name": "default"
+        },
+        {
+          "name": "df",
+          "node_id": "de68cd98-8916-49f0-9f91-6b75055c8fac",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    }
+  ]
+}
