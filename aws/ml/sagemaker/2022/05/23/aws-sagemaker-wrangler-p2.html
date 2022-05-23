@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Data Preparation with SageMaker Data Wrangler (Part 2) | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Data Preparation with SageMaker Data Wrangler (Part 2)" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="A detailed guide on AWS SageMaker Data Wrangler to prepare data for machine learning models. This is a five parts series where we will prepare, import, explore, process, and export data using AWS Data Wrangler. You are reading Part 2:Import data from multiple sources using Data Wrangler." />
+<meta property="og:description" content="A detailed guide on AWS SageMaker Data Wrangler to prepare data for machine learning models. This is a five parts series where we will prepare, import, explore, process, and export data using AWS Data Wrangler. You are reading Part 2:Import data from multiple sources using Data Wrangler." />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/23/aws-sagemaker-wrangler-p2.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/23/aws-sagemaker-wrangler-p2.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2.jpeg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-05-23T00:00:00-05:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://hassaanbinaslam.github.io/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2.jpeg" />
+<meta property="twitter:title" content="Data Preparation with SageMaker Data Wrangler (Part 2)" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-05-23T00:00:00-05:00","datePublished":"2022-05-23T00:00:00-05:00","description":"A detailed guide on AWS SageMaker Data Wrangler to prepare data for machine learning models. This is a five parts series where we will prepare, import, explore, process, and export data using AWS Data Wrangler. You are reading Part 2:Import data from multiple sources using Data Wrangler.","headline":"Data Preparation with SageMaker Data Wrangler (Part 2)","image":"https://hassaanbinaslam.github.io/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2.jpeg","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/23/aws-sagemaker-wrangler-p2.html"},"url":"https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/23/aws-sagemaker-wrangler-p2.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Data Preparation with SageMaker Data Wrangler (Part 2)</h1><p class="page-description">A detailed guide on AWS SageMaker Data Wrangler to prepare data for machine learning models. This is a five parts series where we will prepare, import, explore, process, and export data using AWS Data Wrangler. You are reading **Part 2:Import data from multiple sources using Data Wrangler**.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-05-23T00:00:00-05:00" itemprop="datePublished">
+        May 23, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      4 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#aws">aws</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#ml">ml</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#sagemaker">sagemaker</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-justify-center">
+          <div class="px-2">
+
+    <a href="https://github.com/hassaanbinaslam/myblog/tree/master/_notebooks/2022-05-23-aws-sagemaker-wrangler-p2.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/myblog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/hassaanbinaslam/myblog/master?filepath=_notebooks%2F2022-05-23-aws-sagemaker-wrangler-p2.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/myblog/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/hassaanbinaslam/myblog/blob/master/_notebooks/2022-05-23-aws-sagemaker-wrangler-p2.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/myblog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+          <div class="px-2">
+  <a href="https://deepnote.com/launch?url=https%3A%2F%2Fgithub.com%2Fhassaanbinaslam%2Fmyblog%2Fblob%2Fmaster%2F_notebooks%2F2022-05-23-aws-sagemaker-wrangler-p2.ipynb" target="_blank">
+      <img class="notebook-badge-image" src="/myblog/assets/badges/deepnote.svg" alt="Launch in Deepnote"/>
+  </a>
+</div>
+
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h1"><a href="#Enviornment">Enviornment </a></li>
+<li class="toc-entry toc-h1"><a href="#About">About </a></li>
+<li class="toc-entry toc-h1"><a href="#Part-2:-Import-data-from-multiple-sources-using-Data-Wrangler">Part 2: Import data from multiple sources using Data Wrangler </a>
+<ul>
+<li class="toc-entry toc-h2"><a href="#Launch-SageMaker-Data-Wrangler-Flow">Launch SageMaker Data Wrangler Flow </a></li>
+<li class="toc-entry toc-h2"><a href="#Import-data-from-sources">Import data from sources </a></li>
+<li class="toc-entry toc-h2"><a href="#Joining-Tables">Joining Tables </a></li>
+</ul>
+</li>
+<li class="toc-entry toc-h1"><a href="#Summary">Summary </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-05-23-aws-sagemaker-wrangler-p2.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2.jpeg" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Enviornment">
+<a class="anchor" href="#Enviornment" aria-hidden="true"><span class="octicon octicon-link"></span></a>Enviornment<a class="anchor-link" href="#Enviornment"> </a>
+</h1>
+<p>This notebook is prepared with Amazon SageMaker Studio using <code>Python 3 (Data Science)</code> Kernel and <code>ml.t3.medium</code> instance.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h1>
+<p>This is a detailed guide on using <strong>AWS SageMaker Data Wrangler</strong> service to prepare data for machine learning models. SageMaker Data Wrangler is a multipurpose tool with which you can</p>
+<ul>
+<li>import data from multiple sources</li>
+<li>explore data with visualizations</li>
+<li>apply transformations</li>
+<li>export data for ml training</li>
+</ul>
+<p>There will be five parts if the post</p>
+<ul>
+<li><a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/17/aws-sagemaker-wrangler-p1.html">Part 1: Prepare synthetic data and place it on multiple sources</a></li>
+<li><strong>Part 2: Import data from multiple sources using Data Wrangler  (You are here)</strong></li>
+<li>Part 3: Explore data with Data Wrangler visualizations</li>
+<li>Part 4: Preprocess data using Data Wrangler</li>
+<li>Part 5: Export data for ML training</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Part-2:-Import-data-from-multiple-sources-using-Data-Wrangler">
+<a class="anchor" href="#Part-2:-Import-data-from-multiple-sources-using-Data-Wrangler" aria-hidden="true"><span class="octicon octicon-link"></span></a>Part 2: Import data from multiple sources using Data Wrangler<a class="anchor-link" href="#Part-2:-Import-data-from-multiple-sources-using-Data-Wrangler"> </a>
+</h1>
+<p>In this post, we will create SageMaker Data Wrangler flow and will create a pipeline to import data from multiple sources. Once data is imported we will add a step to the flow to join the data into a single dataset that can be used for training ML models.</p>
+<h2 id="Launch-SageMaker-Data-Wrangler-Flow">
+<a class="anchor" href="#Launch-SageMaker-Data-Wrangler-Flow" aria-hidden="true"><span class="octicon octicon-link"></span></a>Launch SageMaker Data Wrangler Flow<a class="anchor-link" href="#Launch-SageMaker-Data-Wrangler-Flow"> </a>
+</h2>
+<p>Create a new Data Wrangler flow by clicking on the main menu tabs <code>File &gt; New &gt; Data Wrangler Flow</code>.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/data-wrangler-new-flow.png" alt="data-wrangler-new-flow"></p>
+<p>Once launched SageMaker may take a minute to initialize a new flow. The reason for this is SageMaker will launch a separate machine in the background <code>ml.m5.4xlarge</code> with 16vCPU and 64 GiB memory for processing flow files. A flow file is a JSON file that just captures all the steps performed from the Flow UI console. When you execute the flow, the Flow engine parses this file and performs all the steps. Once a new flow file is available, rename it to <code>customer-churn.flow</code>.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/data-wrangler-flow-ready.png" alt="data-wrangler-flow-ready"></p>
+<h2 id="Import-data-from-sources">
+<a class="anchor" href="#Import-data-from-sources" aria-hidden="true"><span class="octicon octicon-link"></span></a>Import data from sources<a class="anchor-link" href="#Import-data-from-sources"> </a>
+</h2>
+<p>First, we will create a flow to import data (created in the part-1 post) from S3 bucket. For this from the flow UI click on <strong>Amazon S3 bucket</strong>. From the next window select the bucket name <strong>S3://sagemaker-us-east-1-801598032724</strong>. In your case, it could be different where you have stored the data. From the UI select the filename "telco_churn_customer_info.csv" and click <strong>Import</strong></p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/customer-churn-s3.png" alt="customer-churn-s3"></p>
+<p>Once the data is imported repeat the steps for the filename "telco_churn_account_info.csv". If you are not seeing the "import from S3 bucket" option on the UI then check the flow UI and click on the 'Import' tab option. Once both files are imported, your <strong>Data Flow</strong> tab will look similar to this</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/data-flow-customer-account.png" alt="data-flow-customer-account.png"></p>
+<p>Now that we have imported data from S3, we can now work on importing data from the Athena database. For this from the Flow UI Import tab click on <strong>Amazon Athena</strong> option. From the next UI select <code>AwsDataCatalog</code> Data catalog option. For Databases drop down select <code>telco_db</code> and in the query pane write the below query.</p>
+
+<pre><code>select * from telco_churn_utility</code></pre>
+<p>You can also preview the data by clicking on the table preview option. Once satisfied with the results click 'Import'. When asked about the database name write <code>telco_churn_utility</code></p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/import-athena-table.png" alt="import-athena-table.png"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>At this point, you will find all three tables imported in Data Flow UI. Against each table, a plus sign (+) will appear that you can use to add any transformations you want to apply on each table.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/all-tables-imported.png" alt="all-tables-imported.png"></p>
+<p>for <code>telco_churn_customer_info</code> click on the plus sign and then select 'Edit' to change data types.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/edit_customer_info.png" alt="edit_customer_info.png"></p>
+<p>We will add the following transformations</p>
+<ul>
+<li>Change <strong>Area Code</strong> from Long to String</li>
+<li>Click <strong>Preview</strong>
+</li>
+<li>Then click <strong>Apply</strong>
+</li>
+</ul>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/telco_churn_customer_info_edit.png" alt="telco_churn_customer_info_edit.png"></p>
+<p>Similarly for <code>telco_churn_account_info.csv</code> edit data types as</p>
+<ul>
+<li>Change <strong>Account Length</strong> to Long</li>
+<li>Change <strong>Int'l Plan</strong> and <strong>VMail Plan</strong> to String</li>
+<li>Click <strong>Preview</strong> and then click <strong>Apply</strong>
+</li>
+</ul>
+<p>For <code>telco_churn_utility.csv</code> edit data types as</p>
+<ul>
+<li>Change <strong>cust_serv_calls</strong> to Float</li>
+<li>Click <strong>Preview</strong> and then click <strong>Apply</strong>
+</li>
+</ul>
+<p>At this point, we have imported the data from all three sources and have also properly transformed their column types.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Joining-Tables">
+<a class="anchor" href="#Joining-Tables" aria-hidden="true"><span class="octicon octicon-link"></span></a>Joining Tables<a class="anchor-link" href="#Joining-Tables"> </a>
+</h2>
+<p>Now we will join all three tables to get a full dataset. For this from the Flow UI Data flow click on the plus sign next to <strong>customer_info</strong> data type and this time select 'Join'. From the new window select <strong>account_info</strong> as the right dataset and click <strong>Configure</strong></p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/join-configure.png" alt="join-configure.png"></p>
+<p>From the next screen select</p>
+<ul>
+<li>Join Type = Full Outer</li>
+<li>Columns Left = CustomerID</li>
+<li>Columns Right = CustomerID</li>
+<li>Click Preview and then Add</li>
+</ul>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/join-preview.png" alt="join-preview.png"></p>
+<p>A new join step will appear on the Data Flow UI. Click on the plus sign next to it and repeat the steps for <strong>utility</strong> table</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/first-join.png" alt="first-join.png"></p>
+<ul>
+<li>Join Type = Full Outer</li>
+<li>Columns Left = CustomerID_0</li>
+<li>Columns Right = CustomerID</li>
+<li>Click Preview and then Add</li>
+</ul>
+<p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/join-second.png" alt="join-second.png"></p>
+<h1 id="Summary">
+<a class="anchor" href="#Summary" aria-hidden="true"><span class="octicon octicon-link"></span></a>Summary<a class="anchor-link" href="#Summary"> </a>
+</h1>
+<p>At this point, we have all the tables joined together. In the next post, we will clean duplicate columns and create some visualizations to analyze the data.</p>
+
+</div>
+</div>
+</div>
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hassaanbinaslam/myblog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/myblog/aws/ml/sagemaker/2022/05/23/aws-sagemaker-wrangler-p2.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A log of my mistakes, thoughts, and learning.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/hassaanbinaslam" target="_blank" title="hassaanbinaslam"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/hassaanbinaslam" target="_blank" title="hassaanbinaslam"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
