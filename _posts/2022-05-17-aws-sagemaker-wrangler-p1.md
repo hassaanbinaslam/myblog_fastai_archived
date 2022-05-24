@@ -44,7 +44,7 @@ layout: notebook
 <li>apply transformations</li>
 <li>export data for ml training</li>
 </ul>
-<p>There will be five parts if the post</p>
+<p>This guide is divided into five parts</p>
 <ul>
 <li><strong>Part 1: Prepare synthetic data and place it on multiple sources (You are here)</strong></li>
 <li><a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/23/aws-sagemaker-wrangler-p2.html">Part 2: Import data from multiple sources using Data Wrangler</a></li>

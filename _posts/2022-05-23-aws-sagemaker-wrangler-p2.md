@@ -126,7 +126,7 @@ layout: notebook
 <li>Click Preview and then Add</li>
 </ul>
 <p><img src="/myblog/images/copied_from_nb/images/2022-05-23-aws-sagemaker-wrangler-p2/join-second.png" alt="join-second.png"></p>
-<h1 id="Summary">Summary<a class="anchor-link" href="#Summary"> </a></h1><p>At this point, we have all the tables joined together. In the next post, we will clean duplicate columns and create some visualizations to analyze the data.</p>
+<h1 id="Summary">Summary<a class="anchor-link" href="#Summary"> </a></h1><p>At this point, we have all the tables joined together. The <code>customer-churn.flow</code> created is available on the GitHub <a href="https://github.com/hassaanbinaslam/myblog/blob/master/_notebooks/datasets/2022-05-23-aws-sagemaker-wrangler-p2/customer-churn.flow">here</a>. In the next post, we will clean duplicate columns and create some visualizations to analyze the data.</p>
 
 </div>
 </div>
