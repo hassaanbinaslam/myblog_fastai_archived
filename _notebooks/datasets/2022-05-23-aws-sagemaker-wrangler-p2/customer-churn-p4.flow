@@ -346,7 +346,7 @@
       "type": "VISUALIZATION",
       "operator": "sagemaker.visualizations.data_insights_report_0.1",
       "parameters": {
-        "report_content": "Anomaly detection",
+        "report_content": "Warning summary",
         "insights_report_parameters": {
           "target_column": "Churn?",
           "problem_type": "Classification"
@@ -13817,6 +13817,80 @@
         {
           "name": "df",
           "node_id": "78923853-f030-4945-9eda-d18b9dd51e6f",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "70cb5153-3034-4135-bd49-1a8091daa8ab",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.format_string_0.1",
+      "parameters": {
+        "operator": "Remove symbols",
+        "remove_symbols_parameters": {
+          "symbols": ".!@#$%^&*()_+=-/\\`~{}|<>?",
+          "input_column": [
+            "Churn?"
+          ]
+        },
+        "lower_case_parameters": {}
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "aec181d4-de5e-4f68-bf30-8bb24b62edf2",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "d9a8f68b-1e99-4c18-bca3-fd0370fe6a00",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.cast_single_data_type_0.1",
+      "parameters": {
+        "column": "Churn?",
+        "original_data_type": "String",
+        "data_type": "bool"
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "70cb5153-3034-4135-bd49-1a8091daa8ab",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "37476c55-cb05-47bf-b79b-1bf30da4e354",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.manage_columns_0.1",
+      "parameters": {
+        "operator": "Drop column",
+        "drop_column_parameters": {
+          "column_to_drop": [
+            "Area Code"
+          ]
+        }
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "d9a8f68b-1e99-4c18-bca3-fd0370fe6a00",
           "output_name": "default"
         }
       ],
