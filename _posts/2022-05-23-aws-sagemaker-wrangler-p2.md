@@ -44,11 +44,11 @@ layout: notebook
 <li>apply transformations</li>
 <li>export data for ml training</li>
 </ul>
-<p>There will be five parts if the post</p>
+<p>This guide is divided into five parts</p>
 <ul>
 <li><a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/17/aws-sagemaker-wrangler-p1.html">Part 1: Prepare synthetic data and place it on multiple sources</a></li>
 <li><strong>Part 2: Import data from multiple sources using Data Wrangler  (You are here)</strong></li>
-<li>Part 3: Explore data with Data Wrangler visualizations</li>
+<li><a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/24/aws-sagemaker-wrangler-p3.html">Part 3: Explore data with Data Wrangler visualizations</a></li>
 <li>Part 4: Preprocess data using Data Wrangler</li>
 <li>Part 5: Export data for ML training</li>
 </ul>
