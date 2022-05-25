@@ -96,16 +96,16 @@
       ]
     },
     {
-      "node_id": "480f80f9-7da6-4057-b05e-f7070a7024fa",
+      "node_id": "605a390f-b7cb-439f-a0ff-cff3c01cb4b0",
       "type": "TRANSFORM",
       "operator": "sagemaker.spark.infer_and_cast_type_0.1",
       "parameters": {},
       "trained_parameters": {
         "schema": {
-          "CustomerID": "long",
+          "CustomerID": "string",
           "Account Length": "long",
-          "Int'l Plan": "string",
-          "VMail Plan": "string",
+          "Int'l Plan": "bool",
+          "VMail Plan": "bool",
           "Churn?": "string"
         }
       },
@@ -210,7 +210,7 @@
         },
         {
           "name": "df",
-          "node_id": "480f80f9-7da6-4057-b05e-f7070a7024fa",
+          "node_id": "605a390f-b7cb-439f-a0ff-cff3c01cb4b0",
           "output_name": "default"
         }
       ],
@@ -13891,6 +13891,71 @@
         {
           "name": "df",
           "node_id": "d9a8f68b-1e99-4c18-bca3-fd0370fe6a00",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "7347958b-e929-438c-a57b-ee73a88a6d22",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.encode_categorical_0.1",
+      "parameters": {
+        "operator": "One-hot encode",
+        "one_hot_encode_parameters": {
+          "invalid_handling_strategy": "Keep",
+          "drop_last": false,
+          "output_style": "Columns",
+          "input_column": [
+            "State"
+          ]
+        },
+        "ordinal_encode_parameters": {
+          "invalid_handling_strategy": "Replace with NaN"
+        }
+      },
+      "trained_parameters": {
+        "one_hot_encode_parameters": {
+          "_hash": -1767228197713558300,
+          "string_indexer_model": "P)h>@6aWAK2mtzUxm0$o--q1*003hF000vJ003=ebYWy+bYU-WVRCdWFfcGMFny0rPs1<_hVT3gpS!3Zu$EoNWrqnQ5ZB5|+$~zZa1z9r`ripfLIMeHmi<1D?F&eQF~SBs9|Q)JM-nk0pM*7HB21Y{JSNueuycyui1%KRfeMng6cgG2n`V8}T@U@bZ*GU7f`xx3j@r9o?nEu>720>VstcF3D$O6tvFqBdY1+P>6qQKf(eAOBFK|Ss4DH-2ngu)&g%Z&&<h1o>QDOR|d`{oJL^h1Flye1&Cd?*1{39i1&qWcJtL|A5Kb-@W$;9-M$;tB_Mfq#V-#?7wR}SX+>H|<q0|XQR000O8`f#~a|7Y8w4gdfE3;+NC7ytkOZDn*}WMOn+FD`Ila&#>)FfcGME@N_IOD;-gU|?WkXurR<3;<9|0|XQR000O8`f#~a4YSPyGy(tsN&^4@NB{r;WMOn+FK}UUbS*G2FfcGJFkxn6V`VpCEn;IcG%YkUG%zh;GC4RcWHB-~G%z<cHZU_dEn_e+FfMa$VQ_GHE^uLTadl;MjgwJN(@+%0PfKrwxF?dkv`J%@MhM_+IydUJ@KOOCjCBjE12o3m(OYcnI%qqEki8f`iy=Pq0rbhQ;>YlG44oPiU(WsC^E>CBbMDRU*!v|4^aG*a=Ze%vDN|XqU`0GQQbfB60AIx_!Da61b59ge_(YJU{T(!|Ei~OtL53|N!wy-L+6`e*viCFQpmDY{)kfGwv1wyui^$SJPsqW}LJp2_ZIcb?5(oB(f-shxUEv-a;92%w7KOPEc>*1zy@_r}?xAoWT=G%sxfszPjjS}1Yw5WwC==0cBH1KY*w{5RF~@!(WXG?eQ--JH9Bg7@6&Ic@oI^`kt2kTPY|U<FTiaAr!$vMSW%1kB$?+RLU{r*4QMntkJ`WQ+j@bnjsSN9qB85Sc-rzet<O3e1e<GS&`URH&@}jD#+VZ?cbLx@|>f!9Ulcd|=-!@dt`}r><|4CY&-<WwLRl|1!nzf!`5!9lh4C51noic3Rn9O0k<8cxUBZZU=(=b6<{VO6l3k?)!Bc2-Z@VznMDf3v$lyAbNo?e`Cy{;!|JUUMGqV5Mg^b)=P@=}l3AVV`VAis(Kna8H?=_u}h(5zMvouK=87^N(T5@!^KdL299<9|3K+^~MgZyZJab_A?79={rcvO68{;UF$dZ=_H%N~TdNtn^1g=oL)A=J}Pf$9=zFt@_?$ziL^QXO*p5sakndE}MSE>U*_SRnzdsAK<lj@E836P)h>@6aWAK2mtzUxm28ZdbAP%000mG002z@003lRbYU+paA9(EEif=JFfc7JVP<1vWjA3hVq-HjEi^MUFfCy+IXEq3F)}waFgG<eFf%wUV=yo<E^}^SaBz7paA9(Bb!BueV{&6lE=p!#U|?c686j}DwdVMJ08mQ-0u%!j000080QzvbRCcZ3hur`G0Am3F022TJ00000000000HlEc0001OWprU=VRT_HaA9(EEif=JFfdR{0Rj{Q6aWAK2mtzUxm5pW+o28s000aC000;O0000000000005+c4gmlFZDn*}WMOn+FD`Ila&#>)FfcGME@N_IP)h*<6ay3h000O8`f#~a4YSPyGy(tsN&^4@NB{r;0000000000q=8Za003lRbYU-WVRCdWFfcGMFfA})W@BSzH(@PeV>2`@G&3|XEnzY_I4xu`GB-3ZH#IgeGdL|{FfcGKb8ca9aCt6pVRCVGWpq$W0Rj{Q6aWAK2mtzUxm28ZdbAP%000mG002z@0000000000005+c>;nJ*WMOn+FD`Ila&#>)FfcGMEihqbV`F7EVJ%`~Gc+wUGc+(QVKO;5Eo3n=H#9IeH8wCaI4xr^FfcB2Zeeh6c`k5aa&dKKbS`6ZV^B*41^@s600aO80C)ia0BHmO0000",
+          "one_hot_encoder_model": "P)h>@6aWAK2mtzUxl{{7ww2WY003zL000vJ003=ebYWy+bYU-WVRCdWFfcGMFoloHN&`U<MfZM2ttU<AHDhKg0R@Au+&0Bbbu!p5x~p9n=HD$NiVEVU7MFX@rOq%oECqUq`KU1Aa3WO_=4a)dvV>eSsfR$fk@sPUBjtk}2MzG#sWAEk{j%MzH`iU;t+rj;z=eOJT&5VryjEK21^U;p(8ASel<<erSiReIgx0p3rBsARe?T#xVG618O?1LA`DBLpK7PV5I=Txl=q@_SIcCYn9Me4(hTftp)IhBK#hXuo(J)JwELO*l-^Tvea<0Fue}7`kM-S%t>J3m!0|XQR000O8`f#~ar`v?`4gdfE3;+NC7ytkOZDn*}WMOn+FD`Ila&#>)FfcGME@N_IOD;-gU|?Wkn7YlG8vsyC0|XQR000O8`f#~ahBmlOegOagFaiJoNB{r;WMOn+FK}UUbS*G2FfcGJG&nOcH)3TpEigA`VJ$ReHDoO~Vl!baH8e9hVly{lW@a`rEn_e+FfMa$VQ_GHE^uLTadl;MeNs(JD=`#JW34W9;UYr@W>Eqbg)z*$spGV`(4B~gs5^N)(oUko%godyRjL;J8U8?jh_|+iBACGCew=gfxglqV=P^Nqkxoc3I4#l&XtRqDnp+QTeTm>~9AL0ZaKU0U%M$FL9Ie@rF#rGA;f*W>!DtuL^`UU`x;B%G;z3$y-$J`h+SG-003di1(G{s>DJzFO><50(Sq-4sW()b*ck(;w15B`oy(jOv(OKR9MXMjcJ}_ohdGavwLrQCN&BaK7NdB&u-$`SOx}wVok9dUW_78-;)f}ALv2@(j_q>!&<iZL1(s*QUGLo#%tTW@GV<A(8)VXE-t4CIea#s4b1|a5)Po^+NOd!2j?Q)(iDj-P%`C(l-QB?MHtTpQ^p{<;Ttb#}kG(cgn4B3Y!Xgr<%og#X?P`p!`_F~0$%;Sj1?XAJM(0Myjy<ByZTq-rlGL`SCEKSoqP10VRb^jzuq`K)K?```*05AC3K<Etq${SEi0|XQR000O8`f#~aEF<om5&!@I5C8xGO#lD@WMOn+FD`Ila&#>)FfcGMEi^bYF*jmmG%YYUW??NfWi@0iIASwlEj2VVIbt(6VrFJGGA&~;FfcB2Zeeh6c`k5aa&dKKbS`6ZV@obdW?*1oVz_SKu;$!9D>DF4O928D0~7!N00;p3aJf_qL$;OG0001K0RR9K00000000000001_fdBvi0BvP-VPs)+VJ~oDa&#>)FfcGMP)h*<6ay3h000O8`f#~ar`v?`4gdfE3;+NC7ytkO0000000000q=5zj003=ebYWy+bYU+paA9(EEif=JFfcA-a$`_S0Rj{Q6aWAK2mtzUxm1QWxJ`Zm001xo002k;0000000000005+cN&x@>WMOn+FK}UUbS*G2FfcGJG&nOcH)3TpEigA`VJ$ReHDoO~Vl!baH8e9hVly{lW@a`rEn_e+FfMa$VQ_GHE^uLTadl;MP)h*<6ay3h000O8`f#~aEF<om5&!@I5C8xGO#lD@0000000000q=7C2003lRbYU+paA9(EEif=JFfc7NI5ROfVr4WfFgIplEi`2{WGy&iGhr<?G&4D3GdE&pW;QY{V=yo<E^}^SaBz7paA9(Bb!BueV{&6qO9ci10000400aPd0RRB20{{R300"
+        }
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "37476c55-cb05-47bf-b79b-1bf30da4e354",
+          "output_name": "default"
+        }
+      ],
+      "outputs": [
+        {
+          "name": "default"
+        }
+      ]
+    },
+    {
+      "node_id": "ac815999-54ed-42ad-b78b-21285d500ced",
+      "type": "TRANSFORM",
+      "operator": "sagemaker.spark.manage_columns_0.1",
+      "parameters": {
+        "operator": "Move column",
+        "move_column_parameters": {
+          "move_type": "Move to start",
+          "move_to_start_parameters": {
+            "column_to_move": "Churn?"
+          }
+        },
+        "drop_column_parameters": {}
+      },
+      "inputs": [
+        {
+          "name": "df",
+          "node_id": "7347958b-e929-438c-a57b-ee73a88a6d22",
           "output_name": "default"
         }
       ],
