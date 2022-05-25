@@ -96,16 +96,16 @@
       ]
     },
     {
-      "node_id": "480f80f9-7da6-4057-b05e-f7070a7024fa",
+      "node_id": "d797e3e5-369d-45fb-bda9-99c10d21a26f",
       "type": "TRANSFORM",
       "operator": "sagemaker.spark.infer_and_cast_type_0.1",
       "parameters": {},
       "trained_parameters": {
         "schema": {
-          "CustomerID": "long",
+          "CustomerID": "string",
           "Account Length": "long",
-          "Int'l Plan": "string",
-          "VMail Plan": "string",
+          "Int'l Plan": "bool",
+          "VMail Plan": "bool",
           "Churn?": "string"
         }
       },
@@ -142,7 +142,7 @@
       },
       "trained_parameters": {
         "query_execution_id": "80897ac8-44f6-4cb4-a254-cdbd7869cc8d",
-        "ctas_table_name": "sagemaker_tmp_9dfc0e85d0b6423fade4d1bead4e0d41",
+        "ctas_table_name": "",
         "ctas_s3_output_location": "s3://sagemaker-us-east-1-801598032724/athena/9dfc0e85d0b6423fade4d1bead4e0d41/data/"
       },
       "inputs": [],
@@ -210,7 +210,7 @@
         },
         {
           "name": "df",
-          "node_id": "480f80f9-7da6-4057-b05e-f7070a7024fa",
+          "node_id": "d797e3e5-369d-45fb-bda9-99c10d21a26f",
           "output_name": "default"
         }
       ],
