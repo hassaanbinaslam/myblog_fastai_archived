@@ -49,8 +49,8 @@ layout: notebook
 <li><a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/17/aws-sagemaker-wrangler-p1.html">Part 1: Prepare synthetic data and place it on multiple sources</a></li>
 <li><a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/23/aws-sagemaker-wrangler-p2.html">Part 2: Import data from multiple sources using Data Wrangler</a></li>
 <li><strong>Part 3: Explore data with Data Wrangler visualizations (You are here)</strong></li>
-<li>Part 4: Preprocess data using Data Wrangler</li>
-<li>Part 5: Export data for ML training</li>
+<li><a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/25/aws-sagemaker-wrangler-p4.html">Part 4: Preprocess data using Data Wrangler</a></li>
+<li><a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/26/aws-sagemaker-wrangler-p5.html">Part 5: Export data for ML training</a></li>
 </ul>
 
 </div>
