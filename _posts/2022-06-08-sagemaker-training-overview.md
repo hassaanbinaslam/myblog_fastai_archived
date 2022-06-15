@@ -1,6 +1,6 @@
 ---
 keywords: fastai
-description: This post is about using AWS SageMaker to train and deploy models.
+description: How to build, train, and deploy a machine learning model with Amazon SageMaker .
 title: Demystifying AWS SageMaker Training for scikit-learn Lovers 
 toc: true 
 badges: true
@@ -37,21 +37,21 @@ layout: notebook
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>This post is about understanding AWS SageMaker's end-to-end machine learning workflow. We will apply SageMaker builtin <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/linear-learner.html">Linear Learner</a> on <a href="https://www.kaggle.com/c/boston-housing">Kaggle Boston Housing dataset</a>. Our goal for this exercise will be to understand all the steps involved in training a model with AWS SageMaker.</p>
+<h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>This post is about simplifying Amazon SageMaker end-to-end machine learning workflow for newcomers. We will go slowly and try to understand each step involved in training and deploying a model. As an example, we will take <a href="https://www.kaggle.com/c/boston-housing">Kaggle Boston Housing dataset</a> and train a SageMaker built-in algorithm <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/linear-learner.html">Linear Learner</a> on it. At the end of this tutorial, you will know how to use Amazon SageMaker to build, train, and deploy a machine learning model.</p>
 <h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction"> </a></h1><p>A typical SageMaker machine learning flow has the following five steps. If you have a good understanding of them then you can use this approach to train any other model with SageMaker.</p>
 <ol>
-<li><strong>Put Data on S3 Bucket</strong>
- In most of the use cases, you will keep your training data on S3 bucket. You may also require to preprocess your data and for this you can use <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/17/aws-sagemaker-wrangler-p1.html">SageMaker Data Wrangler</a>. In this post, we will consider that data has already been processed and is available for training.</li>
-<li><strong>Configure the Training Job</strong>
-While configuring a training job you need to take care of the following requirements
-a. select the algorithm you want to use for your training
-b. set the hyperparameters (if any)
-c. define the infrastructure requirements like how many CPUs or GPUs you want to throw at your training run</li>
-<li><strong>Launch Training Job</strong>
-Tell your training job where the input data is located, and once training is complete where should the output artifacts be stored. Once input and output are configured you can start the training run. Once a run is started SageMaker will automatically provision the required infrastructure, and once the training is complete it will be terminated, and you will be only billed for what you have used.</li>
-<li><strong>Deploy model and make predictions</strong>
+<li><strong>Put data on S3 bucket</strong><br>
+In most use cases, you will keep your training data on S3 bucket. You may also require to preprocess your data and for this you can use <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/05/17/aws-sagemaker-wrangler-p1.html">SageMaker Data Wrangler</a>. In this post, we will consider that data has already been processed and will upload it to S3 for training.</li>
+<li><strong>Configure the training job</strong><br>
+While configuring a training job you need to take care of the following requirements <br>
+   a. select the algorithm you want to use for your training <br>
+   b. set the hyperparameters (if any) <br>
+   c. define the infrastructure requirements like how many CPUs or GPUs you want to throw at your training run</li>
+<li><strong>Launch training job</strong><br>
+At this point, we will tell your training job where the input data is located, and once the training is complete where should the output artifacts be stored. With this setting, we are ready to start the training run. Once a run is started SageMaker will automatically provision the required infrastructure for our run, and once the training is complete it will be terminated, and you will be only billed for what you have used.</li>
+<li><strong>Deploy model and make predictions</strong><br>
 Deploy the model to make real-time predictions. Again, you need to define the infrastructure requirements where you want your model to be deployed.</li>
-<li><strong>Clean Up (Optional)</strong>
+<li><strong>Clean Up (Optional)</strong><br>
 If you are experimenting, you may want to terminate the machine on which you have deployed your model for testing purposes to avoid any unnecessary charges.</li>
 </ol>
 
@@ -876,7 +876,8 @@ Region: us-east-1
     mini_batch_size=30)</code></pre>
 <p>You might ask that for our problem even a small <code>ml.t3.medium</code> or <code>ml.c5.large</code> machine would be sufficient. Why have not we used them? The answer to this is that AWS SageMaker at this time supports a limited number of machine types and both of them are not supported to run training loads. If you configure Estimator object for these instance types you will get an error shown below</p>
 
-<pre><code>An error occurred (ValidationException) when calling the CreateTrainingJob operation: 1 validation error detected: Value 'ml.t3.medium' at 'resourceConfig.instanceType' failed to satisfy constraint: Member must satisfy enum value set: [ml.p2.xlarge, ml.m5.4xlarge, ml.m4.16xlarge, ml.p4d.24xlarge, ml.g5.2xlarge, ml.c5n.xlarge, ml.p3.16xlarge, ml.m5.large, ml.p2.16xlarge, ml.g5.4xlarge, ml.c4.2xlarge, ml.c5.2xlarge, ml.c4.4xlarge, ml.g5.8xlarge, ml.c5.4xlarge, ml.c5n.18xlarge, ml.g4dn.xlarge, ml.g4dn.12xlarge, ml.c4.8xlarge, ml.g4dn.2xlarge, ml.c5.9xlarge, ml.g4dn.4xlarge, ml.c5.xlarge, ml.g4dn.16xlarge, ml.c4.xlarge, ml.g4dn.8xlarge, ml.g5.xlarge, ml.c5n.2xlarge, ml.g5.12xlarge, ml.g5.24xlarge, ml.c5n.4xlarge, ml.c5.18xlarge, ml.p3dn.24xlarge, ml.g5.48xlarge, ml.g5.16xlarge, ml.p3.2xlarge, ml.m5.xlarge, ml.m4.10xlarge, ml.c5n.9xlarge, ml.m5.12xlarge, ml.m4.xlarge, ml.m5.24xlarge, ml.m4.2xlarge, ml.p2.8xlarge, ml.m5.2xlarge, ml.p3.8xlarge, ml.m4.4xlarge]</code></pre>
+<pre><code>An error occurred (ValidationException) when calling the CreateTrainingJob operation: 1 validation error detected: Value 'ml.t3.medium' at 'resourceConfig.instanceType' failed to satisfy constraint: Member must satisfy enum value set: 
+[ml.p2.xlarge, ml.m5.4xlarge, ml.m4.16xlarge, ml.p4d.24xlarge, ml.g5.2xlarge, ml.c5n.xlarge, ml.p3.16xlarge, ml.m5.large, ml.p2.16xlarge, ml.g5.4xlarge, ml.c4.2xlarge, ml.c5.2xlarge, ml.c4.4xlarge, ml.g5.8xlarge, ml.c5.4xlarge, ml.c5n.18xlarge, ml.g4dn.xlarge, ml.g4dn.12xlarge, ml.c4.8xlarge, ml.g4dn.2xlarge, ml.c5.9xlarge, ml.g4dn.4xlarge, ml.c5.xlarge, ml.g4dn.16xlarge, ml.c4.xlarge, ml.g4dn.8xlarge, ml.g5.xlarge, ml.c5n.2xlarge, ml.g5.12xlarge, ml.g5.24xlarge, ml.c5n.4xlarge, ml.c5.18xlarge, ml.p3dn.24xlarge, ml.g5.48xlarge, ml.g5.16xlarge, ml.p3.2xlarge, ml.m5.xlarge, ml.m4.10xlarge, ml.c5n.9xlarge, ml.m5.12xlarge, ml.m4.xlarge, ml.m5.24xlarge, ml.m4.2xlarge, ml.p2.8xlarge, ml.m5.2xlarge, ml.p3.8xlarge, ml.m4.4xlarge]</code></pre>
 
 </div>
 </div>
