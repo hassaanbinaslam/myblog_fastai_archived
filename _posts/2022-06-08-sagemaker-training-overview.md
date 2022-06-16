@@ -1,6 +1,6 @@
 ---
 keywords: fastai
-description: How to build, train, and deploy a machine learning model with Amazon SageMaker .
+description: How to build, train, and deploy a machine learning model with Amazon SageMaker.
 title: Demystifying AWS SageMaker Training for scikit-learn Lovers 
 toc: true 
 badges: true
@@ -48,7 +48,7 @@ While configuring a training job you need to take care of the following requirem
    b. set the hyperparameters (if any) <br>
    c. define the infrastructure requirements like how many CPUs or GPUs you want to throw at your training run</li>
 <li><strong>Launch training job</strong><br>
-Here we will tell the training job where the input data is located, and where should the output artifacts be stored once the training is done. With this setting, we are ready to start the training run. Once the training is started SageMaker will automatically provision the required infrastructure for our run, and once the training is complete it will be terminated, and you will only be billed for what you have used.</li>
+Here we will tell the training job where the input data is located, and where should the output artifacts be stored once the training is done. With this setting, we are ready to start the training run. Once the training is started SageMaker will automatically provision the required infrastructure for our run, and when the training is complete it will be terminated, and you will only be billed for what you have used.</li>
 <li><strong>Deploy model and make predictions</strong><br>
 Deploy the model to make real-time predictions. Again, you need to define the infrastructure requirements where you want your model to be deployed.</li>
 <li><strong>Clean Up (Optional)</strong><br>
@@ -788,7 +788,7 @@ Region: us-east-1
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Configure-the-Estimator-Object">Configure the Estimator Object<a class="anchor-link" href="#Configure-the-Estimator-Object"> </a></h2><p>For configuring our estimator we need to fulfill the following requirements.</p>
+<h2 id="Configure-the-Estimator-Object">Configure the Estimator Object<a class="anchor-link" href="#Configure-the-Estimator-Object"> </a></h2><p>To configure our estimator we need to fulfill the following requirements.</p>
 <ul>
 <li><strong>output path</strong> Define the output path where we want to store the trained model artifacts</li>
 <li><strong>instance type</strong> Since we have a small dataset and not so complex model so a small machine should suffice. 'ml.m5.large' will do. It is a general purpose instance with 2vCPU and 8GiB RAM. </li>
