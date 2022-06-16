@@ -48,7 +48,7 @@ While configuring a training job you need to take care of the following requirem
    b. set the hyperparameters (if any) <br>
    c. define the infrastructure requirements like how many CPUs or GPUs you want to throw at your training run</li>
 <li><strong>Launch training job</strong><br>
-At this point, we will tell your training job where the input data is located, and once the training is complete where should the output artifacts be stored. With this setting, we are ready to start the training run. Once a run is started SageMaker will automatically provision the required infrastructure for our run, and once the training is complete it will be terminated, and you will be only billed for what you have used.</li>
+At this point, we will tell the training job where the input data is located, and where should the output artifacts be stored once the training is done. With this setting, we are ready to start the training run. Once the training is started SageMaker will automatically provision the required infrastructure for our run, and once the training is complete it will be terminated, and you will be only billed for what you have used.</li>
 <li><strong>Deploy model and make predictions</strong><br>
 Deploy the model to make real-time predictions. Again, you need to define the infrastructure requirements where you want your model to be deployed.</li>
 <li><strong>Clean Up (Optional)</strong><br>
@@ -261,7 +261,7 @@ If you are experimenting, you may want to terminate the machine on which you hav
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>The good thing about this dataset is that it does not require any preprocessing as all the features are already in numerical format (no categorical features), and also there are no missing values. We can quickly verify our assumptions as well.</p>
+<p>The good thing about this dataset is that it does not require any preprocessing as all the features are already in numerical format (no categorical features), and also there are no missing values. We can quickly verify these assumptions.</p>
 <p>Check the feature data types.</p>
 
 </div>
@@ -315,7 +315,7 @@ dtype: object</pre>
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Check if there is any value is missing in our dataset.</p>
+<p>Check if there are any missing values in our dataset.</p>
 
 </div>
 </div>
@@ -355,7 +355,7 @@ dtype: object</pre>
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Preparing-the-Data">Preparing the Data<a class="anchor-link" href="#Preparing-the-Data"> </a></h2><p>At this point our data is ready to be used for training but we also need to check the algorithm for any specific requirements. We have selected Linear Learner so let's check its documentation: <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/linear-learner.html">Linear Learner Algorithm</a></p>
+<h2 id="Preparing-the-Data">Preparing the Data<a class="anchor-link" href="#Preparing-the-Data"> </a></h2><p>At this point, our data is ready to be used for training but we also need to check the algorithm we want to use for any specific requirements. We have selected Linear Learner so let's check its documentation: <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/linear-learner.html">Linear Learner Algorithm</a></p>
 <p>In the documentation it says</p>
 <blockquote><p>For training, the linear learner algorithm supports both recordIO-wrapped protobuf and CSV formats. For the application/x-recordio-protobuf input type, only Float32 tensors are supported. For the text/csv input type, the first column is assumed to be the label, which is the target variable for prediction. You can use either File mode or Pipe mode to train linear learner models on data that is formatted as recordIO-wrapped-protobuf or as CSV.</p>
 </blockquote>
@@ -554,7 +554,7 @@ dtype: object</pre>
 <li><strong>AWS SDK for Python (Boto3)</strong>. It provides low-level access to SageMaker APIs.</li>
 <li><strong>SageMaker Python SDK</strong>. It provides a high-level API interface, and you can do more with fewer lines of code. Internally it is calling Boto3 APIs.</li>
 </ol>
-<p>We will be using <strong>SageMaker Python SDK</strong> for this post, and you will see that it has an interface similar to <code>scikit-learn</code>, and is a more natural choice for Data Scientists. SageMaker Python SDK documentation is super helpful, and it has many examples provided to understand the working of its interface. Make sure that you check it out as well <code>https://sagemaker.readthedocs.io/en/stable/</code>. If you don't have much time then I would suggest at least read the following sections from the documentation as we will be using them in the coming sections.</p>
+<p>We will be using <strong>SageMaker Python SDK</strong> for this post, and you will see that it has an interface similar to <code>scikit-learn</code>, and is a more natural choice for Data Scientists. SageMaker Python SDK documentation is super helpful, and it provides many examples to understand the working of its interface. Make sure that you check it out as well <a href="https://sagemaker.readthedocs.io/en/stable/">sagemaker.readthedocs.io</a>. If you don't have much time then I would suggest at least read the following sections from the documentation as we will be using them in the coming sections.</p>
 <ul>
 <li><a href="https://sagemaker.readthedocs.io/en/stable/api/utility/session.html#sagemaker.session.Session">Initialize a SageMaker Session</a></li>
 <li><a href="https://sagemaker.readthedocs.io/en/stable/api/utility/session.html#sagemaker.session.Session.upload_data">Upload local file or directory to S3</a></li>
@@ -621,7 +621,7 @@ Region: us-east-1
 <li>get a session to work with SageMaker API and other AWS services</li>
 <li>get the execution role associated with the user profile. It is the same profile that is available to the user to work from console UI and has <code>AmazonSageMakerFullAccess</code> policy attached to it.</li>
 <li>create or get a default bucket to use and return its name. Default bucket name has the format <code>sagemaker-{region}-{account_id}</code>. If it doesn't exist then our session will automatically create it. You may also use any other bucket in its place given that you have enough permission for reading and writing.</li>
-<li>Get the region name attached to our session</li>
+<li>get the region name attached to our session</li>
 </ul>
 <p>Next, we will use this session to upload data to our default bucket.</p>
 
@@ -635,7 +635,7 @@ Region: us-east-1
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">## You may choose any other prefix for your bucket. All the data related to this post will be under this prefix.</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># You may choose any other prefix for your bucket. All the data related to this post will be under this prefix.</span>
 <span class="n">bucket_prefix</span> <span class="o">=</span> <span class="s1">&#39;2022-06-08-sagemaker-training-overview&#39;</span>
 </pre></div>
 
@@ -744,9 +744,9 @@ Region: us-east-1
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Configure-the-Training-Job">Configure the Training Job<a class="anchor-link" href="#Configure-the-Training-Job"> </a></h1><p>In this section, we will first retrieve the Docker container that is relevant to our training algorithm. Then we will create "sagemaker.estimator.Estimator" class object. This <code>estimator</code> object provides a high-level API interface to control end-to-end SageMaker training and deployment tasks. From the estimator, we will also define our infrastructure and hyperparameter tuning requirements. So let's get started.</p>
-<h2 id="Finding-the-Right-Docker-Container">Finding the Right Docker Container<a class="anchor-link" href="#Finding-the-Right-Docker-Container"> </a></h2><p>AWS SageMaker built-in algorithms are fully managed containers that can be accessed with one call. Each algorithm has a separate container and is also dependent on the region in which you want to run it. Getting the container URI is not a problem as long as we know about the region and the algorithm framework name. We already have the region name from our SageMaker session. To get the algorithm framework name (for linear learner) visit the <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-algo-docker-registry-paths.html">AWS Docker Registry Paths page</a>. From this page select your region. In my case it is <code>us-east-1</code>. On the <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/ecr-us-east-1.html">regional docker registry page</a> find the algorithm you want to use <code>Linear Learner</code> in our case. This will give you the example code and algorithm framework name as shown below.</p>
+<h2 id="Finding-the-Right-Docker-Container">Finding the Right Docker Container<a class="anchor-link" href="#Finding-the-Right-Docker-Container"> </a></h2><p>AWS SageMaker built-in algorithms are fully managed containers that can be accessed with one call. Each algorithm has a separate container and is also dependent on the region in which you want to run it. Getting the container URI is not a problem as long as we know about the region and the algorithm framework name. We already have the region name from our SageMaker session. To get the algorithm framework name (for linear learner) visit the <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/sagemaker-algo-docker-registry-paths.html">AWS Docker Registry Paths page</a>. From this page select your region. In my case it is <code>us-east-1</code>. On the <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/ecr-us-east-1.html">regional docker registry page</a> find the algorithm you want to use; <code>Linear Learner</code> in our case. This will give you the example code and algorithm framework name as shown below.</p>
 <p><img src="/myblog/images/copied_from_nb/images/2022-06-08-sagemaker-training-overview/linear-learner-framework-name.png" alt="linear-learner-framework-name"></p>
-<p>So let's use the provided sample code to get the container URL for our linear learner algorithm.</p>
+<p>So let's use the provided sample code to get the container URI for our linear learner algorithm.</p>
 
 </div>
 </div>
@@ -798,7 +798,7 @@ Region: us-east-1
 </ul>
 </li>
 </ul>
-<p>It is also important to note that the Estimator class will automatically provision a separate <code>ml.m5.large</code> machine to start the training run. This machine will be different from the one on which we are running this Jupyter notebook. Once training is complete that new machine will be terminated and we will be billed for only the time we have used it. This approach makes SageMaker very cost effective. We can keep using small less powerful machines for running Jupyter notebooks, and for training and other heavy workloads, we can provision separate machines for short durations and avoid any unnecessary bills.</p>
+<p>It is also important to note that the Estimator class will automatically provision a separate <code>ml.m5.large</code> machine to start the training run. This machine will be different from the one on which we are running this Jupyter notebook. Once training is complete this new machine will be terminated and we will be billed for only the time we have used it. This approach makes SageMaker very cost effective. We can keep using small less powerful machines for running Jupyter notebooks, and for training and other heavy workloads, we can provision separate machines for short durations and avoid any unnecessary bills.</p>
 
 </div>
 </div>
@@ -869,14 +869,15 @@ Region: us-east-1
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>In the above cell we have defined the hyperparameters within the <code>Estimator</code> object constructor. There is a second way to pass the hyperparameters to the Estimator object using 'set_hyperparameters' function call. This method can be useful when we have a large number of parameters or you want to change them in multiple training runs.</p>
-
-<pre><code>ll_estimator.set_hyperparameters(
-    predictor_type='regressor', 
-    mini_batch_size=30)</code></pre>
-<p>You might ask that for our problem even a small <code>ml.t3.medium</code> or <code>ml.c5.large</code> machine would be sufficient. Why have not we used them? The answer to this is that AWS SageMaker at this time supports a limited number of machine types and both of them are not supported to run training loads. If you configure Estimator object for these instance types you will get an error shown below</p>
+<p>In the above cell, we have defined the hyperparameters within the <code>Estimator</code> object constructor. There is a second way to pass the hyperparameters to the Estimator object using the 'set_hyperparameters' function call. This method can be useful when we have a large number of parameters to set, or when we want to change them in multiple training runs.</p>
+<div class="highlight"><pre><span></span><span class="n">ll_estimator</span><span class="o">.</span><span class="n">set_hyperparameters</span><span class="p">(</span>
+    <span class="n">predictor_type</span><span class="o">=</span><span class="s1">&#39;regressor&#39;</span><span class="p">,</span> 
+    <span class="n">mini_batch_size</span><span class="o">=</span><span class="mi">30</span><span class="p">)</span>
+</pre></div>
+<p>You might ask that for our problem even a small <code>ml.t3.medium</code> or <code>ml.c5.large</code> machine would have been sufficient. Why have not we used them? The answer to this is that AWS SageMaker at this time supports a limited number of machine types for training jobs and both of them are not supported. If you configure the Estimator object for these instance types you will get an error shown below</p>
 
 <pre><code>An error occurred (ValidationException) when calling the CreateTrainingJob operation: 1 validation error detected: Value 'ml.t3.medium' at 'resourceConfig.instanceType' failed to satisfy constraint: Member must satisfy enum value set: 
+
 [ml.p2.xlarge, ml.m5.4xlarge, ml.m4.16xlarge, ml.p4d.24xlarge, ml.g5.2xlarge, ml.c5n.xlarge, ml.p3.16xlarge, ml.m5.large, ml.p2.16xlarge, ml.g5.4xlarge, ml.c4.2xlarge, ml.c5.2xlarge, ml.c4.4xlarge, ml.g5.8xlarge, ml.c5.4xlarge, ml.c5n.18xlarge, ml.g4dn.xlarge, ml.g4dn.12xlarge, ml.c4.8xlarge, ml.g4dn.2xlarge, ml.c5.9xlarge, ml.g4dn.4xlarge, ml.c5.xlarge, ml.g4dn.16xlarge, ml.c4.xlarge, ml.g4dn.8xlarge, ml.g5.xlarge, ml.c5n.2xlarge, ml.g5.12xlarge, ml.g5.24xlarge, ml.c5n.4xlarge, ml.c5.18xlarge, ml.p3dn.24xlarge, ml.g5.48xlarge, ml.g5.16xlarge, ml.p3.2xlarge, ml.m5.xlarge, ml.m4.10xlarge, ml.c5n.9xlarge, ml.m5.12xlarge, ml.m4.xlarge, ml.m5.24xlarge, ml.m4.2xlarge, ml.p2.8xlarge, ml.m5.2xlarge, ml.p3.8xlarge, ml.m4.4xlarge]</code></pre>
 
 </div>
@@ -918,7 +919,8 @@ Region: us-east-1
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <p>Make sure that you use content_type <code>text/csv</code>. Only providing <code>csv</code> will not work and you will get the exception</p>
-<p><code>Error for Training job linear-learner-2022-06-15-07-58-01-908: Failed. Reason: ClientError: No iterator has been registered for ContentType ('csv', '1.0'), exit code: 2</code></p>
+
+<pre><code>Error for Training job linear-learner-2022-06-15-07-58-01-908: Failed. Reason: ClientError: No iterator has been registered for ContentType ('csv', '1.0'), exit code: 2</code></pre>
 
 </div>
 </div>
@@ -2061,14 +2063,14 @@ Billable seconds: 127
 <pre><code>2022-06-15 10:23:28 Completed - Training job completed
 Training seconds: 127
 Billable seconds: 127</code></pre>
-<p>In our case, the billable seconds are 127. This billable time is for <code>ml.m5.large</code> instance that we have configured for our training run. To find the billable amount we first need to find the price rate for our selected machine. For this go to the SageMaker pricing link <a href="https://aws.amazon.com/sagemaker/pricing/">https://aws.amazon.com/sagemaker/pricing/</a> and select <code>On Demand Pricing</code>. From the given tabs click on the <strong>Training tab</strong>. Select your region <code>US East (N. Virginia)</code>. This will show you the pricing of different training instances. This page can also be used to find the available training instance types in your region. From this page, we can find that the price for our instance type <code>ml.m5.large</code> is <code>$0.115</code>. This price rate is per hour so we also need to convert our billable time to per hour before multiplying it with this rate. i.e. (127/3600) * 0.115 = $0.0041 which is less than a penny.</p>
+<p>In our case, the billable seconds are 127. This billable time is for the <code>ml.m5.large</code> instance that we have configured for our training run. To find the billable amount we first need to find the price rate for our selected machine. For this go to the SageMaker pricing link <a href="https://aws.amazon.com/sagemaker/pricing/">https://aws.amazon.com/sagemaker/pricing/</a> and select <code>On Demand Pricing</code>. From the given tabs click on the <strong>Training tab</strong>. Select your region <code>US East (N. Virginia)</code>. This will show you the pricing of different training instances. This page can also be used to find the available training instance types in your region. From this page, we can find that the price for our instance type <code>ml.m5.large</code> is <code>$0.115</code>. This price rate is per hour so we need to convert our billable time to per hour before multiplying it. i.e. (127/3600) * 0.115 = $0.0041 which is less than a penny for our training job.</p>
 
 </div>
 </div>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We can use Estimator object to get important information related to our training run.</p>
+<p>We can also use Estimator object to get important information related to our training run.</p>
 
 </div>
 </div>
@@ -2080,7 +2082,7 @@ Billable seconds: 127</code></pre>
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">## to get the output path where the trained model artifacts are stored</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to get the output path where the trained model artifacts are stored</span>
 <span class="n">ll_estimator</span><span class="o">.</span><span class="n">output_path</span>
 </pre></div>
 
@@ -2114,7 +2116,7 @@ Billable seconds: 127</code></pre>
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">## to get the training job name</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to get the training job name</span>
 <span class="n">ll_estimator</span><span class="o">.</span><span class="n">latest_training_job</span><span class="o">.</span><span class="n">job_name</span>
 </pre></div>
 
@@ -2148,7 +2150,7 @@ Billable seconds: 127</code></pre>
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1">## to get the trained model location</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># to get the trained model location</span>
 <span class="n">ll_estimator</span><span class="o">.</span><span class="n">model_data</span>
 </pre></div>
 
@@ -2359,7 +2361,13 @@ Billable seconds: 127</code></pre>
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Deploy-the-model">Deploy the model<a class="anchor-link" href="#Deploy-the-model"> </a></h1><p>Our model is trained and now we can deploy it to AWS SageMaker endpoint. Read more about <a href="https://sagemaker.readthedocs.io/en/stable/api/training/estimators.html#sagemaker.estimator.Estimator.deploy">sagemaker.estimator.Estimator.deploy</a></p>
+<h1 id="Deploy-the-model">Deploy the model<a class="anchor-link" href="#Deploy-the-model"> </a></h1><p>Our model is trained and now we can deploy it to AWS SageMaker endpoint with a single call. These endpoints are fully managed and support autoscaling. Read more about deployment from the documentation <a href="https://sagemaker.readthedocs.io/en/stable/api/training/estimators.html#sagemaker.estimator.Estimator.deploy">sagemaker.estimator.Estimator.deploy</a></p>
+<p>In the deployment call we are required to provide</p>
+<ul>
+<li><strong>instance type</strong> this is the machine type on which we want to deploy our model</li>
+<li><strong>instance count</strong> number of instances we want to provision for our machine. If more than one instance is provisioned then SageMaker EndPoint will automatically load balance between them</li>
+<li><strong>endpoint_name</strong> a unique identifier for your endpoint. If not provided then it will be your training job name.</li>
+</ul>
 
 </div>
 </div>
@@ -2371,7 +2379,8 @@ Billable seconds: 127</code></pre>
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">ll_estimator</span><span class="o">.</span><span class="n">latest_training_job</span><span class="o">.</span><span class="n">job_name</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># define the endpoint. can be any unique string</span>
+<span class="n">endpoint_name</span> <span class="o">=</span> <span class="n">ll_estimator</span><span class="o">.</span><span class="n">latest_training_job</span><span class="o">.</span><span class="n">job_name</span>
 </pre></div>
 
     </div>
@@ -2388,14 +2397,12 @@ Billable seconds: 127</code></pre>
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">ll_predictor</span> <span class="o">=</span> <span class="n">ll_estimator</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># deploy the model</span>
+<span class="n">ll_predictor</span> <span class="o">=</span> <span class="n">ll_estimator</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span>
     <span class="n">initial_instance_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> 
     <span class="n">instance_type</span><span class="o">=</span><span class="s1">&#39;ml.t2.medium&#39;</span><span class="p">,</span>
     <span class="n">endpoint_name</span><span class="o">=</span><span class="n">endpoint_name</span>
 <span class="p">)</span>
-
-<span class="c1"># no endpoint given then train job name will be used</span>
-<span class="c1"># check the pricing page for cost and available machines. t2.medium price</span>
 </pre></div>
 
     </div>
@@ -2418,6 +2425,13 @@ Billable seconds: 127</code></pre>
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>this call will take a minute or so to create the endpoint, and once it is ready it will be available in SageMaker components and registries / endpoints.</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -2425,7 +2439,8 @@ Billable seconds: 127</code></pre>
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">test_sample</span> <span class="o">=</span> <span class="s1">&#39;0.00632,18.00,2.310,0,0.5380,6.5750,65.20,4.0900,1,296.0,15.30,4.98&#39;</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># a test sample to get live inference from our model</span>
+<span class="n">test_sample</span> <span class="o">=</span> <span class="s1">&#39;0.00632,18.00,2.310,0,0.5380,6.5750,65.20,4.0900,1,296.0,15.30,4.98&#39;</span>
 </pre></div>
 
     </div>
