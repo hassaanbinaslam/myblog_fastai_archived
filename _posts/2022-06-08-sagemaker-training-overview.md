@@ -1,7 +1,7 @@
 ---
 keywords: fastai
 description: How to build, train, and deploy a machine learning model with Amazon SageMaker.
-title: Demystifying AWS SageMaker Training for scikit-learn Lovers 
+title: Demystifying Amazon SageMaker Training for scikit-learn Lovers 
 toc: true 
 badges: true
 comments: true
