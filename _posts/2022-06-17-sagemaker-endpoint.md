@@ -30,26 +30,27 @@ layout: notebook
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>You have trained an deployed a model using Amazon SageMaker. You have an endpoint and now you are wondering "After I deploy an endpoint, where do I go from there?" Your concerns are valid because SageMaker endpoints are not public but are scoped to an individual account. In this post we will learn how to make them public using AWS serverless technologies: AWS Lambda and Function URL. We will also make our endpoints serverless so ML inference solution is serverless end-to-end.</p>
-<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction"> </a></h1><p>The following diagram shows how a model is called using serverless architecture.
+<h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>You have trained and deployed a model using Amazon SageMaker. You have an endpoint and now you are wondering "After I deploy an endpoint, where do I go from there?" Your concerns are valid because SageMaker endpoints are not public but are scoped to an individual account. In this post, we will discuss how to make them public using AWS serverless technologies: AWS Lambda and Function URL. We will also make our endpoints serverless so our ML inference solution is serverless end-to-end.</p>
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction"> </a></h1><p>The following diagram shows how a model is called using AWS serverless architecture.
 <br><br>
 <img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/serverless-architecture.png" alt="serverless-architecture"></p>
-<p>Starting from the client, a client application calls the AWS Lambda Function URL and passes parameter values. The Lambda function parses the request and passes it SageMaker model endpoint. This endpoint can be host on an EC2 instance or you have the option to make it serverless. Serverless endpoints behave similar to Lambda functions. Once request is received by the endpoint it will perform the prediction and return the predicted values back to Lambda. The Lambda function parses the returned values and send the final response back to client.</p>
+<p>Starting from the client, a client application calls the AWS Lambda Function URL and passes parameter values. The Lambda function parses the request and passes it SageMaker model endpoint. This endpoint can be hosted on an EC2 instance or you have the option to make it serverless. Serverless endpoints behave similarly to Lambda functions. Once a request is received by the endpoint it will perform the prediction and return the predicted values to Lambda. The Lambda function then parses the returned values and sends the final response back to the client.</p>
 <p>To train a model using Amazon SageMaker you can follow my other post <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/06/08/sagemaker-training-overview.html">Demystifying Amazon SageMaker Training for scikit-learn Lovers</a>. There I have trained SageMaker Linear Learner model on Boston housing dataset.</p>
 <p><code>Note that this post assumes that you have already trained a model and is available in SageMaker model repository.</code></p>
-<h1 id="Deploying-SageMaker-Serverless-Endpoint">Deploying SageMaker Serverless Endpoint<a class="anchor-link" href="#Deploying-SageMaker-Serverless-Endpoint"> </a></h1><p>Let's visit SageMaker model repository to find our Linear Learner model. You can find the repository in <strong>SageMaker Inference / Model</strong> page.</p>
+<h1 id="Deploy-SageMaker-Serverless-Endpoint">Deploy SageMaker Serverless Endpoint<a class="anchor-link" href="#Deploy-SageMaker-Serverless-Endpoint"> </a></h1><h2 id="Through-SageMaker-Console-UI">Through SageMaker Console UI<a class="anchor-link" href="#Through-SageMaker-Console-UI"> </a></h2><p>Let's first deploy our serverless endpoint through SageMaker console UI. In the next section, we will do the same through SageMaker Python SDK.</p>
+<p>Visit the SageMaker model repository to find the registered Linear Learner model. You can find the repository on the <strong>SageMaker Inference &gt; Model</strong> page.</p>
 <p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/model-repo.png" alt="model-repo"></p>
-<p>Note the mode name <code>linear-learner-2022-06-16-09-10-17-207</code> as will need in later steps.</p>
+<p>Note the mode name <code>linear-learner-2022-06-16-09-10-17-207</code> as will need it in later steps.</p>
 <p>Click on the <em>model name</em> and then <strong>Create endpoint</strong></p>
 <p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/create-endpoint.png" alt="create-endpoint"></p>
 <p>This will take you to <strong>configure endpoint page</strong>. Here do the following configurations.</p>
 <ul>
-<li>Set <strong>Endpoint name</strong> to <code>2022-06-17-sagemaker-endpoint-serverless</code>. You may use anyother unique string here.</li>
+<li>Set <strong>Endpoint name</strong> to <code>2022-06-17-sagemaker-endpoint-serverless</code>. You may use any other unique string here.</li>
 <li>From <strong>Attach endpoint configuration</strong> select <code>create a new endpoint configuration</code></li>
-<li>From <strong>New endpoint configuration / Endpoint configuration</strong> set<ul>
-<li><strong>Endpoint configuration name</strong> to <code>config-2022-06-17-sagemaker-endpoint-serverless</code>. You may use anyother name here.</li>
+<li>From <strong>New endpoint configuration &gt; Endpoint configuration</strong> set<ul>
+<li><strong>Endpoint configuration name</strong> to <code>config-2022-06-17-sagemaker-endpoint-serverless</code>. You may use any other name here.</li>
 <li><strong>Type of endpoint</strong> to <code>Serverless</code></li>
-<li>From <strong>Production variants</strong> click on <strong>Add Model</strong> and then select the model name we want to deploy. In our case it is <code>linear-learner-2022-06-16-09-10-17-207</code>. Click <strong>Save</strong>. </li>
+<li>From <strong>Production variants</strong> click on <strong>Add Model</strong> and then select the model name we want to deploy. In our case it is <code>linear-learner-2022-06-16-09-10-17-207</code>. Click <strong>Save</strong>.</li>
 </ul>
 </li>
 </ul>
@@ -66,10 +67,23 @@ layout: notebook
 <li>Click <strong>Create endpoint</strong></li>
 </ul>
 <p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/endpoint-created.png" alt="endpoint-created"></p>
-<p>It will take a minute for the created endpoint to become in service.
-cold start issues and timeout.
-logs : /aws/sagemaker/Endpoints/2022-06-17-sagemaker-endpoint-serverless
-logs, docker container, gunicorn server, input iterators.</p>
+<p>It will take a minute for the created endpoint to become ready.</p>
+<p>While we were configuring the concurrency for our endpoint we have give it a value of 5. This is because at this point there is a limit on concurrency per account across all serverless endpoints. The maximum total concurrency for an account is 20, and if you cross this limit you will get an error as shown below.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/serverless-endpoints-concurrency-error.png" alt="serverless-endpoints-concurrency-error"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Through-SageMaker-Python-SDK">Through SageMaker Python SDK<a class="anchor-link" href="#Through-SageMaker-Python-SDK"> </a></h2><p>Let's do the same again but using SageMaker SDK. Deploying a model to a serverless endpoint using SDK involves the following steps:</p>
+<ul>
+<li>Get session to SageMaker API</li>
+<li>Create a serverless endpoint deployment config</li>
+<li>Create a reference to a model container</li>
+<li>Deploy the model on a serverless endpoint using serverless configuration</li>
+</ul>
+<p>Let's do it now.</p>
 
 </div>
 </div>
@@ -81,7 +95,117 @@ logs, docker container, gunicorn server, input iterators.</p>
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sagemaker</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># get a session to sagemaker api&#39;s</span>
+
+<span class="kn">import</span> <span class="nn">sagemaker</span>
+
+<span class="n">session</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="n">role</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">get_execution_role</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sagemaker.__version__: </span><span class="si">{</span><span class="n">sagemaker</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Session: </span><span class="si">{</span><span class="n">session</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Role: </span><span class="si">{</span><span class="n">role</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># define a serverless endpoint configuration</span>
+<span class="kn">from</span> <span class="nn">sagemaker.serverless</span> <span class="kn">import</span> <span class="n">ServerlessInferenceConfig</span>
+
+<span class="n">serverless_config</span> <span class="o">=</span> <span class="n">ServerlessInferenceConfig</span><span class="p">(</span>
+    <span class="n">memory_size_in_mb</span><span class="o">=</span><span class="mi">1024</span><span class="p">,</span> <span class="n">max_concurrency</span><span class="o">=</span><span class="mi">5</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Note that here we are only defining the endpoint configuration. It will be created when we will deploy the model. Also, note that we have not passed any configuration name. It will default to the endpoint name. To read more about the serverless inference configuration read the documentation <a href="https://sagemaker.readthedocs.io/en/stable/api/inference/serverless.html?highlight=serverless_inference_config#module-sagemaker.serverless.serverless_inference_config">ServerlessInferenceConfig</a></p>
+<p>I could not find a way to give a name to endpoint configuration from SageMaker SDK. Let me know in the comments if there is a way to do it.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># create a SageMaker model. In our case model is already registered so it will only create a reference to it</span>
+
+<span class="kn">from</span> <span class="nn">sagemaker.model</span> <span class="kn">import</span> <span class="n">Model</span>
+
+<span class="n">ll_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
+    <span class="n">image_uri</span> <span class="o">=</span> <span class="s1">&#39;382416733822.dkr.ecr.us-east-1.amazonaws.com/linear-learner&#39;</span><span class="p">,</span> <span class="c1"># find it from the SageMaker mode repository</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="s1">&#39;linear-learner-2022-06-16-09-10-17-207&#39;</span><span class="p">,</span>
+    <span class="n">role</span><span class="o">=</span><span class="n">role</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>While creating a SageMaker model you need to provide its container URI, name, and role. The role gives necessary permissions to SageMaker to pull the image container from the ECR repository. To read more about the Model read the docs <a href="https://sagemaker.readthedocs.io/en/stable/api/inference/model.html?highlight=EndpointConfig#sagemaker.model.Model">sagemaker.model.Model</a></p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># define the endpoint name</span>
+<span class="n">endpoint_name</span> <span class="o">=</span> <span class="s1">&#39;2022-06-17-sagemaker-endpoint-serverless-sdk&#39;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># deploy the model to serverless endpoint</span>
+<span class="n">ll_model</span><span class="o">.</span><span class="n">deploy</span><span class="p">(</span>
+    <span class="n">endpoint_name</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">,</span>
+    <span class="n">serverless_inference_config</span><span class="o">=</span><span class="n">serverless_config</span><span class="p">,</span>
+<span class="p">)</span>
 </pre></div>
 
     </div>
@@ -93,14 +217,16 @@ logs, docker container, gunicorn server, input iterators.</p>
 
 <div class="output_area">
 
-<div class="output_subarea output_text output_error">
-<pre>
-<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-intense-fg ansi-bold">ModuleNotFoundError</span>                       Traceback (most recent call last)
-<span class="ansi-green-intense-fg ansi-bold">c:\MyWorkspace\gitrepos\myblog\myblog\_notebooks\2022-06-17-sagemaker-endpoint.ipynb Cell 4&#39;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-intense-fg ansi-bold">----&gt; &lt;a href=&#39;vscode-notebook-cell:/c%3A/MyWorkspace/gitrepos/myblog/myblog/_notebooks/2022-06-17-sagemaker-endpoint.ipynb#ch0000058?line=0&#39;&gt;1&lt;/a&gt;</span> import sagemaker
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Using already existing model: linear-learner-2022-06-16-09-10-17-207
+</pre>
+</div>
+</div>
 
-<span class="ansi-red-intense-fg ansi-bold">ModuleNotFoundError</span>: No module named &#39;sagemaker&#39;</pre>
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>-----!</pre>
 </div>
 </div>
 
@@ -110,6 +236,175 @@ logs, docker container, gunicorn server, input iterators.</p>
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It will take a minute or so for the serverless endpoint to get provisioned. Once it is ready (InService) you will find it on the <strong>SageMaker Inference &gt; Endpoints</strong> page.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/endpoint-created-sdk.png" alt="endpoint-created-sdk"></p>
+<p><code>model.deploy()</code> command will also create the endpoint configuration with same name as endpoint, and it can be found on <strong>SageMaker Inference &gt; Endpoint configurations</strong> page</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/new-endpoint-config-sdk.png" alt="new-endpoint-config-sdk"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Deploy-Lambda-Function-with-Function-URL">Deploy Lambda Function with Function URL<a class="anchor-link" href="#Deploy-Lambda-Function-with-Function-URL"> </a></h1><p>Our model's serverless endpoint is ready, and in this section we will make it public using AWS Lambda and Function URL. Let's create our Lambda Function.</p>
+<p>From AWS Lambda console, click <strong>Create Function</strong> and make the following configurations.</p>
+<p>Under <strong>Basic Information</strong></p>
+<ul>
+<li>Function name = 'linear-learner-boston-demo'</li>
+<li>Runtime = 'Python 3.9'</li>
+<li>Execution Role = 'Create a new role with basic Lambda permissions'</li>
+</ul>
+<p>Under <strong>Advanced Settings</strong></p>
+<ul>
+<li>Check 'Enable function URL'</li>
+<li>'Auth type' to None. This is for demo purposes.</li>
+</ul>
+<p>Click <strong>Create Function</strong></p>
+<p>Once the function is created click on it to open its page.</p>
+<p>Under <code>Function Overview</code> on the bottom right there is a Function URL that we can call to access it publically.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/lambda-function-created.png" alt="lambda-function-created"></p>
+<p>For our function to call SageMaker endpoint we first need to give it some extra permissions. For this click on the Lambda <strong>Configurations &gt; Permissions &gt; Role name</strong>. This will open the IAM page for the Role, and the Policies under that role. Select the Policy attached to this Role and Click Edit.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/iam-policy.png" alt="iam-policy"></p>
+<p>On the next page add the following permissions to your policy.</p>
+<div class="highlight"><pre><span></span><span class="p">{</span>
+    <span class="nt">&quot;Sid&quot;</span><span class="p">:</span> <span class="s2">&quot;VisualEditor2&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;Effect&quot;</span><span class="p">:</span> <span class="s2">&quot;Allow&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;Action&quot;</span><span class="p">:</span> <span class="s2">&quot;sagemaker:InvokeEndpoint&quot;</span><span class="p">,</span>
+    <span class="nt">&quot;Resource&quot;</span><span class="p">:</span> <span class="s2">&quot;*&quot;</span>
+<span class="p">}</span>
+</pre></div>
+<p>After adding those line your final policy will look similar to this.</p>
+
+<pre><code>{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": "logs:CreateLogGroup",
+            "Resource": "arn:aws:logs:us-east-1:801598032724:*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "logs:CreateLogStream",
+                "logs:PutLogEvents"
+            ],
+            "Resource": [
+                "arn:aws:logs:us-east-1:801598032724:log-group:/aws/lambda/linear-learner-boston-demo:*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor2",
+            "Effect": "Allow",
+            "Action": "sagemaker:InvokeEndpoint",
+            "Resource": "*"
+        }
+    ]
+}</code></pre>
+<p>Review policy and save your changes.</p>
+<p>Now go back to your Lambda console and use the following code.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">json</span>
+<span class="kn">import</span> <span class="nn">boto3</span>
+
+<span class="n">runtime</span><span class="o">=</span> <span class="n">boto3</span><span class="o">.</span><span class="n">client</span><span class="p">(</span><span class="s1">&#39;runtime.sagemaker&#39;</span><span class="p">)</span>
+
+<span class="n">endpoint_name</span> <span class="o">=</span> <span class="s1">&#39;2022-06-17-sagemaker-endpoint-serverless-sdk&#39;</span>
+    
+<span class="k">def</span> <span class="nf">lambda_handler</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">context</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Received event: &quot;</span> <span class="o">+</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">event</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">event</span><span class="p">))</span>
+    <span class="n">payload</span> <span class="o">=</span> <span class="n">data</span><span class="p">[</span><span class="s1">&#39;body&#39;</span><span class="p">]</span>
+    
+    <span class="c1">#payload = &#39;0.00632,18.00,2.310,0,0.5380,6.5750,65.20,4.0900,1,296.0,15.30,4.98&#39;</span>
+    
+    <span class="n">response</span> <span class="o">=</span> <span class="n">runtime</span><span class="o">.</span><span class="n">invoke_endpoint</span><span class="p">(</span><span class="n">EndpointName</span><span class="o">=</span><span class="n">endpoint_name</span><span class="p">,</span>
+                                       <span class="n">ContentType</span><span class="o">=</span><span class="s1">&#39;text/csv&#39;</span><span class="p">,</span>
+                                       <span class="n">Body</span><span class="o">=</span><span class="n">payload</span><span class="p">)</span>    
+    <span class="nb">print</span><span class="p">(</span><span class="n">response</span><span class="p">)</span>
+    
+    <span class="n">result</span> <span class="o">=</span> <span class="n">json</span><span class="o">.</span><span class="n">loads</span><span class="p">(</span><span class="n">response</span><span class="p">[</span><span class="s1">&#39;Body&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">read</span><span class="p">()</span><span class="o">.</span><span class="n">decode</span><span class="p">())</span>
+    <span class="nb">print</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="s1">&#39;statusCode&#39;</span><span class="p">:</span> <span class="mi">200</span><span class="p">,</span>
+        <span class="s1">&#39;body&#39;</span><span class="p">:</span> <span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="p">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>What we have done here is</p>
+<ul>
+<li>use boto3 SDK to create a session with SageMaker API. We did not use SageMaker SDK here because it is not available in the Lambda environment as of now. You may read more about it here <a href="https://github.com/aws/sagemaker-python-sdk/issues/1200">sagemaker-python-sdk in AWS Lambda</a> </li>
+<li>then we have defined the endpoint name that we want to call from this function</li>
+<li>in the lambda handler we have parsed the request to get the payload</li>
+<li>next we have invoked the serverless endpoint with the payload</li>
+<li>then we parsed the response to get the predictions</li>
+<li>finally we have returned the prediction</li>
+</ul>
+<p>Note that in the endpoint we have used <code>2022-06-17-sagemaker-endpoint-serverless-sdk</code> which we have created through SageMaker SDK. You may also use <code>2022-06-17-sagemaker-endpoint-serverless</code> which we created from UI as both points to the same model.</p>
+<p>Let's deploy our function code, and create a test event. Give it a name and use the following event body</p>
+<div class="highlight"><pre><span></span><span class="p">{</span>
+  <span class="nt">&quot;body&quot;</span><span class="p">:</span> <span class="s2">&quot;0.00632,18.00,2.310,0,0.5380,6.5750,65.20,4.0900,1,296.0,15.30,4.98&quot;</span>
+<span class="p">}</span>
+</pre></div>
+<p>Now test it. The first time I tested it I got a timeout exception. The reason for this is that the default timeout for the Lambda function is 3 seconds. But when the function called serverless endpoint it could not get any response during that time window. This is because of a <strong>cold start</strong> for the serverless endpoint.</p>
+<blockquote><p>If your endpoint does not receive traffic for a while and then your endpoint suddenly receives new requests, it can take some time for your endpoint to spin up the compute resources to process the requests. This is called a <strong>cold start</strong>. Since serverless endpoints provision compute resources on demand, your endpoint may experience cold starts. A cold start can also occur if your concurrent requests exceed the current concurrent request usage. The cold start time depends on your model size, how long it takes to download your model, and the start-up time of your container.</p>
+</blockquote>
+<p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/lambda-coldstart-timeout.png" alt="lambda-coldstart-timeout"></p>
+<p>On the next test event I got a successful response from the Lambda function as shown below.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/lambda-event-success.png" alt="lambda-event-success"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>You can find the logs for your serverless endpoint on AWS CloudWatch under log group <strong>/aws/sagemaker/Endpoints/[endpoint-name]</strong>. In our case it will be <code>/aws/sagemaker/Endpoints/2022-06-17-sagemaker-endpoint-serverless</code>. If you look at the logs you will find that serverless endpoint is doing the following steps:</p>
+<ul>
+<li>loading request and response encoders</li>
+<li>loading the model</li>
+<li>starting a gunicorn server</li>
+<li>starting a server listener</li>
+<li>making prediction</li>
+<li>returning results</li>
+</ul>
+<p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/cloudwatch-logs.png" alt="cloudwatch-logs"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Test-Serverless-Inference-through-Postman">Test Serverless Inference through Postman<a class="anchor-link" href="#Test-Serverless-Inference-through-Postman"> </a></h1><p>At this point our inference endpoint is ready to be consumed from external applications. Let's use Postman for testing. Copy the lambda function URL and paste it in Postman Request UI. For the body use the following text.</p>
+
+<pre><code>0.00632,18.00,2.310,0,0.5380,6.5750,65.20,4.0900,1,296.0,15.30,4.98</code></pre>
+<p>Send a POST request and on SUCCESS you will get the predictions as shown below</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/postman-success.png" alt="postman-success"></p>
+
+</div>
+</div>
+</div>
 </div>
  
 
