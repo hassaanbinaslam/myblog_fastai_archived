@@ -34,7 +34,7 @@ layout: notebook
 <h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction"> </a></h1><p>The following diagram shows how a model is called using AWS serverless architecture.
 <br><br>
 <img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/serverless-architecture.png" alt="serverless-architecture"></p>
-<p>Starting from the client, a client application calls the AWS Lambda Function URL and passes parameter values. The Lambda function parses the request and passes it SageMaker model endpoint. This endpoint can be hosted on an EC2 instance or you have the option to make it serverless. Serverless endpoints behave similarly to Lambda functions. Once a request is received by the endpoint it will perform the prediction and return the predicted values to Lambda. The Lambda function then parses the returned values and sends the final response back to the client.</p>
+<p>Starting from the client, an application calls the AWS Lambda Function URL and passes parameter values. The Lambda function parses the request and passes it to SageMaker model endpoint. This endpoint can be hosted on an EC2 instance or you have the option to make it serverless. Serverless endpoints behave similarly to Lambda functions. Once a request is received by the endpoint it will perform the prediction and return the predicted values to Lambda. The Lambda function then parses the returned values and sends the final response back to the client.</p>
 <p>To train a model using Amazon SageMaker you can follow my other post <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/06/08/sagemaker-training-overview.html">Demystifying Amazon SageMaker Training for scikit-learn Lovers</a>. There I have trained SageMaker Linear Learner model on Boston housing dataset.</p>
 <p><code>Note that this post assumes that you have already trained a model and is available in SageMaker model repository.</code></p>
 <h1 id="Deploy-SageMaker-Serverless-Endpoint">Deploy SageMaker Serverless Endpoint<a class="anchor-link" href="#Deploy-SageMaker-Serverless-Endpoint"> </a></h1><h2 id="Through-SageMaker-Console-UI">Through SageMaker Console UI<a class="anchor-link" href="#Through-SageMaker-Console-UI"> </a></h2><p>Let's first deploy our serverless endpoint through SageMaker console UI. In the next section, we will do the same through SageMaker Python SDK.</p>
@@ -68,7 +68,7 @@ layout: notebook
 </ul>
 <p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/endpoint-created.png" alt="endpoint-created"></p>
 <p>It will take a minute for the created endpoint to become ready.</p>
-<p>While we were configuring the concurrency for our endpoint we have give it a value of 5. This is because at this point there is a limit on concurrency per account across all serverless endpoints. The maximum total concurrency for an account is 20, and if you cross this limit you will get an error as shown below.</p>
+<p>While we were configuring the concurrency for our endpoint we have given it a value of 5. This is because at this point there is a limit on concurrency per account across all serverless endpoints. The maximum total concurrency for an account is 20, and if you cross this limit you will get an error as shown below.</p>
 <p><img src="/myblog/images/copied_from_nb/images/2022-06-17-sagemaker-endpoint/serverless-endpoints-concurrency-error.png" alt="serverless-endpoints-concurrency-error"></p>
 
 </div>
@@ -76,7 +76,7 @@ layout: notebook
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Through-SageMaker-Python-SDK">Through SageMaker Python SDK<a class="anchor-link" href="#Through-SageMaker-Python-SDK"> </a></h2><p>Let's do the same again but using SageMaker SDK. Deploying a model to a serverless endpoint using SDK involves the following steps:</p>
+<h2 id="Through-SageMaker-Python-SDK">Through SageMaker Python SDK<a class="anchor-link" href="#Through-SageMaker-Python-SDK"> </a></h2><p>Let's create another endpoint but using SageMaker SDK. Deploying a model to a serverless endpoint using SDK involves the following steps:</p>
 <ul>
 <li>Get session to SageMaker API</li>
 <li>Create a serverless endpoint deployment config</li>
@@ -95,8 +95,7 @@ layout: notebook
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># get a session to sagemaker api&#39;s</span>
-
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># get a session to sagemaker api</span>
 <span class="kn">import</span> <span class="nn">sagemaker</span>
 
 <span class="n">session</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
@@ -108,6 +107,22 @@ layout: notebook
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>sagemaker.__version__: 2.88.1
+Session: &lt;sagemaker.session.Session object at 0x7feb1853fc10&gt;
+Role: arn:aws:iam::801598032724:role/service-role/AmazonSageMaker-ExecutionRole-20220516T161743
+</pre>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -151,8 +166,8 @@ layout: notebook
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># create a SageMaker model. In our case model is already registered so it will only create a reference to it</span>
-
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># create a SageMaker model. </span>
+<span class="c1"># In our case model is already registered so it will only create a reference to it</span>
 <span class="kn">from</span> <span class="nn">sagemaker.model</span> <span class="kn">import</span> <span class="n">Model</span>
 
 <span class="n">ll_model</span> <span class="o">=</span> <span class="n">Model</span><span class="p">(</span>
@@ -362,7 +377,7 @@ layout: notebook
 <li>then we parsed the response to get the predictions</li>
 <li>finally we have returned the prediction</li>
 </ul>
-<p>Note that in the endpoint we have used <code>2022-06-17-sagemaker-endpoint-serverless-sdk</code> which we have created through SageMaker SDK. You may also use <code>2022-06-17-sagemaker-endpoint-serverless</code> which we created from UI as both points to the same model.</p>
+<p>Note that in the endpoint we have used <code>2022-06-17-sagemaker-endpoint-serverless-sdk</code> which we have created through SageMaker SDK. You may also use <code>2022-06-17-sagemaker-endpoint-serverless</code> which we created from UI as both point to the same model.</p>
 <p>Let's deploy our function code, and create a test event. Give it a name and use the following event body</p>
 <div class="highlight"><pre><span></span><span class="p">{</span>
   <span class="nt">&quot;body&quot;</span><span class="p">:</span> <span class="s2">&quot;0.00632,18.00,2.310,0,0.5380,6.5750,65.20,4.0900,1,296.0,15.30,4.98&quot;</span>
