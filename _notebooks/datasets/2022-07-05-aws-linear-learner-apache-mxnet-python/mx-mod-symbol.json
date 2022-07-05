@@ -1,0 +1,48 @@
+{
+  "nodes": [
+    {
+      "op": "null", 
+      "name": "data", 
+      "inputs": []
+    }, 
+    {
+      "op": "null", 
+      "name": "fc0_weight", 
+      "attrs": {"__shape__": "(12, 1)"}, 
+      "inputs": []
+    }, 
+    {
+      "op": "dot", 
+      "name": "dot46", 
+      "inputs": [[0, 0, 0], [1, 0, 0]]
+    }, 
+    {
+      "op": "null", 
+      "name": "fc0_bias", 
+      "attrs": {
+        "__lr_mult__": "10.0", 
+        "__shape__": "(1, 1)"
+      }, 
+      "inputs": []
+    }, 
+    {
+      "op": "broadcast_add", 
+      "name": "broadcast_plus46", 
+      "inputs": [[2, 0, 0], [3, 0, 0]]
+    }, 
+    {
+      "op": "null", 
+      "name": "out_label", 
+      "inputs": []
+    }, 
+    {
+      "op": "LinearRegressionOutput", 
+      "name": "linearregressionoutput46", 
+      "inputs": [[4, 0, 0], [5, 0, 0]]
+    }
+  ], 
+  "arg_nodes": [0, 1, 3, 5], 
+  "node_row_ptr": [0, 1, 2, 3, 4, 5, 6, 7], 
+  "heads": [[6, 0, 0]], 
+  "attrs": {"mxnet_version": ["int", 10301]}
+}

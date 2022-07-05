@@ -1,0 +1,1 @@
+{"threshold": 0.5, "loss_type": "squared_loss", "predictor_type": "regressor", "metrics_params": {"quantile": null, "huber_delta": null, "margin": null, "loss_insensitivity": null, "eps_insensitive_loss_type": null, "accuracy_top_k": 3, "f_beta": null, "positive_example_weight_mult": 1.0, "class_weights": null, "threshold": 0.5}}
