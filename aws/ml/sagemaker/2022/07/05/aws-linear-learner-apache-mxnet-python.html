@@ -1,0 +1,1109 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="twitter:card" content="summary_large_image" /><!-- Begin Jekyll SEO tag v2.8.0 -->
+<title>Loading SageMaker Linear Learner Model with Apache MXNet in Python | Random Thoughts</title>
+<meta name="generator" content="Jekyll v4.1.1" />
+<meta property="og:title" content="Loading SageMaker Linear Learner Model with Apache MXNet in Python" />
+<meta property="og:locale" content="en_US" />
+<meta name="description" content="How to load SageMaker builtin Linear Learner model with Apache MXNet in Python." />
+<meta property="og:description" content="How to load SageMaker builtin Linear Learner model with Apache MXNet in Python." />
+<link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/07/05/aws-linear-learner-apache-mxnet-python.html" />
+<meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/07/05/aws-linear-learner-apache-mxnet-python.html" />
+<meta property="og:site_name" content="Random Thoughts" />
+<meta property="og:image" content="https://hassaanbinaslam.github.io/myblog/images/copied_from_nb/images/2022-07-05-aws-linear-learner-apache-mxnet-python.jpeg" />
+<meta property="og:type" content="article" />
+<meta property="article:published_time" content="2022-07-05T00:00:00-05:00" />
+<meta name="twitter:card" content="summary_large_image" />
+<meta property="twitter:image" content="https://hassaanbinaslam.github.io/myblog/images/copied_from_nb/images/2022-07-05-aws-linear-learner-apache-mxnet-python.jpeg" />
+<meta property="twitter:title" content="Loading SageMaker Linear Learner Model with Apache MXNet in Python" />
+<script type="application/ld+json">
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-07-05T00:00:00-05:00","datePublished":"2022-07-05T00:00:00-05:00","description":"How to load SageMaker builtin Linear Learner model with Apache MXNet in Python.","headline":"Loading SageMaker Linear Learner Model with Apache MXNet in Python","image":"https://hassaanbinaslam.github.io/myblog/images/copied_from_nb/images/2022-07-05-aws-linear-learner-apache-mxnet-python.jpeg","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/07/05/aws-linear-learner-apache-mxnet-python.html"},"url":"https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/07/05/aws-linear-learner-apache-mxnet-python.html"}</script>
+<!-- End Jekyll SEO tag -->
+<link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
+
+
+
+<!-- Global site tag (gtag.js) - Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-TMJ59ZML0G"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+
+  gtag('config', 'G-TMJ59ZML0G');
+</script>
+
+
+<link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+
+<script>
+function wrap_img(fn) {
+    if (document.attachEvent ? document.readyState === "complete" : document.readyState !== "loading") {
+        var elements = document.querySelectorAll(".post img");
+        Array.prototype.forEach.call(elements, function(el, i) {
+            if (el.getAttribute("title") && (el.className != "emoji")) {
+                const caption = document.createElement('figcaption');
+                var node = document.createTextNode(el.getAttribute("title"));
+                caption.appendChild(node);
+                const wrapper = document.createElement('figure');
+                wrapper.className = 'image';
+                el.parentNode.insertBefore(wrapper, el);
+                el.parentNode.removeChild(el);
+                wrapper.appendChild(el);
+                wrapper.appendChild(caption);
+            }
+        });
+    } else { document.addEventListener('DOMContentLoaded', fn); }
+}
+window.onload = wrap_img;
+</script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+    // add link icon to anchor tags
+    var elem = document.querySelectorAll(".anchor-link")
+    elem.forEach(e => (e.innerHTML = '<i class="fas fa-link fa-xs"></i>'));
+    });
+</script>
+</head>
+<body><header class="site-header">
+
+  <div class="wrapper"><a class="site-title" rel="author" href="/myblog/">Random Thoughts</a><nav class="site-nav">
+        <input type="checkbox" id="nav-trigger" class="nav-trigger" />
+        <label for="nav-trigger">
+          <span class="menu-icon">
+            <svg viewBox="0 0 18 15" width="18px" height="15px">
+              <path d="M18,1.484c0,0.82-0.665,1.484-1.484,1.484H1.484C0.665,2.969,0,2.304,0,1.484l0,0C0,0.665,0.665,0,1.484,0 h15.032C17.335,0,18,0.665,18,1.484L18,1.484z M18,7.516C18,8.335,17.335,9,16.516,9H1.484C0.665,9,0,8.335,0,7.516l0,0 c0-0.82,0.665-1.484,1.484-1.484h15.032C17.335,6.031,18,6.696,18,7.516L18,7.516z M18,13.516C18,14.335,17.335,15,16.516,15H1.484 C0.665,15,0,14.335,0,13.516l0,0c0-0.82,0.665-1.483,1.484-1.483h15.032C17.335,12.031,18,12.695,18,13.516L18,13.516z"/>
+            </svg>
+          </span>
+        </label>
+
+        <div class="trigger"><a class="page-link" href="/myblog/about/">About Me</a><a class="page-link" href="/myblog/search/">Search</a><a class="page-link" href="/myblog/categories/">Tags</a></div>
+      </nav></div>
+</header>
+<main class="page-content" aria-label="Content">
+      <div class="wrapper">
+        <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
+
+  <header class="post-header">
+    <h1 class="post-title p-name" itemprop="name headline">Loading SageMaker Linear Learner Model with Apache MXNet in Python</h1><p class="page-description">How to load SageMaker builtin Linear Learner model with Apache MXNet in Python.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-07-05T00:00:00-05:00" itemprop="datePublished">
+        Jul 5, 2022
+      </time>
+       • <span class="read-time" title="Estimated read time">
+    
+    
+      6 min read
+    
+</span></p>
+
+    
+      <p class="category-tags"><i class="fas fa-tags category-tags-icon"></i></i> 
+      
+        <a class="category-tags-link" href="/myblog/categories/#aws">aws</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#ml">ml</a>
+        &nbsp;
+      
+        <a class="category-tags-link" href="/myblog/categories/#sagemaker">sagemaker</a>
+        
+      
+      </p>
+    
+
+    
+      
+        <div class="pb-5 d-flex flex-justify-center">
+          <div class="px-2">
+
+    <a href="https://github.com/hassaanbinaslam/myblog/tree/master/_notebooks/2022-07-05-aws-linear-learner-apache-mxnet-python.ipynb" role="button" target="_blank">
+<img class="notebook-badge-image" src="/myblog/assets/badges/github.svg" alt="View On GitHub">
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://mybinder.org/v2/gh/hassaanbinaslam/myblog/master?filepath=_notebooks%2F2022-07-05-aws-linear-learner-apache-mxnet-python.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/myblog/assets/badges/binder.svg" alt="Open In Binder"/>
+    </a>
+</div>
+
+          <div class="px-2">
+    <a href="https://colab.research.google.com/github/hassaanbinaslam/myblog/blob/master/_notebooks/2022-07-05-aws-linear-learner-apache-mxnet-python.ipynb" target="_blank">
+        <img class="notebook-badge-image" src="/myblog/assets/badges/colab.svg" alt="Open In Colab"/>
+    </a>
+</div>
+          <div class="px-2">
+  <a href="https://deepnote.com/launch?url=https%3A%2F%2Fgithub.com%2Fhassaanbinaslam%2Fmyblog%2Fblob%2Fmaster%2F_notebooks%2F2022-07-05-aws-linear-learner-apache-mxnet-python.ipynb" target="_blank">
+      <img class="notebook-badge-image" src="/myblog/assets/badges/deepnote.svg" alt="Launch in Deepnote"/>
+  </a>
+</div>
+
+        </div>
+      </header>
+
+  <div class="post-content e-content" itemprop="articleBody">
+    <ul id="toc" class="section-nav">
+<li class="toc-entry toc-h1"><a href="#About">About </a></li>
+<li class="toc-entry toc-h1"><a href="#Introdcution">Introdcution </a></li>
+<li class="toc-entry toc-h1"><a href="#Environment">Environment </a></li>
+<li class="toc-entry toc-h1"><a href="#Loading-a-SageMaker-Linear-Learner-model-with-Apache-MXNet-in-Python">Loading a SageMaker Linear Learner model with Apache MXNet in Python </a></li>
+</ul><!--
+#################################################
+### THIS FILE WAS AUTOGENERATED! DO NOT EDIT! ###
+#################################################
+# file to edit: _notebooks/2022-07-05-aws-linear-learner-apache-mxnet-python.ipynb
+-->
+
+<div class="container" id="notebook-container">
+        
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-07-05-aws-linear-learner-apache-mxnet-python.jpeg" alt=""></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="About">
+<a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
+</h1>
+<p>You have trained a model with Amazon SageMaker's built-in algorithm <a href="https://docs.aws.amazon.com/sagemaker/latest/dg/linear-learner.html">Linear Learner</a>. You can test this model by deploying it on a SageMaker endpoint. But you want to test this model in your local environment. In this post, we will learn to use Apache MXNet and Gluon API to load the model in a local environment, extract its parameters, and perform predictions.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Introdcution">
+<a class="anchor" href="#Introdcution" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introdcution<a class="anchor-link" href="#Introdcution"> </a>
+</h1>
+<p><a href="https://mxnet.apache.org/">Apache MXNet</a> is a fully featured, flexibly programmable, and ultra-scalable deep learning framework supporting state of the art in deep learning models, including convolutional neural networks (CNNs) and long short-term memory networks (LSTMs). Amazon has selected MXNet as their deep learning framework of choice (see <a href="https://www.allthingsdistributed.com/2016/11/mxnet-default-framework-deep-learning-aws.html">Amazon CTO, Werner Vogels blog post on this</a>). When you train a deep learning model using Amazon SageMaker builtin algorithm then there are high chances that the model has been trained and saved using MXNet framework. If a model has been saved with MXNet then we can use the same library to load that model in a local environment.</p>
+<p>In my last post <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/06/08/sagemaker-training-overview.html">Demystifying Amazon SageMaker Training for scikit-learn Lovers</a>, I used SageMaker builtin Linear Learner algorithm to train a model on Boston housing dataset. Once the training was complete the model artifacts were stored on the S3 bucket at the following location</p>
+
+<pre><code>s3://sagemaker-us-east-1-801598032724/2022-06-08-sagemaker-training-overview/output/linear-learner-2022-06-16-09-04-57-576/output/model.tar.gz</code></pre>
+<p>Note that Amazon Linear Learner is built using a Neural Network and is different from <a href="https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html">scikit-learn linear regression algorithm</a>. Linear Learner documentation does not provide details on the architecture of this neural network but it does mention that it trains using a distributed implementation of stochastic gradient descent (SGD). We can also specify the hyperparameters such as momentum, learning rate, and the learning rate schedule. Also, note that not all SageMaker built-in models are using deep learning e.g. XGBoost which is based on regression trees. If you have trained xgboost model then to load this model in a local environment you will have to use xgboost library, and the MXNet library will not work for it.</p>
+<p>Since Linear Learner is based on deep learning, We can use MXNet Gluon API to load this model in our local environment and make some predictions.</p>
+<p>This post assumes that you have already trained a Linear Learner model and its artifacts are available on the S3 bucket. If you have not done so then you may use my <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/06/08/sagemaker-training-overview.html">another post</a> to train a Linear Learner on the Boston housing dataset.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Environment">
+<a class="anchor" href="#Environment" aria-hidden="true"><span class="octicon octicon-link"></span></a>Environment<a class="anchor-link" href="#Environment"> </a>
+</h1>
+<p>This notebook is prepared with Amazon SageMaker Studio using Python 3 (MXNet 1.9 Python 3.8 CPU Optimized) Kernel and ml.t3.medium instance.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-07-05-aws-linear-learner-apache-mxnet-python/sagemaker-mxnet-container.png" alt="sagemaker-mxnet-container.png"></p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># AWS CLI version</span>
+<span class="o">!</span>aws --version
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>aws-cli/1.22.42 Python/3.8.10 Linux/4.14.281-212.502.amzn2.x86_64 botocore/1.23.42
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># OS version</span>
+<span class="o">!</span>cat /etc/os-release
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>NAME="Ubuntu"
+VERSION="20.04.3 LTS (Focal Fossa)"
+ID=ubuntu
+ID_LIKE=debian
+PRETTY_NAME="Ubuntu 20.04.3 LTS"
+VERSION_ID="20.04"
+HOME_URL="https://www.ubuntu.com/"
+SUPPORT_URL="https://help.ubuntu.com/"
+BUG_REPORT_URL="https://bugs.launchpad.net/ubuntu/"
+PRIVACY_POLICY_URL="https://www.ubuntu.com/legal/terms-and-policies/privacy-policy"
+VERSION_CODENAME=focal
+UBUNTU_CODENAME=focal
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Loading-a-SageMaker-Linear-Learner-model-with-Apache-MXNet-in-Python">
+<a class="anchor" href="#Loading-a-SageMaker-Linear-Learner-model-with-Apache-MXNet-in-Python" aria-hidden="true"><span class="octicon octicon-link"></span></a>Loading a SageMaker Linear Learner model with Apache MXNet in Python<a class="anchor-link" href="#Loading-a-SageMaker-Linear-Learner-model-with-Apache-MXNet-in-Python"> </a>
+</h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's initialize SageMaker API session.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sagemaker</span>
+
+<span class="n">session</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="n">role</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">get_execution_role</span><span class="p">()</span>
+<span class="n">bucket</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">default_bucket</span><span class="p">()</span>
+<span class="n">region</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">boto_region_name</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"sagemaker.__version__: </span><span class="si">{</span><span class="n">sagemaker</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Session: </span><span class="si">{</span><span class="n">session</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Role: </span><span class="si">{</span><span class="n">role</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Bucket: </span><span class="si">{</span><span class="n">bucket</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Region: </span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>sagemaker.__version__: 2.73.0
+Session: &lt;sagemaker.session.Session object at 0x7f6b0500a760&gt;
+Role: arn:aws:iam::801598032724:role/service-role/AmazonSageMaker-ExecutionRole-20220516T161743
+Bucket: sagemaker-us-east-1-801598032724
+Region: us-east-1
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We have our trained model artifacts available on S3 bucket. Let's define that bucket path.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">model_data</span> <span class="o">=</span> <span class="s2">"s3://sagemaker-us-east-1-801598032724/2022-06-08-sagemaker-training-overview/output/linear-learner-2022-06-16-09-04-57-576/output/model.tar.gz"</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We will use SageMaker SDK to download model artifacts from the S3 bucket to a local directory. Let's define the local path.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">local_path</span> <span class="o">=</span> <span class="s2">"datasets/2022-07-05-aws-linear-learner-apache-mxnet-python/"</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Download the model artifacts.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">sagemaker.s3</span> <span class="kn">import</span> <span class="n">S3Downloader</span>
+
+<span class="n">S3Downloader</span><span class="o">.</span><span class="n">download</span><span class="p">(</span>
+    <span class="n">s3_uri</span><span class="o">=</span><span class="n">model_data</span><span class="p">,</span> 
+    <span class="n">local_path</span><span class="o">=</span><span class="n">local_path</span><span class="p">,</span> 
+    <span class="n">sagemaker_session</span><span class="o">=</span><span class="n">session</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Once downloaded, you will find an archive "model.tar.gz" in the local directory. Let's extract this file.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>tar -xzvf <span class="nv">$local_path</span>/model.tar.gz -C <span class="nv">$local_path</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>model_algo-1
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Extracting once will give us a zip file. Let's unzip it to get the model contents</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>unzip <span class="nv">$local_path</span>/model_algo-1 -d <span class="nv">$local_path</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Archive:  datasets/2022-07-05-aws-linear-learner-apache-mxnet-python//model_algo-1
+ extracting: datasets/2022-07-05-aws-linear-learner-apache-mxnet-python/additional-params.json  
+ extracting: datasets/2022-07-05-aws-linear-learner-apache-mxnet-python/mx-mod-symbol.json  
+ extracting: datasets/2022-07-05-aws-linear-learner-apache-mxnet-python/manifest.json  
+ extracting: datasets/2022-07-05-aws-linear-learner-apache-mxnet-python/mx-mod-0000.params  
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Extracted model has two important files.</p>
+<ul>
+<li>
+<code>mx-mod-symbol.json</code> is the JSON file that defines the computational graph for the model</li>
+<li>
+<code>mx-mod-0000.params</code> is a binary file that contains the parameters for the trained model</li>
+</ul>
+<p>Serializing models as JSON files has the benefit that these models can be loaded from other language bindings like C++ or Scala for faster inference or inference in different environments. You can read more about it here: <a href="https://mxnet.apache.org/versions/1.9.1/api/python/docs/tutorials/packages/gluon/blocks/save_load_params.html">Saving and Loading Gluon Models</a>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">mxnet</span>
+<span class="kn">import</span> <span class="nn">pprint</span>
+
+<span class="kn">from</span> <span class="nn">mxnet</span> <span class="kn">import</span> <span class="n">gluon</span>
+<span class="kn">from</span> <span class="nn">json</span> <span class="kn">import</span> <span class="n">load</span> <span class="k">as</span> <span class="n">json_load</span>
+<span class="kn">from</span> <span class="nn">json</span> <span class="kn">import</span> <span class="n">dumps</span> <span class="k">as</span> <span class="n">json_dumps</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Gluon API is a wrapper around low level MXNet API to provide a simple interface for deep learning. You may read more about this API here: <a href="https://mxnet.apache.org/versions/1.6/api/python/docs/api/gluon/index.html">mxnet.gluon</a></p>
+<p>Let's read model computational graph.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">sym_json</span> <span class="o">=</span> <span class="n">json_load</span><span class="p">(</span><span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">mx-mod-symbol.json"</span><span class="p">))</span>
+<span class="n">sym_json_string</span> <span class="o">=</span> <span class="n">json_dumps</span><span class="p">(</span><span class="n">sym_json</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pprint</span> <span class="kn">import</span> <span class="n">pprint</span>
+<span class="n">pprint</span><span class="p">(</span><span class="n">sym_json</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>{'arg_nodes': [0, 1, 3, 5],
+ 'attrs': {'mxnet_version': ['int', 10301]},
+ 'heads': [[6, 0, 0]],
+ 'node_row_ptr': [0, 1, 2, 3, 4, 5, 6, 7],
+ 'nodes': [{'inputs': [], 'name': 'data', 'op': 'null'},
+           {'attrs': {'__shape__': '(12, 1)'},
+            'inputs': [],
+            'name': 'fc0_weight',
+            'op': 'null'},
+           {'inputs': [[0, 0, 0], [1, 0, 0]], 'name': 'dot46', 'op': 'dot'},
+           {'attrs': {'__lr_mult__': '10.0', '__shape__': '(1, 1)'},
+            'inputs': [],
+            'name': 'fc0_bias',
+            'op': 'null'},
+           {'inputs': [[2, 0, 0], [3, 0, 0]],
+            'name': 'broadcast_plus46',
+            'op': 'broadcast_add'},
+           {'inputs': [], 'name': 'out_label', 'op': 'null'},
+           {'inputs': [[4, 0, 0], [5, 0, 0]],
+            'name': 'linearregressionoutput46',
+            'op': 'LinearRegressionOutput'}]}
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># initialize the model graph</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">gluon</span><span class="o">.</span><span class="n">nn</span><span class="o">.</span><span class="n">SymbolBlock</span><span class="p">(</span>
+    <span class="n">outputs</span><span class="o">=</span><span class="n">mxnet</span><span class="o">.</span><span class="n">sym</span><span class="o">.</span><span class="n">load_json</span><span class="p">(</span><span class="n">sym_json_string</span><span class="p">),</span> 
+    <span class="n">inputs</span><span class="o">=</span><span class="n">mxnet</span><span class="o">.</span><span class="n">sym</span><span class="o">.</span><span class="n">var</span><span class="p">(</span><span class="s2">"data"</span><span class="p">)</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/usr/local/lib/python3.8/dist-packages/mxnet/gluon/block.py:1849: UserWarning: Cannot decide type for the following arguments. Consider providing them as input:
+	data: None
+  input_sym_arg_type = in_param.infer_type()[0]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># load the model parameters</span>
+<span class="n">model</span><span class="o">.</span><span class="n">load_parameters</span><span class="p">(</span><span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">mx-mod-0000.params"</span><span class="p">,</span> <span class="n">allow_missing</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># finally initialize our model</span>
+<span class="n">model</span><span class="o">.</span><span class="n">initialize</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>/usr/local/lib/python3.8/dist-packages/mxnet/gluon/parameter.py:896: UserWarning: Parameter 'fc0_weight' is already initialized, ignoring. Set force_reinit=True to re-initialize.
+  v.initialize(None, ctx, init, force_reinit=force_reinit)
+/usr/local/lib/python3.8/dist-packages/mxnet/gluon/parameter.py:896: UserWarning: Parameter 'fc0_bias' is already initialized, ignoring. Set force_reinit=True to re-initialize.
+  v.initialize(None, ctx, init, force_reinit=force_reinit)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>At this point our model is ready in our local environment, and we can use it to make some predictions.</p>
+<p>Let's prepare an input request. This request is same as used in the <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/06/08/sagemaker-training-overview.html">model training blog post</a>.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">input_request</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="mf">0.00632</span><span class="p">,</span>
+    <span class="mf">18.00</span><span class="p">,</span>
+    <span class="mf">2.310</span><span class="p">,</span>
+    <span class="mi">0</span><span class="p">,</span>
+    <span class="mf">0.5380</span><span class="p">,</span>
+    <span class="mf">6.5750</span><span class="p">,</span>
+    <span class="mf">65.20</span><span class="p">,</span>
+    <span class="mf">4.0900</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">,</span>
+    <span class="mf">296.0</span><span class="p">,</span>
+    <span class="mf">15.30</span><span class="p">,</span>
+    <span class="mf">4.98</span><span class="p">,</span>
+<span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We need to convert our request Python list to MXNet array to be used for inference.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">input_request_nd</span> <span class="o">=</span> <span class="n">mxnet</span><span class="o">.</span><span class="n">nd</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">input_request</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"type(input_request): </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">input_request</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">"type(input_request_nd): </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">input_request_nd</span><span class="p">)</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>type(input_request): &lt;class 'list'&gt;
+type(input_request_nd): &lt;class 'mxnet.ndarray.ndarray.NDArray'&gt;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's pass our converted request to model for inference.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">model</span><span class="p">(</span><span class="n">input_request_nd</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">asscalar</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Extension horovod.torch has not been built: /usr/local/lib/python3.8/dist-packages/horovod/torch/mpi_lib/_mpi_lib.cpython-38-x86_64-linux-gnu.so not found
+If this is not expected, reinstall Horovod with HOROVOD_WITH_PYTORCH=1 to debug the build error.
+Warning! MPI libs are missing, but python applications are still avaiable.
+[2022-07-05 10:53:31.777 mxnet-1-9-cpu-py38-ub-ml-t3-medium-3179f602905714e1b45dfa06b970:222 INFO utils.py:27] RULE_JOB_STOP_SIGNAL_FILENAME: None
+[2022-07-05 10:53:31.944 mxnet-1-9-cpu-py38-ub-ml-t3-medium-3179f602905714e1b45dfa06b970:222 INFO profiler_config_parser.py:111] Unable to find config at /opt/ml/input/config/profilerconfig.json. Profiler is disabled.
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>29.986717</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>That's it. We have loaded SageMaker built-in model in our local envionment and have done prediction from it. But we can go one step further and explore this model's trained parameters.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">params</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">collect_params</span><span class="p">()</span>
+<span class="n">params</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>(
+  Parameter fc0_weight (shape=(12, 1), dtype=&lt;class 'numpy.float32'&gt;)
+  Parameter fc0_bias (shape=(1, 1), dtype=&lt;class 'numpy.float32'&gt;)
+  Parameter out_label (shape=(1,), dtype=&lt;class 'numpy.float32'&gt;)
+)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's define a function to extract model's weights and biases</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="k">def</span> <span class="nf">extract_weight_and_bias</span><span class="p">(</span><span class="n">model</span><span class="p">):</span>
+    <span class="n">params</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">collect_params</span><span class="p">()</span>
+    <span class="n">weight</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">"fc0_weight"</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">()</span><span class="o">.</span><span class="n">asnumpy</span><span class="p">()</span>
+    <span class="n">bias</span> <span class="o">=</span> <span class="n">params</span><span class="p">[</span><span class="s2">"fc0_bias"</span><span class="p">]</span><span class="o">.</span><span class="n">data</span><span class="p">()[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">asscalar</span><span class="p">()</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s2">"weight"</span><span class="p">:</span> <span class="n">weight</span><span class="p">,</span> <span class="s2">"bias"</span><span class="p">:</span> <span class="n">bias</span><span class="p">}</span>
+
+
+<span class="n">weight_and_bias</span> <span class="o">=</span> <span class="n">extract_weight_and_bias</span><span class="p">(</span><span class="n">model</span><span class="p">)</span>
+<span class="n">weight_and_bias</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{'weight': array([[-1.6160294e-01],
+        [ 5.2438524e-02],
+        [ 1.5013154e-02],
+        [-4.4300285e-01],
+        [-2.0226759e+01],
+        [ 3.2423832e+00],
+        [ 7.3540364e-03],
+        [-1.4330027e+00],
+        [ 2.0710023e-01],
+        [-8.0383439e-03],
+        [-1.0465978e+00],
+        [-5.0012934e-01]], dtype=float32),
+ 'bias': 44.62983}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This shows that model has 12 weights, one for each input parameter, and a bias. For linear learner there is no activation function so we can use summation formula to create a prediction using the provided weights and bais.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-07-05-aws-linear-learner-apache-mxnet-python/nn-summation-formula.jpeg" alt="nn-summation-formula.jpeg"></p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># convert the input request to np.array</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">input_request</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">(</span><span class="n">input_request</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># extract weights and biases</span>
+<span class="n">weight</span> <span class="o">=</span> <span class="n">weight_and_bias</span><span class="p">[</span><span class="s2">"weight"</span><span class="p">]</span>
+<span class="n">bias</span> <span class="o">=</span> <span class="n">weight_and_bias</span><span class="p">[</span><span class="s2">"bias"</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    
+
+<div class="cell border-box-sizing text_cell rendered">
+<div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We have all the ingredients ready. Let's use them to calcualte the prediction ourselves.</p>
+
+</div>
+</div>
+</div>
+    
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># calculate the final prediction</span>
+<span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">input_request</span><span class="o">.</span><span class="n">reshape</span><span class="p">((</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">*</span> <span class="n">weight</span><span class="p">)</span> <span class="o">+</span> <span class="n">bias</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>29.98671686516441</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    
+
+</div>
+
+
+
+  </div><!-- from https://github.com/utterance/utterances -->
+<script src="https://utteranc.es/client.js"
+        repo="hassaanbinaslam/myblog"
+        issue-term="title"
+        label="blogpost-comment"
+        theme="github-light"
+        crossorigin="anonymous"
+        async>
+</script><a class="u-url" href="/myblog/aws/ml/sagemaker/2022/07/05/aws-linear-learner-apache-mxnet-python.html" hidden></a>
+</article>
+
+      </div>
+    </main><footer class="site-footer h-card">
+  <data class="u-url" href="/myblog/"></data>
+
+  <div class="wrapper">
+
+    <div class="footer-col-wrapper">
+      <div class="footer-col">
+        <p class="feed-subscribe">
+          <a href="/myblog/feed.xml">
+            <svg class="svg-icon orange">
+              <use xlink:href="/myblog/assets/minima-social-icons.svg#rss"></use>
+            </svg><span>Subscribe</span>
+          </a>
+        </p>
+      </div>
+      <div class="footer-col">
+        <p>A log of my mistakes, thoughts, and learning.</p>
+      </div>
+    </div>
+
+    <div class="social-links"><ul class="social-media-list"><li><a rel="me" href="https://github.com/hassaanbinaslam" target="_blank" title="hassaanbinaslam"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#github"></use></svg></a></li><li><a rel="me" href="https://twitter.com/hassaanbinaslam" target="_blank" title="hassaanbinaslam"><svg class="svg-icon grey"><use xlink:href="/myblog/assets/minima-social-icons.svg#twitter"></use></svg></a></li></ul>
+</div>
+
+  </div>
+
+</footer>
+</body>
+
+</html>
