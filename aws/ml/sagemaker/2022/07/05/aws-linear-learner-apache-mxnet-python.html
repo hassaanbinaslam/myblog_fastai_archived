@@ -148,7 +148,7 @@ window.onload = wrap_img;
   <div class="post-content e-content" itemprop="articleBody">
     <ul id="toc" class="section-nav">
 <li class="toc-entry toc-h1"><a href="#About">About </a></li>
-<li class="toc-entry toc-h1"><a href="#Introdcution">Introdcution </a></li>
+<li class="toc-entry toc-h1"><a href="#Introduction">Introduction </a></li>
 <li class="toc-entry toc-h1"><a href="#Environment">Environment </a></li>
 <li class="toc-entry toc-h1"><a href="#Loading-a-SageMaker-Linear-Learner-model-with-Apache-MXNet-in-Python">Loading a SageMaker Linear Learner model with Apache MXNet in Python </a></li>
 </ul><!--
@@ -182,8 +182,8 @@ window.onload = wrap_img;
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Introdcution">
-<a class="anchor" href="#Introdcution" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introdcution<a class="anchor-link" href="#Introdcution"> </a>
+<h1 id="Introduction">
+<a class="anchor" href="#Introduction" aria-hidden="true"><span class="octicon octicon-link"></span></a>Introduction<a class="anchor-link" href="#Introduction"> </a>
 </h1>
 <p><a href="https://mxnet.apache.org/">Apache MXNet</a> is a fully featured, flexibly programmable, and ultra-scalable deep learning framework supporting state of the art in deep learning models, including convolutional neural networks (CNNs) and long short-term memory networks (LSTMs). Amazon has selected MXNet as their deep learning framework of choice (see <a href="https://www.allthingsdistributed.com/2016/11/mxnet-default-framework-deep-learning-aws.html">Amazon CTO, Werner Vogels blog post on this</a>). When you train a deep learning model using Amazon SageMaker builtin algorithm then there are high chances that the model has been trained and saved using MXNet framework. If a model has been saved with MXNet then we can use the same library to load that model in a local environment.</p>
 <p>In my last post <a href="https://hassaanbinaslam.github.io/myblog/aws/ml/sagemaker/2022/06/08/sagemaker-training-overview.html">Demystifying Amazon SageMaker Training for scikit-learn Lovers</a>, I used SageMaker builtin Linear Learner algorithm to train a model on Boston housing dataset. Once the training was complete the model artifacts were stored on the S3 bucket at the following location</p>
