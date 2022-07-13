@@ -8,8 +8,8 @@
 <meta name="generator" content="Jekyll v4.1.1" />
 <meta property="og:title" content="AWS EFS Sync to S3 Using Lambda" />
 <meta property="og:locale" content="en_US" />
-<meta name="description" content="A tutorial to synchronize EFS with S3 bucket using a Lambda function." />
-<meta property="og:description" content="A tutorial to synchronize EFS with S3 bucket using a Lambda function." />
+<meta name="description" content="A tutorial on synchronizing EFS with S3 bucket using a Lambda function." />
+<meta property="og:description" content="A tutorial on synchronizing EFS with S3 bucket using a Lambda function." />
 <link rel="canonical" href="https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/2022/03/28/efs-s3-sync-lambda.html" />
 <meta property="og:url" content="https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/2022/03/28/efs-s3-sync-lambda.html" />
 <meta property="og:site_name" content="Random Thoughts" />
@@ -20,7 +20,7 @@
 <meta property="twitter:image" content="https://hassaanbinaslam.github.io/myblog/images/copied_from_nb/images/2022-03-28-efs-s3-sync-lambda.jpeg" />
 <meta property="twitter:title" content="AWS EFS Sync to S3 Using Lambda" />
 <script type="application/ld+json">
-{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-03-28T00:00:00-05:00","datePublished":"2022-03-28T00:00:00-05:00","description":"A tutorial to synchronize EFS with S3 bucket using a Lambda function.","headline":"AWS EFS Sync to S3 Using Lambda","image":"https://hassaanbinaslam.github.io/myblog/images/copied_from_nb/images/2022-03-28-efs-s3-sync-lambda.jpeg","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/2022/03/28/efs-s3-sync-lambda.html"},"url":"https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/2022/03/28/efs-s3-sync-lambda.html"}</script>
+{"@context":"https://schema.org","@type":"BlogPosting","dateModified":"2022-03-28T00:00:00-05:00","datePublished":"2022-03-28T00:00:00-05:00","description":"A tutorial on synchronizing EFS with S3 bucket using a Lambda function.","headline":"AWS EFS Sync to S3 Using Lambda","image":"https://hassaanbinaslam.github.io/myblog/images/copied_from_nb/images/2022-03-28-efs-s3-sync-lambda.jpeg","mainEntityOfPage":{"@type":"WebPage","@id":"https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/2022/03/28/efs-s3-sync-lambda.html"},"url":"https://hassaanbinaslam.github.io/myblog/aws/lambda/efs/s3/synchonization/2022/03/28/efs-s3-sync-lambda.html"}</script>
 <!-- End Jekyll SEO tag -->
 <link rel="stylesheet" href="/myblog/assets/css/style.css"><link type="application/atom+xml" rel="alternate" href="https://hassaanbinaslam.github.io/myblog/feed.xml" title="Random Thoughts" /><!-- the google_analytics_id gets auto inserted from the config file -->
 
@@ -90,7 +90,7 @@ window.onload = wrap_img;
         <article class="post h-entry" itemscope itemtype="http://schema.org/BlogPosting">
 
   <header class="post-header">
-    <h1 class="post-title p-name" itemprop="name headline">AWS EFS Sync to S3 Using Lambda</h1><p class="page-description">A tutorial to synchronize EFS with S3 bucket using a Lambda function.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-03-28T00:00:00-05:00" itemprop="datePublished">
+    <h1 class="post-title p-name" itemprop="name headline">AWS EFS Sync to S3 Using Lambda</h1><p class="page-description">A tutorial on synchronizing EFS with S3 bucket using a Lambda function.</p><p class="post-meta post-meta-title"><time class="dt-published" datetime="2022-03-28T00:00:00-05:00" itemprop="datePublished">
         Mar 28, 2022
       </time>
        • <span class="read-time" title="Estimated read time">
@@ -168,8 +168,8 @@ window.onload = wrap_img;
 <h1 id="About">
 <a class="anchor" href="#About" aria-hidden="true"><span class="octicon octicon-link"></span></a>About<a class="anchor-link" href="#About"> </a>
 </h1>
-<p>This post is to document all the steps required to synchronize <a href="https://aws.amazon.com/efs/">AWS EFS</a> with an <a href="https://aws.amazon.com/s3/">S3 bucket</a> using a <a href="https://aws.amazon.com/lambda/">lambda function</a>. The flow of information is from S3 to EFS and not vice versa.</p>
-<p>The approach is whenever a new file is uploaded or deleted from the S3 bucket, it will create an event notification. This event will trigger a lambda function. This lambda function will have the efs file system mounted to it. Lambda function synchronizes the files from S3 to EFS.</p>
+<p>This post documents all the steps required to synchronize <a href="https://aws.amazon.com/efs/">AWS EFS</a> with an <a href="https://aws.amazon.com/s3/">S3 bucket</a> using a <a href="https://aws.amazon.com/lambda/">lambda function</a>. The flow of information is from S3 to EFS and not vice versa.</p>
+<p>The approach is whenever a new file is uploaded or deleted from the S3 bucket, it will create an event notification. This event will trigger a lambda function that has the efs file system mounted to it. The Lambda function will then synchronize the files from S3 to EFS.</p>
 <p><img src="/myblog/images/copied_from_nb/images/2022-03-28-efs-s3-sync-lambda/approach.png" alt="approach"></p>
 
 </div>
