@@ -1,6 +1,6 @@
 ---
 keywords: [aws, lambda, s3, efs, sync, python]
-description: A tutorial to synchronize EFS with S3 bucket using a Lambda function.
+description: A tutorial on synchronizing EFS with S3 bucket using a Lambda function.
 title: AWS EFS Sync to S3 Using Lambda
 toc: true 
 badges: false
@@ -29,8 +29,8 @@ layout: notebook
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>This post is to document all the steps required to synchronize <a href="https://aws.amazon.com/efs/">AWS EFS</a> with an <a href="https://aws.amazon.com/s3/">S3 bucket</a> using a <a href="https://aws.amazon.com/lambda/">lambda function</a>. The flow of information is from S3 to EFS and not vice versa.</p>
-<p>The approach is whenever a new file is uploaded or deleted from the S3 bucket, it will create an event notification. This event will trigger a lambda function. This lambda function will have the efs file system mounted to it. Lambda function synchronizes the files from S3 to EFS.</p>
+<h1 id="About">About<a class="anchor-link" href="#About"> </a></h1><p>This post documents all the steps required to synchronize <a href="https://aws.amazon.com/efs/">AWS EFS</a> with an <a href="https://aws.amazon.com/s3/">S3 bucket</a> using a <a href="https://aws.amazon.com/lambda/">lambda function</a>. The flow of information is from S3 to EFS and not vice versa.</p>
+<p>The approach is whenever a new file is uploaded or deleted from the S3 bucket, it will create an event notification. This event will trigger a lambda function that has the efs file system mounted to it. The Lambda function will then synchronize the files from S3 to EFS.</p>
 <p><img src="/myblog/images/copied_from_nb/images/2022-03-28-efs-s3-sync-lambda/approach.png" alt="approach"></p>
 
 </div>
