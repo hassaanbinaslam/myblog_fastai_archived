@@ -30,22 +30,22 @@ layout: notebook
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction"> </a></h1><p>You may have trained a model with your favorite ML framework, and now you are asked to move your code to Amazon SageMaker. The good news is that SageMaker's fully managed training works well with many popular ML frameworks, including <code>scikit-learn.</code> In addition, SageMaker provides its prebuilt container for the scikit-learn framework, enabling us to port our scripts to SageMaker and benefit from its training and deployment capabilities. SageMaker's scikit-learn container is an open source library for making the scikit-learn framework run on the Amazon SageMaker platform. You can read more about sklearn container features from its GitHub page <a href="https://github.com/aws/sagemaker-scikit-learn-container">SageMaker Scikit-learn Container</a>.</p>
+<h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction"> </a></h1><p>You may have trained a model with your favorite ML framework, and now you are asked to move your code to Amazon SageMaker. The good news is that SageMaker's fully managed training works well with many popular ML frameworks, including <code>scikit-learn</code>. In addition, SageMaker provides its prebuilt container for the scikit-learn framework, enabling us to seemlessly port our scripts to SageMaker and benefit from its training and deployment capabilities. SageMaker's scikit-learn Container is an open source library for making the scikit-learn framework run on the Amazon SageMaker platform. You can read more about sklearn container features from its GitHub page <a href="https://github.com/aws/sagemaker-scikit-learn-container">SageMaker Scikit-learn Container</a>.</p>
 <p>Amazon SageMaker also provides open source Python SDK to train and deploy models on SageMaker. SageMaker SDK provides several high-level abstractions (classes), including:</p>
 <ul>
 <li><code>Session</code> Provides a collection of methods for working with SageMaker resources </li>
 <li><code>Estimators</code> Encapsulate training on SageMaker</li>
-<li><code>Predictors</code> Provide real-time inference and transformation using Python data types against a SageMaker endpoint
-You can read more on SageMaker Python SDK from its official site <a href="https://sagemaker.readthedocs.io/en/stable/overview.html">Amazon SageMaker Python SDK</a></li>
+<li><code>Predictors</code> Provide real-time inference and transformation using Python data types against a SageMaker endpoint</li>
 </ul>
-<p>This approach of using a custom training script with SageMaker's prebuilt container is commonly called <strong>Script Mode</strong>. To train a scikit-learn model by using the SageMaker Python SDK involves three steps:</p>
+<p>You can read more on SageMaker Python SDK from its official site <a href="https://sagemaker.readthedocs.io/en/stable/overview.html">Amazon SageMaker Python SDK</a></p>
+<p>This approach of using a custom training script with SageMaker's prebuilt container is commonly called as <strong>Script Mode</strong>. To train a scikit-learn model by using the SageMaker Python SDK involves three steps:</p>
 <ol>
 <li><strong>Prepare a training script</strong>. The training script is similar to any other scikit-learn training script that you might use outside of SageMaker</li>
-<li><strong>Create an Estimator object from class <code>sagemaker.sklearn.SKLearn</code></strong>. Scikit-learn estimator class handles end-to-end training and deployment of custom scikit-learn code. It will execute a scikit-learn script within a SageMaker Training Job. The managed scikit-learn environment is an Amazon-built Docker container that runs functions defined in the supplied <code>entry_point</code> Python script. </li>
+<li><strong>Create an Estimator object from class <code>sagemaker.sklearn.SKLearn</code></strong>. Scikit-learn estimator class handles end-to-end training and deployment of custom scikit-learn code. We pass our training script to the SKLearn estimator, and it executes the script within a SageMaker Training Job. This training job is an Amazon-built Docker container that runs functions defined in the provided Python script. </li>
 <li><strong>Call the Estimator's <code>fit</code> method on training data</strong>. Training is started by calling <code>fit()</code> on this Estimator. After training is complete, calling <code>deploy()</code> creates a hosted SageMaker endpoint and returns a <code>SKLearnPredictor</code> instance that can be used to perform inference against the hosted model. We will discuss the <code>SKLearn</code> Estimator in more detail later in this post.</li>
 </ol>
 <p>To read more about using scikit-learn with the SageMaker Python SDK, you may refer to the official documentation <a href="https://sagemaker.readthedocs.io/en/stable/frameworks/sklearn/using_sklearn.html">using Scikit-learn with the SageMaker Python SDK</a>. The official documentation is valuable, and I would highly recommend checking it and keeping it as a reference.</p>
-<p>In this post we will built a scikit-learn <a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html">RandomForrestClassifier</a> on <a href="https://archive.ics.uci.edu/ml/datasets/iris">iris public dataset</a>. There is a similar example in SageMaker documentation. <a href="https://sagemaker-examples.readthedocs.io/en/latest/sagemaker-script-mode/sklearn/sklearn_byom_outputs.html">Train a SKLearn Model using Script Mode</a>. Still, it does not discuss many important elements of a scikit-learn container and its environment. This post will cover all the stages of training a scikit-learn model with script mode. I also noted that the example in the documentation uses <code>RandomForrestRegressor</code> on a classification problem which I believe is a mistake.</p>
+<p>In this post we will built a scikit-learn <a href="https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html">RandomForrestClassifier</a> on <a href="https://archive.ics.uci.edu/ml/datasets/iris">iris public dataset</a>. There is a similar example in SageMaker documentation. <a href="https://sagemaker-examples.readthedocs.io/en/latest/sagemaker-script-mode/sklearn/sklearn_byom_outputs.html">Train a SKLearn Model using Script Mode</a>. But it does not discuss many important aspects of a scikit-learn container and its environment. In this post, we will learn about them and cover all the details of training a scikit-learn model with script mode. I also noted that the example in the documentation uses <code>RandomForrestRegressor</code> on a classification problem which I believe is a mistake.</p>
 <p>We have much to cover and learn, so let's start.</p>
 
 </div>
@@ -53,7 +53,7 @@ You can read more on SageMaker Python SDK from its official site <a href="https:
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Environment">Environment<a class="anchor-link" href="#Environment"> </a></h1><p>This notebook is prepared with AWS SageMaker notebook running on <code>ml.t3.medium</code> instance and "cond_python3" kernel.</p>
+<h1 id="Environment">Environment<a class="anchor-link" href="#Environment"> </a></h1><p>This notebook is prepared with AWS SageMaker notebook running on <code>ml.t3.medium</code> instance and "conda_python3" kernel.</p>
 
 </div>
 </div>
@@ -207,7 +207,7 @@ tensorflow2_p38          /home/ec2-user/anaconda3/envs/tensorflow2_p38
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Prepare-training-and-test-data">Prepare training and test data<a class="anchor-link" href="#Prepare-training-and-test-data"> </a></h1><p>We will use <strong>Iris flower dataset</strong>. It includes three iris species (Iris setosa, Iris virginica, and Iris versicolor) with 50 samples each and some properties about each flower. You can read more about this dataset at <a href="https://en.wikipedia.org/wiki/Iris_flower_data_set">Iris flower data set</a></p>
+<h1 id="Prepare-training-and-test-data">Prepare training and test data<a class="anchor-link" href="#Prepare-training-and-test-data"> </a></h1><p>We will use <strong>Iris flower dataset</strong>. It includes three iris species (Iris setosa, Iris virginica, and Iris versicolor) with 50 samples each. Four features were measured from each sample: the length and the width of the sepals and petals, in centimeters. We can train a model to distinguish the species from each other based on the combination of these four features. You can read more about this dataset at <a href="https://en.wikipedia.org/wiki/Iris_flower_data_set">Iris flower data set</a></p>
 <ol>
 <li>sepal length in cm</li>
 <li>sepal width in cm</li>
@@ -504,7 +504,7 @@ test.shape: (30, 6)
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We have our dataset ready. Let's define a local directory where we keep all the files and artifacts related to this post. I will refer to this directory as 'workspace'.</p>
+<p>We have our dataset ready. Let's define a local directory to keep all the files and artifacts related to this post. I will refer to this directory as 'local_path'.</p>
 
 </div>
 </div>
@@ -529,7 +529,7 @@ test.shape: (30, 6)
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>We have train and test sets ready. Let's create two more directories in our workspace and store our data in them.</p>
+<p>We have train and test sets ready. Let's create two more directories in our <code>local_path</code> and store our data in them.</p>
 
 </div>
 </div>
@@ -544,15 +544,15 @@ test.shape: (30, 6)
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="c1"># local paths</span>
-<span class="n">local_train_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">/train&quot;</span>
-<span class="n">local_test_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">/test&quot;</span>
+<span class="n">local_train_path</span> <span class="o">=</span> <span class="n">local_path</span> <span class="o">+</span> <span class="s2">&quot;/train&quot;</span>
+<span class="n">local_test_path</span> <span class="o">=</span> <span class="n">local_path</span> <span class="o">+</span> <span class="s2">&quot;/test&quot;</span>
 
 <span class="c1"># create local directories</span>
 <span class="n">Path</span><span class="p">(</span><span class="n">local_train_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 <span class="n">Path</span><span class="p">(</span><span class="n">local_test_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;local_train_path: </span><span class="si">{</span><span class="n">local_train_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;local_test_path: </span><span class="si">{</span><span class="n">local_test_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;local_train_path: &quot;</span><span class="p">,</span> <span class="n">local_train_path</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;local_test_path: &quot;</span><span class="p">,</span> <span class="n">local_test_path</span><span class="p">)</span>
 
 <span class="c1"># local file names</span>
 <span class="n">local_train_file</span> <span class="o">=</span> <span class="n">local_train_path</span> <span class="o">+</span> <span class="s2">&quot;/train.csv&quot;</span>
@@ -562,8 +562,8 @@ test.shape: (30, 6)
 <span class="n">train</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">local_train_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">test</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">local_test_file</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;local_train_file: </span><span class="si">{</span><span class="n">local_train_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;local_test_file: </span><span class="si">{</span><span class="n">local_test_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;local_train_file: &quot;</span><span class="p">,</span> <span class="n">local_train_file</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;local_test_file: &quot;</span><span class="p">,</span> <span class="n">local_test_file</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -610,11 +610,11 @@ local_test_file: ./datasets/2022-07-07-sagemaker-script-mode/test/test.csv
 <span class="n">bucket</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">default_bucket</span><span class="p">()</span>
 <span class="n">region</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">boto_region_name</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sagemaker.__version__: </span><span class="si">{</span><span class="n">sagemaker</span><span class="o">.</span><span class="n">__version__</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Session: </span><span class="si">{</span><span class="n">session</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Role: </span><span class="si">{</span><span class="n">role</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Bucket: </span><span class="si">{</span><span class="n">bucket</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Region: </span><span class="si">{</span><span class="n">region</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sagemaker.__version__: &quot;</span><span class="p">,</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Session: &quot;</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Role: &quot;</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Bucket: &quot;</span><span class="p">,</span> <span class="n">bucket</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Region: &quot;</span><span class="p">,</span> <span class="n">region</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -628,7 +628,7 @@ local_test_file: ./datasets/2022-07-07-sagemaker-script-mode/test/test.csv
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>sagemaker.__version__: 2.86.2
-Session: &lt;sagemaker.session.Session object at 0x7fb74511bfd0&gt;
+Session: &lt;sagemaker.session.Session object at 0x7fd3690e4160&gt;
 Role: arn:aws:iam::801598032724:role/service-role/AmazonSageMakerServiceCatalogProductsUseRole
 Bucket: sagemaker-us-east-1-801598032724
 Region: us-east-1
@@ -699,8 +699,8 @@ Region: us-east-1
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">s3_train_uri</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">upload_data</span><span class="p">(</span><span class="n">local_train_file</span><span class="p">,</span> <span class="n">key_prefix</span><span class="o">=</span><span class="n">bucket_prefix</span> <span class="o">+</span> <span class="s2">&quot;/data&quot;</span><span class="p">)</span>
 <span class="n">s3_test_uri</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">upload_data</span><span class="p">(</span><span class="n">local_test_file</span><span class="p">,</span> <span class="n">key_prefix</span><span class="o">=</span><span class="n">bucket_prefix</span> <span class="o">+</span> <span class="s2">&quot;/data&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;s3_train_uri: </span><span class="si">{</span><span class="n">s3_train_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;s3_test_uri: </span><span class="si">{</span><span class="n">s3_test_uri</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;s3_train_uri: &quot;</span><span class="p">,</span> <span class="n">s3_train_uri</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;s3_test_uri: &quot;</span><span class="p">,</span> <span class="n">s3_test_uri</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -727,7 +727,7 @@ s3_test_uri: s3://sagemaker-us-east-1-801598032724/2022-07-07-sagemaker-script-m
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>At this point our data preparation step is complete. Training and test CSV files are available both on the local system, and in our default Amazon S3 bucket.</p>
+<p>At this point, our data preparation step is complete. Train and test CSV files are available on the local system and in our default Amazon S3 bucket.</p>
 
 </div>
 </div>
@@ -735,7 +735,7 @@ s3_test_uri: s3://sagemaker-us-east-1-801598032724/2022-07-07-sagemaker-script-m
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Prepare-SageMaker-local-environment">Prepare SageMaker local environment<a class="anchor-link" href="#Prepare-SageMaker-local-environment"> </a></h1><p>The Amazon SageMaker training environment is managed, but SageMaker Python SDK also supports <strong>local mode</strong>, allowing you to train and deploy models to your local environment. This is a great way to test training scripts before running them in SageMaker's managed training or hosting environment.</p>
-<h2 id="How-SageMaker-managed-environment-works?">How SageMaker managed environment works?<a class="anchor-link" href="#How-SageMaker-managed-environment-works?"> </a></h2><p>When you send a request to SageMaker API (fit or deploy call)</p>
+<h2 id="How-SageMaker-managed-environment-works?">How SageMaker managed environment works?<a class="anchor-link" href="#How-SageMaker-managed-environment-works?"> </a></h2><p>When you send a request to SageMaker API (<code>fit</code> or <code>deploy</code> call)</p>
 <ul>
 <li>it spins up new instances with the provided specification</li>
 <li>loads the algorithm container</li>
@@ -788,7 +788,7 @@ s3_test_uri: s3://sagemaker-us-east-1-801598032724/2022-07-07-sagemaker-script-m
 Requirement already satisfied: sagemaker[local] in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (2.86.2)
 Collecting sagemaker[local]
   Downloading sagemaker-2.99.0.tar.gz (542 kB)
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">542.7/542.7 KB</span> <span class="ansi-red-fg">14.2 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>00:01
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">542.7/542.7 KB</span> <span class="ansi-red-fg">11.9 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>00:01
   Preparing metadata (setup.py) ... done
 Requirement already satisfied: attrs&lt;22,&gt;=20.3.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from sagemaker[local]) (20.3.0)
 Requirement already satisfied: boto3&lt;2.0,&gt;=1.20.21 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from sagemaker[local]) (1.21.42)
@@ -805,42 +805,42 @@ Requirement already satisfied: urllib3==1.26.8 in /home/ec2-user/anaconda3/envs/
 Requirement already satisfied: docker-compose==1.29.2 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from sagemaker[local]) (1.29.2)
 Requirement already satisfied: docker~=5.0.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from sagemaker[local]) (5.0.3)
 Requirement already satisfied: PyYAML==5.4.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from sagemaker[local]) (5.4.1)
-Requirement already satisfied: jsonschema&lt;4,&gt;=2.5.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (3.2.0)
-Requirement already satisfied: python-dotenv&lt;1,&gt;=0.13.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (0.20.0)
-Requirement already satisfied: websocket-client&lt;1,&gt;=0.32.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (0.59.0)
-Requirement already satisfied: requests&lt;3,&gt;=2.20.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (2.26.0)
-Requirement already satisfied: docopt&lt;1,&gt;=0.6.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (0.6.2)
 Requirement already satisfied: dockerpty&lt;1,&gt;=0.4.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (0.4.1)
-Requirement already satisfied: texttable&lt;2,&gt;=0.9.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (1.6.4)
+Requirement already satisfied: websocket-client&lt;1,&gt;=0.32.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (0.59.0)
 Requirement already satisfied: distro&lt;2,&gt;=1.5.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (1.7.0)
+Requirement already satisfied: docopt&lt;1,&gt;=0.6.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (0.6.2)
+Requirement already satisfied: python-dotenv&lt;1,&gt;=0.13.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (0.20.0)
+Requirement already satisfied: jsonschema&lt;4,&gt;=2.5.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (3.2.0)
+Requirement already satisfied: texttable&lt;2,&gt;=0.9.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (1.6.4)
+Requirement already satisfied: requests&lt;3,&gt;=2.20.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker-compose==1.29.2-&gt;sagemaker[local]) (2.26.0)
 Collecting botocore&lt;1.25.0,&gt;=1.24.42
   Downloading botocore-1.24.46-py3-none-any.whl (8.7 MB)
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">8.7/8.7 MB</span> <span class="ansi-red-fg">41.8 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>:00:0100:01
-Requirement already satisfied: s3transfer&lt;0.6.0,&gt;=0.5.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from boto3&lt;2.0,&gt;=1.20.21-&gt;sagemaker[local]) (0.5.2)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">8.7/8.7 MB</span> <span class="ansi-red-fg">48.2 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>:00:0100:01
 Requirement already satisfied: jmespath&lt;2.0.0,&gt;=0.7.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from boto3&lt;2.0,&gt;=1.20.21-&gt;sagemaker[local]) (0.10.0)
+Requirement already satisfied: s3transfer&lt;0.6.0,&gt;=0.5.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from boto3&lt;2.0,&gt;=1.20.21-&gt;sagemaker[local]) (0.5.2)
 Requirement already satisfied: zipp&gt;=0.5 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from importlib-metadata&lt;5.0,&gt;=1.4.0-&gt;sagemaker[local]) (3.6.0)
 Requirement already satisfied: pyparsing!=3.0.5,&gt;=2.0.2 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from packaging&gt;=20.0-&gt;sagemaker[local]) (3.0.6)
 Requirement already satisfied: six in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from protobuf3-to-dict&lt;1.0,&gt;=0.1.5-&gt;sagemaker[local]) (1.16.0)
 Requirement already satisfied: python-dateutil&gt;=2.7.3 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from pandas-&gt;sagemaker[local]) (2.8.2)
 Requirement already satisfied: pytz&gt;=2017.3 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from pandas-&gt;sagemaker[local]) (2021.3)
-Requirement already satisfied: multiprocess&gt;=0.70.12 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from pathos-&gt;sagemaker[local]) (0.70.12.2)
-Requirement already satisfied: dill&gt;=0.3.4 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from pathos-&gt;sagemaker[local]) (0.3.4)
-Requirement already satisfied: ppft&gt;=1.6.6.4 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from pathos-&gt;sagemaker[local]) (1.6.6.4)
 Requirement already satisfied: pox&gt;=0.3.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from pathos-&gt;sagemaker[local]) (0.3.0)
+Requirement already satisfied: ppft&gt;=1.6.6.4 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from pathos-&gt;sagemaker[local]) (1.6.6.4)
+Requirement already satisfied: dill&gt;=0.3.4 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from pathos-&gt;sagemaker[local]) (0.3.4)
+Requirement already satisfied: multiprocess&gt;=0.70.12 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from pathos-&gt;sagemaker[local]) (0.70.12.2)
 Requirement already satisfied: paramiko&gt;=2.4.2 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from docker~=5.0.0-&gt;sagemaker[local]) (2.10.3)
 Requirement already satisfied: pyrsistent&gt;=0.14.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from jsonschema&lt;4,&gt;=2.5.1-&gt;docker-compose==1.29.2-&gt;sagemaker[local]) (0.18.0)
 Requirement already satisfied: setuptools in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from jsonschema&lt;4,&gt;=2.5.1-&gt;docker-compose==1.29.2-&gt;sagemaker[local]) (59.4.0)
+Requirement already satisfied: certifi&gt;=2017.4.17 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from requests&lt;3,&gt;=2.20.0-&gt;docker-compose==1.29.2-&gt;sagemaker[local]) (2021.10.8)
 Requirement already satisfied: idna&lt;4,&gt;=2.5 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from requests&lt;3,&gt;=2.20.0-&gt;docker-compose==1.29.2-&gt;sagemaker[local]) (3.1)
 Requirement already satisfied: charset-normalizer~=2.0.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from requests&lt;3,&gt;=2.20.0-&gt;docker-compose==1.29.2-&gt;sagemaker[local]) (2.0.8)
-Requirement already satisfied: certifi&gt;=2017.4.17 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from requests&lt;3,&gt;=2.20.0-&gt;docker-compose==1.29.2-&gt;sagemaker[local]) (2021.10.8)
-Requirement already satisfied: cryptography&gt;=2.5 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from paramiko&gt;=2.4.2-&gt;docker~=5.0.0-&gt;sagemaker[local]) (36.0.0)
 Requirement already satisfied: bcrypt&gt;=3.1.3 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from paramiko&gt;=2.4.2-&gt;docker~=5.0.0-&gt;sagemaker[local]) (3.2.0)
+Requirement already satisfied: cryptography&gt;=2.5 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from paramiko&gt;=2.4.2-&gt;docker~=5.0.0-&gt;sagemaker[local]) (36.0.0)
 Requirement already satisfied: pynacl&gt;=1.0.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from paramiko&gt;=2.4.2-&gt;docker~=5.0.0-&gt;sagemaker[local]) (1.5.0)
 Requirement already satisfied: cffi&gt;=1.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from bcrypt&gt;=3.1.3-&gt;paramiko&gt;=2.4.2-&gt;docker~=5.0.0-&gt;sagemaker[local]) (1.15.0)
 Requirement already satisfied: pycparser in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from cffi&gt;=1.1-&gt;bcrypt&gt;=3.1.3-&gt;paramiko&gt;=2.4.2-&gt;docker~=5.0.0-&gt;sagemaker[local]) (2.21)
 Building wheels for collected packages: sagemaker
   Building wheel for sagemaker (setup.py) ... done
-  Created wheel for sagemaker: filename=sagemaker-2.99.0-py2.py3-none-any.whl size=756462 sha256=4d372e4c8d01cf27f517215525f83cf711378fce26d91a18ef4af5cf6807b1a9
+  Created wheel for sagemaker: filename=sagemaker-2.99.0-py2.py3-none-any.whl size=756462 sha256=7886b129082cc63bcfd21a4f7a1a46d45c83f4e440a8d4733cf10bfa6e94ca4b
   Stored in directory: /home/ec2-user/.cache/pip/wheels/fc/df/14/14b7871f4cf108cfe8891338510d97e28cfe2da00f37114fcf
 Successfully built sagemaker
 Installing collected packages: botocore, sagemaker
@@ -871,7 +871,7 @@ You should consider upgrading via the &#39;/home/ec2-user/anaconda3/envs/python3
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h4 id="Instructions-for-SageMaker-Studio-environment">Instructions for SageMaker Studio environment<a class="anchor-link" href="#Instructions-for-SageMaker-Studio-environment"> </a></h4><p>Note that SageMaker local mode will not work in SageMaker Studio environment as it does not have docker service installed on instances.</p>
+<h3 id="Instructions-for-SageMaker-Studio-environment">Instructions for SageMaker Studio environment<a class="anchor-link" href="#Instructions-for-SageMaker-Studio-environment"> </a></h3><p>Note that SageMaker <code>local</code> mode will not work in SageMaker Studio environment as it does not have docker service installed on the provided instances.</p>
 
 </div>
 </div>
@@ -907,7 +907,7 @@ You should consider upgrading via the &#39;/home/ec2-user/anaconda3/envs/python3
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&lt;sagemaker.local.local_session.LocalSession at 0x7fb73bc07e80&gt;</pre>
+<pre>&lt;sagemaker.local.local_session.LocalSession at 0x7fd35fb7a2e0&gt;</pre>
 </div>
 
 </div>
@@ -951,12 +951,12 @@ You should consider upgrading via the &#39;/home/ec2-user/anaconda3/envs/python3
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">script_file_name</span> <span class="o">=</span> <span class="s2">&quot;train_and_serve.py&quot;</span>
-<span class="n">script_path</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">/src&quot;</span>
+<span class="n">script_path</span> <span class="o">=</span> <span class="n">local_path</span> <span class="o">+</span> <span class="s2">&quot;/src&quot;</span>
 <span class="n">script_file</span> <span class="o">=</span> <span class="n">script_path</span> <span class="o">+</span> <span class="s2">&quot;/&quot;</span> <span class="o">+</span> <span class="n">script_file_name</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;script_file_name: </span><span class="si">{</span><span class="n">script_file_name</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;script_path: </span><span class="si">{</span><span class="n">script_path</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;script_file: </span><span class="si">{</span><span class="n">script_file</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;script_file_name: &quot;</span><span class="p">,</span> <span class="n">script_file_name</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;script_path: &quot;</span><span class="p">,</span> <span class="n">script_path</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;script_file: &quot;</span><span class="p">,</span> <span class="n">script_file</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -1029,7 +1029,7 @@ script_file: ./datasets/2022-07-07-sagemaker-script-mode/src/train_and_serve.py
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Writing ./datasets/2022-07-07-sagemaker-script-mode/src/train_and_serve.py
+<pre>Overwriting ./datasets/2022-07-07-sagemaker-script-mode/src/train_and_serve.py
 </pre>
 </div>
 </div>
@@ -1044,11 +1044,11 @@ script_file: ./datasets/2022-07-07-sagemaker-script-mode/src/train_and_serve.py
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Prepare-SageMaker-SKLearn-estimator">Prepare SageMaker SKLearn estimator<a class="anchor-link" href="#Prepare-SageMaker-SKLearn-estimator"> </a></h1><p>To use our <code>train_and_serve.py</code> script with SageMaker SKLearn estimator, we need to provide the following required items</p>
 <ul>
-<li><strong><code>entry_point (str)</code></strong> Path (absolute or relative) to the Python source file, which should be executed as the entry point to training. If source_dir is specified, then entry_point must point to a file located at the root of source_dir.</li>
-<li><strong><code>framework_version (str)</code></strong> Scikit-learn version you want to use for executing your model training code.</li>
+<li><strong><code>entry_point (str)</code></strong> Path (absolute or relative) to the Python source file, which should be executed as the entry point to training</li>
+<li><strong><code>framework_version (str)</code></strong> Scikit-learn version you want to use for executing your model training code</li>
 <li><strong><code>role (str)</code></strong> An AWS IAM role (either name or full ARN)</li>
 <li><strong><code>instance_type (str)</code></strong> Type of instance to use for training. For local mode use string <strong><code>local</code></strong></li>
-<li><strong><code>instance_count (int)</code></strong> Number of instances to use for training. Since we will train in the local environment and have a single instance, we will use '1' here.</li>
+<li><strong><code>instance_count (int)</code></strong> Number of instances to use for training. Since we will train in the local environment and have a single instance, we will use '1' here</li>
 </ul>
 <p>You can read more about the SKLearn Estimator class from the official documentation <a href="https://sagemaker.readthedocs.io/en/stable/frameworks/sklearn/sagemaker.sklearn.html">Scikit Learn Estimator</a></p>
 
@@ -1149,88 +1149,88 @@ https://docs.docker.com/engine/reference/commandline/login/#credentials-store
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Creating 0oypp60t6a-algo-1-z7ju5 ... 
-Creating 0oypp60t6a-algo-1-z7ju5 ... done
-Attaching to 0oypp60t6a-algo-1-z7ju5
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 2022-07-14 17:50:43,823 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 2022-07-14 17:50:43,827 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 2022-07-14 17:50:43,836 sagemaker_sklearn_container.training INFO     Invoking user training script.
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 2022-07-14 17:50:44,047 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 2022-07-14 17:50:44,060 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 2022-07-14 17:50:44,071 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 2022-07-14 17:50:44,079 sagemaker-training-toolkit INFO     Invoking user script
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> Training Env:
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> {
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;additional_framework_parameters&#34;: {},
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;channel_input_dirs&#34;: {},
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;current_host&#34;: &#34;algo-1-z7ju5&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>         &#34;algo-1-z7ju5&#34;
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     ],
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;hyperparameters&#34;: {},
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;input_data_config&#34;: {},
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;is_master&#34;: true,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-14-17-49-30-667&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;log_level&#34;: 20,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;master_hostname&#34;: &#34;algo-1-z7ju5&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-49-30-667/source/sourcedir.tar.gz&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;num_cpus&#34;: 2,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;num_gpus&#34;: 0,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;resource_config&#34;: {
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>         &#34;current_host&#34;: &#34;algo-1-z7ju5&#34;,
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>         &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>             &#34;algo-1-z7ju5&#34;
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>         ]
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     },
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> }
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> Environment variables:
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_HOSTS=[&#34;algo-1-z7ju5&#34;]
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_NETWORK_INTERFACE_NAME=eth0
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_HPS={}
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_USER_ENTRY_POINT=train_and_serve.py
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_FRAMEWORK_PARAMS={}
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-z7ju5&#34;,&#34;hosts&#34;:[&#34;algo-1-z7ju5&#34;]}
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_INPUT_DATA_CONFIG={}
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_CHANNELS=[]
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_CURRENT_HOST=algo-1-z7ju5
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_MODULE_NAME=train_and_serve
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_LOG_LEVEL=20
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_INPUT_DIR=/opt/ml/input
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_OUTPUT_DIR=/opt/ml/output
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_NUM_CPUS=2
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_NUM_GPUS=0
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_MODEL_DIR=/opt/ml/model
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-49-30-667/source/sourcedir.tar.gz
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{},&#34;current_host&#34;:&#34;algo-1-z7ju5&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-z7ju5&#34;],&#34;hyperparameters&#34;:{},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-14-17-49-30-667&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-z7ju5&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-49-30-667/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-z7ju5&#34;,&#34;hosts&#34;:[&#34;algo-1-z7ju5&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_USER_ARGS=[]
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> Invoking script with the following command:
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> /miniconda3/bin/python train_and_serve.py
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> *** Hello from the SageMaker script mode***
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 |</span> 2022-07-14 17:50:44,104 sagemaker-containers INFO     Reporting training SUCCESS
-<span class="ansi-cyan-fg">0oypp60t6a-algo-1-z7ju5 exited with code 0
+<pre>Creating 6mloy7cjqw-algo-1-4llxi ... 
+Creating 6mloy7cjqw-algo-1-4llxi ... done
+Attaching to 6mloy7cjqw-algo-1-4llxi
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 2022-07-15 15:36:00,351 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 2022-07-15 15:36:00,356 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 2022-07-15 15:36:00,366 sagemaker_sklearn_container.training INFO     Invoking user training script.
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 2022-07-15 15:36:00,646 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 2022-07-15 15:36:00,658 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 2022-07-15 15:36:00,671 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 2022-07-15 15:36:00,680 sagemaker-training-toolkit INFO     Invoking user script
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> Training Env:
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> {
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;additional_framework_parameters&#34;: {},
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;channel_input_dirs&#34;: {},
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;current_host&#34;: &#34;algo-1-4llxi&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>         &#34;algo-1-4llxi&#34;
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     ],
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;hyperparameters&#34;: {},
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;input_data_config&#34;: {},
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;is_master&#34;: true,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-15-15-34-26-158&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;log_level&#34;: 20,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;master_hostname&#34;: &#34;algo-1-4llxi&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-34-26-158/source/sourcedir.tar.gz&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;num_cpus&#34;: 2,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;num_gpus&#34;: 0,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;resource_config&#34;: {
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>         &#34;current_host&#34;: &#34;algo-1-4llxi&#34;,
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>         &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>             &#34;algo-1-4llxi&#34;
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>         ]
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     },
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> }
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> Environment variables:
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_HOSTS=[&#34;algo-1-4llxi&#34;]
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_NETWORK_INTERFACE_NAME=eth0
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_HPS={}
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_USER_ENTRY_POINT=train_and_serve.py
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_FRAMEWORK_PARAMS={}
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-4llxi&#34;,&#34;hosts&#34;:[&#34;algo-1-4llxi&#34;]}
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_INPUT_DATA_CONFIG={}
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_CHANNELS=[]
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_CURRENT_HOST=algo-1-4llxi
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_MODULE_NAME=train_and_serve
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_LOG_LEVEL=20
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_INPUT_DIR=/opt/ml/input
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_OUTPUT_DIR=/opt/ml/output
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_NUM_CPUS=2
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_NUM_GPUS=0
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_MODEL_DIR=/opt/ml/model
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-34-26-158/source/sourcedir.tar.gz
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{},&#34;current_host&#34;:&#34;algo-1-4llxi&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-4llxi&#34;],&#34;hyperparameters&#34;:{},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-15-15-34-26-158&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-4llxi&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-34-26-158/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-4llxi&#34;,&#34;hosts&#34;:[&#34;algo-1-4llxi&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_USER_ARGS=[]
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> Invoking script with the following command:
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> /miniconda3/bin/python train_and_serve.py
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> *** Hello from the SageMaker script mode***
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi |</span> 2022-07-15 15:36:00,706 sagemaker-containers INFO     Reporting training SUCCESS
+<span class="ansi-cyan-fg">6mloy7cjqw-algo-1-4llxi exited with code 0
 </span>Aborting on container exit...
 ===== Job Complete =====
 </pre>
@@ -1277,7 +1277,7 @@ Attaching to 0oypp60t6a-algo-1-z7ju5
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>REPOSITORY                                                            TAG             IMAGE ID       CREATED      SIZE
-683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-scikit-learn   1.0-1-cpu-py3   8a6ea8272ad0   7 days ago   3.7GB
+683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-scikit-learn   1.0-1-cpu-py3   8a6ea8272ad0   8 days ago   3.7GB
 </pre>
 </div>
 </div>
@@ -1437,10 +1437,10 @@ Attaching to 0oypp60t6a-algo-1-z7ju5
         &#34;VirtualSize&#34;: 3699696670,
         &#34;GraphDriver&#34;: {
             &#34;Data&#34;: {
-                &#34;LowerDir&#34;: &#34;/var/lib/docker/overlay2/b46666b981d5a4997a22665495b1fa000628d9208783ae20c66718e3734a4c0a/diff:/var/lib/docker/overlay2/71e41da89849c5db5fc437a9fc74e39d000b9984b03a8692a3453bc9fae8f79d/diff:/var/lib/docker/overlay2/544103a4030c96fb57d4bd72775ee9d21d31a25515ed7681aa82233db2b60cc5/diff:/var/lib/docker/overlay2/6fd80d253a5853e39fc7e826113bdd1de9e6b7f83d7017b00b73bc13a943a618/diff:/var/lib/docker/overlay2/2f9bc65ce064f1c84741ca8bb2eac84146aa51cc64b01d86dbc98741c46716d6/diff:/var/lib/docker/overlay2/3f2afb469627a33c345fdc96f48a5209147b0f0347f53a777cd084026685ba97/diff:/var/lib/docker/overlay2/ae148bc573458cddd1eebb8c0d3fb35b624bd78237fb23d713b003bbb0b65d80/diff:/var/lib/docker/overlay2/d21004ec07fd7f53c3faa4db2bd5ee27c82542c41f6cfd30370c308e5001f477/diff:/var/lib/docker/overlay2/99b16ceb1e30993f79050f5134cda6166b4cf5553239ac03dbd03b970a8aa572/diff:/var/lib/docker/overlay2/76de465562bfe1b000712cc9063d0ba3c5d973169dedc3c90f2e5d0a06b32dad/diff:/var/lib/docker/overlay2/a13bf7f7ecf27e3d0391cba959a37762b12e045ac048758ab438cc849ab8018c/diff:/var/lib/docker/overlay2/cee652bb563dd5346cfaae5bd23edf6860ea6cfa9e0eb3aafdc192704f38cdf3/diff:/var/lib/docker/overlay2/d24fd094e9d930b223b6651793c5c0e90e1aa82db69599eabaaacec26b2400d7/diff:/var/lib/docker/overlay2/4187d87dfada6e53f06e2eb98cdea26dfa9383c55e715d470b81be5703840f10/diff:/var/lib/docker/overlay2/555a4d1f80bb8048a76944f14664bb811576d3664943de0b104df55fa8d9db5f/diff:/var/lib/docker/overlay2/71dd73b19a47b33b6ba7781cbeac6edcdf3792623870e667be5a53f0dbf84c86/diff:/var/lib/docker/overlay2/4f40b4d926021e62ffd6b8ff429fee7f23f1aa613b1628461cd560ca8ff95d4c/diff&#34;,
-                &#34;MergedDir&#34;: &#34;/var/lib/docker/overlay2/6242b3a02f9c631975433cdacb1fbab5b91d5496d14f0d8b7db441e9d94d4887/merged&#34;,
-                &#34;UpperDir&#34;: &#34;/var/lib/docker/overlay2/6242b3a02f9c631975433cdacb1fbab5b91d5496d14f0d8b7db441e9d94d4887/diff&#34;,
-                &#34;WorkDir&#34;: &#34;/var/lib/docker/overlay2/6242b3a02f9c631975433cdacb1fbab5b91d5496d14f0d8b7db441e9d94d4887/work&#34;
+                &#34;LowerDir&#34;: &#34;/var/lib/docker/overlay2/f2d27ccd86df21e5c165c380ab98a80a28ffda9bb06aa948d43606477f83e296/diff:/var/lib/docker/overlay2/8857decc7464b35f6e49b6ba3b27ad2f0779a78eefe6550f11cea821811fa393/diff:/var/lib/docker/overlay2/49803119e588abe9c2282d909fc6e95fb97b2d24a3c07b9b4f06234a15d5590f/diff:/var/lib/docker/overlay2/fa6b6a75022dc69e4c587ebd508c56cc2b2bce3c1cb98e8358a40b8baf5161b4/diff:/var/lib/docker/overlay2/afc135faff8b67492aa9a806cfaae3dd4f5091164a8862cd88bc92f607f2ad1b/diff:/var/lib/docker/overlay2/cfe66271016032a438f4d68c3b9c4622bdefdc1ce54369a856e530ccbd32a603/diff:/var/lib/docker/overlay2/f56945ee5cc8da5d5fe524bbb68ec3194d3cb97670c3415be20ea914d71f8fc5/diff:/var/lib/docker/overlay2/bb7cd6461080c4b4ca5aaa9828d2853b6d1de6f9904cae2bf6b47813284e6956/diff:/var/lib/docker/overlay2/0b7798d7d51fcc2aeac9b0266f3cdc7c368303e66bc60b5b16ac7a460b4e09ba/diff:/var/lib/docker/overlay2/60ea8778eb6504b6c639f18f865bb0201e33f38965c4e246bf44c3e767299bb4/diff:/var/lib/docker/overlay2/f4f9aed9ef3d37b8756719cc36dbc2f13bfbc4e178bd34fc4d5543cac2f8fa91/diff:/var/lib/docker/overlay2/87892835157f940f5c278e60fb6799d898562cb3cebcf45118d32604333ed1fe/diff:/var/lib/docker/overlay2/4eda4c0204d7e867ec3e1395fc473185474965820129f4495a92d93d9228a375/diff:/var/lib/docker/overlay2/92104b9c6462f881a0670d2d48827ecf52636487f5bfdba51a0765e82b314566/diff:/var/lib/docker/overlay2/999cea00b3e609c7a07bd1313380ba34f7d728f7c02ab523514473fd9ab286ea/diff:/var/lib/docker/overlay2/6ee94ecb57c98054be5f9b6cea083624ec67a72d527a22eb59ee0c880f59f85d/diff:/var/lib/docker/overlay2/3352e69dc1c1de67b0d311d76f81412a8d7f3caabf96e4290234102333a7d5b1/diff&#34;,
+                &#34;MergedDir&#34;: &#34;/var/lib/docker/overlay2/ff38286f945ff9b004d16724c0543819410a5b9924c8f1352c1432caab7c4aa3/merged&#34;,
+                &#34;UpperDir&#34;: &#34;/var/lib/docker/overlay2/ff38286f945ff9b004d16724c0543819410a5b9924c8f1352c1432caab7c4aa3/diff&#34;,
+                &#34;WorkDir&#34;: &#34;/var/lib/docker/overlay2/ff38286f945ff9b004d16724c0543819410a5b9924c8f1352c1432caab7c4aa3/work&#34;
             },
             &#34;Name&#34;: &#34;overlay2&#34;
         },
@@ -1521,93 +1521,93 @@ Attaching to 0oypp60t6a-algo-1-z7ju5
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Creating 6pvujd9waw-algo-1-qiig3 ... 
-Creating 6pvujd9waw-algo-1-qiig3 ... done
-Attaching to 6pvujd9waw-algo-1-qiig3
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 2022-07-14 17:51:45,514 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 2022-07-14 17:51:45,518 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 2022-07-14 17:51:45,526 sagemaker_sklearn_container.training INFO     Invoking user training script.
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 2022-07-14 17:51:45,718 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 2022-07-14 17:51:45,730 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 2022-07-14 17:51:45,742 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 2022-07-14 17:51:45,751 sagemaker-training-toolkit INFO     Invoking user script
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> Training Env:
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> {
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;additional_framework_parameters&#34;: {},
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;channel_input_dirs&#34;: {},
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;current_host&#34;: &#34;algo-1-qiig3&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>         &#34;algo-1-qiig3&#34;
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     ],
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;hyperparameters&#34;: {
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>         &#34;dummy_param_1&#34;: &#34;val1&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>         &#34;dummy_param_2&#34;: &#34;val2&#34;
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     },
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;input_data_config&#34;: {},
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;is_master&#34;: true,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-14-17-51-43-520&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;log_level&#34;: 20,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;master_hostname&#34;: &#34;algo-1-qiig3&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-51-43-520/source/sourcedir.tar.gz&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;num_cpus&#34;: 2,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;num_gpus&#34;: 0,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;resource_config&#34;: {
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>         &#34;current_host&#34;: &#34;algo-1-qiig3&#34;,
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>         &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>             &#34;algo-1-qiig3&#34;
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>         ]
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     },
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> }
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> Environment variables:
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_HOSTS=[&#34;algo-1-qiig3&#34;]
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_NETWORK_INTERFACE_NAME=eth0
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_HPS={&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;}
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_USER_ENTRY_POINT=train_and_serve.py
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_FRAMEWORK_PARAMS={}
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-qiig3&#34;,&#34;hosts&#34;:[&#34;algo-1-qiig3&#34;]}
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_INPUT_DATA_CONFIG={}
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_CHANNELS=[]
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_CURRENT_HOST=algo-1-qiig3
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_MODULE_NAME=train_and_serve
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_LOG_LEVEL=20
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_INPUT_DIR=/opt/ml/input
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_OUTPUT_DIR=/opt/ml/output
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_NUM_CPUS=2
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_NUM_GPUS=0
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_MODEL_DIR=/opt/ml/model
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-51-43-520/source/sourcedir.tar.gz
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{},&#34;current_host&#34;:&#34;algo-1-qiig3&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-qiig3&#34;],&#34;hyperparameters&#34;:{&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-14-17-51-43-520&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-qiig3&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-51-43-520/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-qiig3&#34;,&#34;hosts&#34;:[&#34;algo-1-qiig3&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_USER_ARGS=[&#34;--dummy_param_1&#34;,&#34;val1&#34;,&#34;--dummy_param_2&#34;,&#34;val2&#34;]
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_HP_DUMMY_PARAM_1=val1
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> SM_HP_DUMMY_PARAM_2=val2
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> Invoking script with the following command:
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> /miniconda3/bin/python train_and_serve.py --dummy_param_1 val1 --dummy_param_2 val2
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> *** Hello from the SageMaker script mode***
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 |</span> 2022-07-14 17:51:45,776 sagemaker-containers INFO     Reporting training SUCCESS
-<span class="ansi-cyan-fg">6pvujd9waw-algo-1-qiig3 exited with code 0
+<pre>Creating is8juu33rz-algo-1-wcm5g ... 
+Creating is8juu33rz-algo-1-wcm5g ... done
+Attaching to is8juu33rz-algo-1-wcm5g
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 2022-07-15 15:36:04,882 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 2022-07-15 15:36:04,887 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 2022-07-15 15:36:04,895 sagemaker_sklearn_container.training INFO     Invoking user training script.
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 2022-07-15 15:36:05,087 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 2022-07-15 15:36:05,104 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 2022-07-15 15:36:05,116 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 2022-07-15 15:36:05,125 sagemaker-training-toolkit INFO     Invoking user script
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> Training Env:
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> {
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;additional_framework_parameters&#34;: {},
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;channel_input_dirs&#34;: {},
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;current_host&#34;: &#34;algo-1-wcm5g&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>         &#34;algo-1-wcm5g&#34;
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     ],
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;hyperparameters&#34;: {
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>         &#34;dummy_param_1&#34;: &#34;val1&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>         &#34;dummy_param_2&#34;: &#34;val2&#34;
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     },
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;input_data_config&#34;: {},
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;is_master&#34;: true,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-15-15-36-01-969&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;log_level&#34;: 20,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;master_hostname&#34;: &#34;algo-1-wcm5g&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-36-01-969/source/sourcedir.tar.gz&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;num_cpus&#34;: 2,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;num_gpus&#34;: 0,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;resource_config&#34;: {
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>         &#34;current_host&#34;: &#34;algo-1-wcm5g&#34;,
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>         &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>             &#34;algo-1-wcm5g&#34;
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>         ]
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     },
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> }
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> Environment variables:
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_HOSTS=[&#34;algo-1-wcm5g&#34;]
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_NETWORK_INTERFACE_NAME=eth0
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_HPS={&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;}
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_USER_ENTRY_POINT=train_and_serve.py
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_FRAMEWORK_PARAMS={}
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-wcm5g&#34;,&#34;hosts&#34;:[&#34;algo-1-wcm5g&#34;]}
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_INPUT_DATA_CONFIG={}
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_CHANNELS=[]
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_CURRENT_HOST=algo-1-wcm5g
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_MODULE_NAME=train_and_serve
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_LOG_LEVEL=20
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_INPUT_DIR=/opt/ml/input
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_OUTPUT_DIR=/opt/ml/output
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_NUM_CPUS=2
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_NUM_GPUS=0
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_MODEL_DIR=/opt/ml/model
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-36-01-969/source/sourcedir.tar.gz
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{},&#34;current_host&#34;:&#34;algo-1-wcm5g&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-wcm5g&#34;],&#34;hyperparameters&#34;:{&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-15-15-36-01-969&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-wcm5g&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-36-01-969/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-wcm5g&#34;,&#34;hosts&#34;:[&#34;algo-1-wcm5g&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_USER_ARGS=[&#34;--dummy_param_1&#34;,&#34;val1&#34;,&#34;--dummy_param_2&#34;,&#34;val2&#34;]
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_HP_DUMMY_PARAM_1=val1
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> SM_HP_DUMMY_PARAM_2=val2
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> Invoking script with the following command:
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> /miniconda3/bin/python train_and_serve.py --dummy_param_1 val1 --dummy_param_2 val2
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> *** Hello from the SageMaker script mode***
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g |</span> 2022-07-15 15:36:05,152 sagemaker-containers INFO     Reporting training SUCCESS
+<span class="ansi-cyan-fg">is8juu33rz-algo-1-wcm5g exited with code 0
 </span>Aborting on container exit...
 ===== Job Complete =====
 </pre>
@@ -1738,101 +1738,101 @@ SM_CHANNEL_TEST='/opt/ml/input/data/test'</code></pre>
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Creating h0qjzqwkwe-algo-1-s9ja7 ... 
-Creating h0qjzqwkwe-algo-1-s9ja7 ... done
-Attaching to h0qjzqwkwe-algo-1-s9ja7
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 2022-07-14 17:52:02,846 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 2022-07-14 17:52:02,850 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 2022-07-14 17:52:02,859 sagemaker_sklearn_container.training INFO     Invoking user training script.
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 2022-07-14 17:52:03,062 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 2022-07-14 17:52:03,075 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 2022-07-14 17:52:03,088 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 2022-07-14 17:52:03,097 sagemaker-training-toolkit INFO     Invoking user script
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> Training Env:
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> {
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;additional_framework_parameters&#34;: {},
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;channel_input_dirs&#34;: {
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>         &#34;train&#34;: &#34;/opt/ml/input/data/train&#34;
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     },
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;current_host&#34;: &#34;algo-1-s9ja7&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>         &#34;algo-1-s9ja7&#34;
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     ],
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;hyperparameters&#34;: {
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>         &#34;dummy_param_1&#34;: &#34;val1&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>         &#34;dummy_param_2&#34;: &#34;val2&#34;
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     },
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;input_data_config&#34;: {
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>         &#34;train&#34;: {
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>         }
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     },
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;is_master&#34;: true,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-14-17-52-00-069&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;log_level&#34;: 20,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;master_hostname&#34;: &#34;algo-1-s9ja7&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-52-00-069/source/sourcedir.tar.gz&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;num_cpus&#34;: 2,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;num_gpus&#34;: 0,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;resource_config&#34;: {
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>         &#34;current_host&#34;: &#34;algo-1-s9ja7&#34;,
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>         &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>             &#34;algo-1-s9ja7&#34;
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>         ]
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     },
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> }
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> Environment variables:
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_HOSTS=[&#34;algo-1-s9ja7&#34;]
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_NETWORK_INTERFACE_NAME=eth0
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_HPS={&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;}
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_USER_ENTRY_POINT=train_and_serve.py
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_FRAMEWORK_PARAMS={}
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-s9ja7&#34;,&#34;hosts&#34;:[&#34;algo-1-s9ja7&#34;]}
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_INPUT_DATA_CONFIG={&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}}
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_CHANNELS=[&#34;train&#34;]
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_CURRENT_HOST=algo-1-s9ja7
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_MODULE_NAME=train_and_serve
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_LOG_LEVEL=20
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_INPUT_DIR=/opt/ml/input
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_OUTPUT_DIR=/opt/ml/output
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_NUM_CPUS=2
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_NUM_GPUS=0
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_MODEL_DIR=/opt/ml/model
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-52-00-069/source/sourcedir.tar.gz
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{&#34;train&#34;:&#34;/opt/ml/input/data/train&#34;},&#34;current_host&#34;:&#34;algo-1-s9ja7&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-s9ja7&#34;],&#34;hyperparameters&#34;:{&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-14-17-52-00-069&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-s9ja7&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-52-00-069/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-s9ja7&#34;,&#34;hosts&#34;:[&#34;algo-1-s9ja7&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_USER_ARGS=[&#34;--dummy_param_1&#34;,&#34;val1&#34;,&#34;--dummy_param_2&#34;,&#34;val2&#34;]
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_CHANNEL_TRAIN=/opt/ml/input/data/train
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_HP_DUMMY_PARAM_1=val1
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> SM_HP_DUMMY_PARAM_2=val2
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> Invoking script with the following command:
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> /miniconda3/bin/python train_and_serve.py --dummy_param_1 val1 --dummy_param_2 val2
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span>  *** Hello from SageMaker script container *** 
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> training_dir files list:  [&#39;train.csv&#39;]
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 |</span> 2022-07-14 17:52:03,136 sagemaker-containers INFO     Reporting training SUCCESS
-<span class="ansi-cyan-fg">h0qjzqwkwe-algo-1-s9ja7 exited with code 0
+<pre>Creating og7ky0suq7-algo-1-6mno5 ... 
+Creating og7ky0suq7-algo-1-6mno5 ... done
+Attaching to og7ky0suq7-algo-1-6mno5
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 2022-07-15 15:36:07,974 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 2022-07-15 15:36:07,980 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 2022-07-15 15:36:07,994 sagemaker_sklearn_container.training INFO     Invoking user training script.
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 2022-07-15 15:36:08,259 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 2022-07-15 15:36:08,273 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 2022-07-15 15:36:08,286 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 2022-07-15 15:36:08,295 sagemaker-training-toolkit INFO     Invoking user script
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> Training Env:
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> {
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;additional_framework_parameters&#34;: {},
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;channel_input_dirs&#34;: {
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>         &#34;train&#34;: &#34;/opt/ml/input/data/train&#34;
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     },
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;current_host&#34;: &#34;algo-1-6mno5&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>         &#34;algo-1-6mno5&#34;
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     ],
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;hyperparameters&#34;: {
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>         &#34;dummy_param_1&#34;: &#34;val1&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>         &#34;dummy_param_2&#34;: &#34;val2&#34;
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     },
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;input_data_config&#34;: {
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>         &#34;train&#34;: {
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>         }
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     },
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;is_master&#34;: true,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-15-15-36-05-536&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;log_level&#34;: 20,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;master_hostname&#34;: &#34;algo-1-6mno5&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-36-05-536/source/sourcedir.tar.gz&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;num_cpus&#34;: 2,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;num_gpus&#34;: 0,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;resource_config&#34;: {
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>         &#34;current_host&#34;: &#34;algo-1-6mno5&#34;,
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>         &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>             &#34;algo-1-6mno5&#34;
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>         ]
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     },
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> }
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> Environment variables:
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_HOSTS=[&#34;algo-1-6mno5&#34;]
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_NETWORK_INTERFACE_NAME=eth0
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_HPS={&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;}
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_USER_ENTRY_POINT=train_and_serve.py
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_FRAMEWORK_PARAMS={}
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-6mno5&#34;,&#34;hosts&#34;:[&#34;algo-1-6mno5&#34;]}
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_INPUT_DATA_CONFIG={&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}}
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_CHANNELS=[&#34;train&#34;]
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_CURRENT_HOST=algo-1-6mno5
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_MODULE_NAME=train_and_serve
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_LOG_LEVEL=20
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_INPUT_DIR=/opt/ml/input
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_OUTPUT_DIR=/opt/ml/output
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_NUM_CPUS=2
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_NUM_GPUS=0
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_MODEL_DIR=/opt/ml/model
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-36-05-536/source/sourcedir.tar.gz
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{&#34;train&#34;:&#34;/opt/ml/input/data/train&#34;},&#34;current_host&#34;:&#34;algo-1-6mno5&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-6mno5&#34;],&#34;hyperparameters&#34;:{&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-15-15-36-05-536&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-6mno5&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-36-05-536/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-6mno5&#34;,&#34;hosts&#34;:[&#34;algo-1-6mno5&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_USER_ARGS=[&#34;--dummy_param_1&#34;,&#34;val1&#34;,&#34;--dummy_param_2&#34;,&#34;val2&#34;]
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_CHANNEL_TRAIN=/opt/ml/input/data/train
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_HP_DUMMY_PARAM_1=val1
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> SM_HP_DUMMY_PARAM_2=val2
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> Invoking script with the following command:
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> /miniconda3/bin/python train_and_serve.py --dummy_param_1 val1 --dummy_param_2 val2
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span>  *** Hello from SageMaker script container *** 
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> training_dir files list:  [&#39;train.csv&#39;]
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 |</span> 2022-07-15 15:36:08,339 sagemaker-containers INFO     Reporting training SUCCESS
+<span class="ansi-cyan-fg">og7ky0suq7-algo-1-6mno5 exited with code 0
 </span>Aborting on container exit...
 ===== Job Complete =====
 </pre>
@@ -1886,101 +1886,101 @@ Attaching to h0qjzqwkwe-algo-1-s9ja7
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Creating mhmxon0p5y-algo-1-ke1pv ... 
-Creating mhmxon0p5y-algo-1-ke1pv ... done
-Attaching to mhmxon0p5y-algo-1-ke1pv
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 2022-07-14 17:53:08,686 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 2022-07-14 17:53:08,690 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 2022-07-14 17:53:08,698 sagemaker_sklearn_container.training INFO     Invoking user training script.
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 2022-07-14 17:53:08,869 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 2022-07-14 17:53:08,882 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 2022-07-14 17:53:08,896 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 2022-07-14 17:53:08,905 sagemaker-training-toolkit INFO     Invoking user script
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> Training Env:
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> {
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;additional_framework_parameters&#34;: {},
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;channel_input_dirs&#34;: {
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>         &#34;train&#34;: &#34;/opt/ml/input/data/train&#34;
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     },
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;current_host&#34;: &#34;algo-1-ke1pv&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>         &#34;algo-1-ke1pv&#34;
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     ],
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;hyperparameters&#34;: {
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>         &#34;dummy_param_1&#34;: &#34;val1&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>         &#34;dummy_param_2&#34;: &#34;val2&#34;
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     },
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;input_data_config&#34;: {
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>         &#34;train&#34;: {
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>         }
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     },
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;is_master&#34;: true,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-14-17-53-06-569&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;log_level&#34;: 20,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;master_hostname&#34;: &#34;algo-1-ke1pv&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-06-569/source/sourcedir.tar.gz&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;num_cpus&#34;: 2,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;num_gpus&#34;: 0,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;resource_config&#34;: {
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>         &#34;current_host&#34;: &#34;algo-1-ke1pv&#34;,
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>         &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>             &#34;algo-1-ke1pv&#34;
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>         ]
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     },
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> }
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> Environment variables:
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_HOSTS=[&#34;algo-1-ke1pv&#34;]
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_NETWORK_INTERFACE_NAME=eth0
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_HPS={&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;}
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_USER_ENTRY_POINT=train_and_serve.py
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_FRAMEWORK_PARAMS={}
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-ke1pv&#34;,&#34;hosts&#34;:[&#34;algo-1-ke1pv&#34;]}
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_INPUT_DATA_CONFIG={&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}}
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_CHANNELS=[&#34;train&#34;]
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_CURRENT_HOST=algo-1-ke1pv
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_MODULE_NAME=train_and_serve
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_LOG_LEVEL=20
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_INPUT_DIR=/opt/ml/input
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_OUTPUT_DIR=/opt/ml/output
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_NUM_CPUS=2
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_NUM_GPUS=0
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_MODEL_DIR=/opt/ml/model
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-06-569/source/sourcedir.tar.gz
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{&#34;train&#34;:&#34;/opt/ml/input/data/train&#34;},&#34;current_host&#34;:&#34;algo-1-ke1pv&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-ke1pv&#34;],&#34;hyperparameters&#34;:{&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-14-17-53-06-569&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-ke1pv&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-06-569/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-ke1pv&#34;,&#34;hosts&#34;:[&#34;algo-1-ke1pv&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_USER_ARGS=[&#34;--dummy_param_1&#34;,&#34;val1&#34;,&#34;--dummy_param_2&#34;,&#34;val2&#34;]
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_CHANNEL_TRAIN=/opt/ml/input/data/train
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_HP_DUMMY_PARAM_1=val1
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> SM_HP_DUMMY_PARAM_2=val2
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> Invoking script with the following command:
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> /miniconda3/bin/python train_and_serve.py --dummy_param_1 val1 --dummy_param_2 val2
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span>  *** Hello from SageMaker script container *** 
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> training_dir files list:  [&#39;train.csv&#39;]
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv |</span> 2022-07-14 17:53:08,943 sagemaker-containers INFO     Reporting training SUCCESS
-<span class="ansi-cyan-fg">mhmxon0p5y-algo-1-ke1pv exited with code 0
+<pre>Creating nb47vcydpp-algo-1-uyjey ... 
+Creating nb47vcydpp-algo-1-uyjey ... done
+Attaching to nb47vcydpp-algo-1-uyjey
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 2022-07-15 15:36:11,110 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 2022-07-15 15:36:11,115 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 2022-07-15 15:36:11,133 sagemaker_sklearn_container.training INFO     Invoking user training script.
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 2022-07-15 15:36:11,379 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 2022-07-15 15:36:11,399 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 2022-07-15 15:36:11,420 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 2022-07-15 15:36:11,435 sagemaker-training-toolkit INFO     Invoking user script
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> Training Env:
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> {
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;additional_framework_parameters&#34;: {},
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;channel_input_dirs&#34;: {
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>         &#34;train&#34;: &#34;/opt/ml/input/data/train&#34;
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     },
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;current_host&#34;: &#34;algo-1-uyjey&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>         &#34;algo-1-uyjey&#34;
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     ],
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;hyperparameters&#34;: {
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>         &#34;dummy_param_1&#34;: &#34;val1&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>         &#34;dummy_param_2&#34;: &#34;val2&#34;
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     },
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;input_data_config&#34;: {
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>         &#34;train&#34;: {
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>         }
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     },
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;is_master&#34;: true,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-15-15-36-08-737&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;log_level&#34;: 20,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;master_hostname&#34;: &#34;algo-1-uyjey&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-36-08-737/source/sourcedir.tar.gz&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;num_cpus&#34;: 2,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;num_gpus&#34;: 0,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;resource_config&#34;: {
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>         &#34;current_host&#34;: &#34;algo-1-uyjey&#34;,
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>         &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>             &#34;algo-1-uyjey&#34;
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>         ]
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     },
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> }
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> Environment variables:
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_HOSTS=[&#34;algo-1-uyjey&#34;]
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_NETWORK_INTERFACE_NAME=eth0
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_HPS={&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;}
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_USER_ENTRY_POINT=train_and_serve.py
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_FRAMEWORK_PARAMS={}
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-uyjey&#34;,&#34;hosts&#34;:[&#34;algo-1-uyjey&#34;]}
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_INPUT_DATA_CONFIG={&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}}
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_CHANNELS=[&#34;train&#34;]
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_CURRENT_HOST=algo-1-uyjey
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_MODULE_NAME=train_and_serve
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_LOG_LEVEL=20
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_INPUT_DIR=/opt/ml/input
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_OUTPUT_DIR=/opt/ml/output
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_NUM_CPUS=2
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_NUM_GPUS=0
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_MODEL_DIR=/opt/ml/model
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-36-08-737/source/sourcedir.tar.gz
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{&#34;train&#34;:&#34;/opt/ml/input/data/train&#34;},&#34;current_host&#34;:&#34;algo-1-uyjey&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-uyjey&#34;],&#34;hyperparameters&#34;:{&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-15-15-36-08-737&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-uyjey&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-36-08-737/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-uyjey&#34;,&#34;hosts&#34;:[&#34;algo-1-uyjey&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_USER_ARGS=[&#34;--dummy_param_1&#34;,&#34;val1&#34;,&#34;--dummy_param_2&#34;,&#34;val2&#34;]
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_CHANNEL_TRAIN=/opt/ml/input/data/train
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_HP_DUMMY_PARAM_1=val1
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> SM_HP_DUMMY_PARAM_2=val2
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> Invoking script with the following command:
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> /miniconda3/bin/python train_and_serve.py --dummy_param_1 val1 --dummy_param_2 val2
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span>  *** Hello from SageMaker script container *** 
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> training_dir files list:  [&#39;train.csv&#39;]
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey |</span> 2022-07-15 15:36:11,493 sagemaker-containers INFO     Reporting training SUCCESS
+<span class="ansi-cyan-fg">nb47vcydpp-algo-1-uyjey exited with code 0
 </span>Aborting on container exit...
 ===== Job Complete =====
 </pre>
@@ -2004,9 +2004,7 @@ Attaching to mhmxon0p5y-algo-1-ke1pv
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
-<details class="description" open>
-      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
-        <p><div class="input">
+<div class="input">
 
 <div class="inner_cell">
     <div class="input_area">
@@ -2035,8 +2033,7 @@ Attaching to mhmxon0p5y-algo-1-ke1pv
     </div>
 </div>
 </div>
-</p>
-    </details>
+
 <div class="output_wrapper">
 <div class="output">
 
@@ -2085,101 +2082,101 @@ Attaching to mhmxon0p5y-algo-1-ke1pv
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Creating owmroyetvf-algo-1-8pa1g ... 
-Creating owmroyetvf-algo-1-8pa1g ... done
-Attaching to owmroyetvf-algo-1-8pa1g
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 2022-07-14 17:53:35,795 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 2022-07-14 17:53:35,800 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 2022-07-14 17:53:35,814 sagemaker_sklearn_container.training INFO     Invoking user training script.
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 2022-07-14 17:53:36,055 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 2022-07-14 17:53:36,068 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 2022-07-14 17:53:36,080 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 2022-07-14 17:53:36,089 sagemaker-training-toolkit INFO     Invoking user script
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> Training Env:
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> {
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;additional_framework_parameters&#34;: {},
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;channel_input_dirs&#34;: {
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>         &#34;train&#34;: &#34;/opt/ml/input/data/train&#34;
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     },
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;current_host&#34;: &#34;algo-1-8pa1g&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>         &#34;algo-1-8pa1g&#34;
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     ],
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;hyperparameters&#34;: {
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>         &#34;dummy_param_1&#34;: &#34;val1&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>         &#34;dummy_param_2&#34;: &#34;val2&#34;
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     },
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;input_data_config&#34;: {
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>         &#34;train&#34;: {
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>         }
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     },
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;is_master&#34;: true,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-14-17-53-33-172&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;log_level&#34;: 20,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;master_hostname&#34;: &#34;algo-1-8pa1g&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-33-172/source/sourcedir.tar.gz&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;num_cpus&#34;: 2,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;num_gpus&#34;: 0,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;resource_config&#34;: {
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>         &#34;current_host&#34;: &#34;algo-1-8pa1g&#34;,
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>         &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>             &#34;algo-1-8pa1g&#34;
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>         ]
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     },
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> }
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> Environment variables:
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_HOSTS=[&#34;algo-1-8pa1g&#34;]
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_NETWORK_INTERFACE_NAME=eth0
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_HPS={&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;}
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_USER_ENTRY_POINT=train_and_serve.py
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_FRAMEWORK_PARAMS={}
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-8pa1g&#34;,&#34;hosts&#34;:[&#34;algo-1-8pa1g&#34;]}
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_INPUT_DATA_CONFIG={&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}}
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_CHANNELS=[&#34;train&#34;]
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_CURRENT_HOST=algo-1-8pa1g
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_MODULE_NAME=train_and_serve
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_LOG_LEVEL=20
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_INPUT_DIR=/opt/ml/input
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_OUTPUT_DIR=/opt/ml/output
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_NUM_CPUS=2
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_NUM_GPUS=0
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_MODEL_DIR=/opt/ml/model
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-33-172/source/sourcedir.tar.gz
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{&#34;train&#34;:&#34;/opt/ml/input/data/train&#34;},&#34;current_host&#34;:&#34;algo-1-8pa1g&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-8pa1g&#34;],&#34;hyperparameters&#34;:{&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-14-17-53-33-172&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-8pa1g&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-33-172/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-8pa1g&#34;,&#34;hosts&#34;:[&#34;algo-1-8pa1g&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_USER_ARGS=[&#34;--dummy_param_1&#34;,&#34;val1&#34;,&#34;--dummy_param_2&#34;,&#34;val2&#34;]
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_CHANNEL_TRAIN=/opt/ml/input/data/train
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_HP_DUMMY_PARAM_1=val1
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> SM_HP_DUMMY_PARAM_2=val2
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> Invoking script with the following command:
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> /miniconda3/bin/python train_and_serve.py --dummy_param_1 val1 --dummy_param_2 val2
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span>  *** Hello from SageMaker script container *** 
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> training_dir files list:  [&#39;train.csv&#39;]
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g |</span> 2022-07-14 17:53:36,135 sagemaker-containers INFO     Reporting training SUCCESS
-<span class="ansi-cyan-fg">owmroyetvf-algo-1-8pa1g exited with code 0
+<pre>Creating k9pmsvrsp9-algo-1-djiyl ... 
+Creating k9pmsvrsp9-algo-1-djiyl ... done
+Attaching to k9pmsvrsp9-algo-1-djiyl
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 2022-07-15 15:43:24,782 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 2022-07-15 15:43:24,787 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 2022-07-15 15:43:24,796 sagemaker_sklearn_container.training INFO     Invoking user training script.
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 2022-07-15 15:43:25,028 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 2022-07-15 15:43:25,041 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 2022-07-15 15:43:25,053 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 2022-07-15 15:43:25,062 sagemaker-training-toolkit INFO     Invoking user script
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> Training Env:
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> {
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;additional_framework_parameters&#34;: {},
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;channel_input_dirs&#34;: {
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>         &#34;train&#34;: &#34;/opt/ml/input/data/train&#34;
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     },
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;current_host&#34;: &#34;algo-1-djiyl&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>         &#34;algo-1-djiyl&#34;
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     ],
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;hyperparameters&#34;: {
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>         &#34;dummy_param_1&#34;: &#34;val1&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>         &#34;dummy_param_2&#34;: &#34;val2&#34;
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     },
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;input_data_config&#34;: {
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>         &#34;train&#34;: {
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>         }
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     },
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;is_master&#34;: true,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-15-15-43-22-192&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;log_level&#34;: 20,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;master_hostname&#34;: &#34;algo-1-djiyl&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-43-22-192/source/sourcedir.tar.gz&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;num_cpus&#34;: 2,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;num_gpus&#34;: 0,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;resource_config&#34;: {
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>         &#34;current_host&#34;: &#34;algo-1-djiyl&#34;,
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>         &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>             &#34;algo-1-djiyl&#34;
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>         ]
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     },
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> }
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> Environment variables:
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_HOSTS=[&#34;algo-1-djiyl&#34;]
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_NETWORK_INTERFACE_NAME=eth0
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_HPS={&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;}
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_USER_ENTRY_POINT=train_and_serve.py
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_FRAMEWORK_PARAMS={}
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-djiyl&#34;,&#34;hosts&#34;:[&#34;algo-1-djiyl&#34;]}
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_INPUT_DATA_CONFIG={&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}}
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_CHANNELS=[&#34;train&#34;]
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_CURRENT_HOST=algo-1-djiyl
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_MODULE_NAME=train_and_serve
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_LOG_LEVEL=20
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_INPUT_DIR=/opt/ml/input
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_OUTPUT_DIR=/opt/ml/output
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_NUM_CPUS=2
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_NUM_GPUS=0
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_MODEL_DIR=/opt/ml/model
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-43-22-192/source/sourcedir.tar.gz
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{&#34;train&#34;:&#34;/opt/ml/input/data/train&#34;},&#34;current_host&#34;:&#34;algo-1-djiyl&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-djiyl&#34;],&#34;hyperparameters&#34;:{&#34;dummy_param_1&#34;:&#34;val1&#34;,&#34;dummy_param_2&#34;:&#34;val2&#34;},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-15-15-43-22-192&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-djiyl&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-43-22-192/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-djiyl&#34;,&#34;hosts&#34;:[&#34;algo-1-djiyl&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_USER_ARGS=[&#34;--dummy_param_1&#34;,&#34;val1&#34;,&#34;--dummy_param_2&#34;,&#34;val2&#34;]
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_CHANNEL_TRAIN=/opt/ml/input/data/train
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_HP_DUMMY_PARAM_1=val1
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> SM_HP_DUMMY_PARAM_2=val2
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> Invoking script with the following command:
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> /miniconda3/bin/python train_and_serve.py --dummy_param_1 val1 --dummy_param_2 val2
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span>  *** Hello from SageMaker script container *** 
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> training_dir files list:  [&#39;train.csv&#39;]
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl |</span> 2022-07-15 15:43:25,100 sagemaker-containers INFO     Reporting training SUCCESS
+<span class="ansi-cyan-fg">k9pmsvrsp9-algo-1-djiyl exited with code 0
 </span>Aborting on container exit...
 </pre>
 </div>
@@ -2188,7 +2185,7 @@ Attaching to owmroyetvf-algo-1-8pa1g
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>Failed to delete: /tmp/tmpiy02yv65/algo-1-8pa1g Please remove it manually.
+<pre>Failed to delete: /tmp/tmpzaenwk6d/algo-1-djiyl Please remove it manually.
 </pre>
 </div>
 </div>
@@ -2239,7 +2236,7 @@ Attaching to owmroyetvf-algo-1-8pa1g
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&#39;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-33-172/model.tar.gz&#39;</pre>
+<pre>&#39;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-43-22-192/model.tar.gz&#39;</pre>
 </div>
 
 </div>
@@ -2387,7 +2384,7 @@ Attaching to owmroyetvf-algo-1-8pa1g
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>estimator.output_path:  s3://sagemaker-us-east-1-801598032724/
-estimator.latest_training_job.name:  sagemaker-scikit-learn-2022-07-14-17-53-33-172
+estimator.latest_training_job.name:  sagemaker-scikit-learn-2022-07-15-15-43-22-192
 </pre>
 </div>
 </div>
@@ -2423,7 +2420,7 @@ estimator.latest_training_job.name:  sagemaker-scikit-learn-2022-07-14-17-53-33-
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&#39;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-33-172&#39;</pre>
+<pre>&#39;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-43-22-192&#39;</pre>
 </div>
 
 </div>
@@ -2458,7 +2455,7 @@ estimator.latest_training_job.name:  sagemaker-scikit-learn-2022-07-14-17-53-33-
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&#39;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-33-172/output.tar.gz&#39;</pre>
+<pre>&#39;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-43-22-192/output.tar.gz&#39;</pre>
 </div>
 
 </div>
@@ -2493,7 +2490,7 @@ estimator.latest_training_job.name:  sagemaker-scikit-learn-2022-07-14-17-53-33-
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&#39;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-33-172/model.tar.gz&#39;</pre>
+<pre>&#39;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-43-22-192/model.tar.gz&#39;</pre>
 </div>
 
 </div>
@@ -2528,7 +2525,7 @@ estimator.latest_training_job.name:  sagemaker-scikit-learn-2022-07-14-17-53-33-
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&#39;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-33-172/source/sourcedir.tar.gz&#39;</pre>
+<pre>&#39;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-43-22-192/source/sourcedir.tar.gz&#39;</pre>
 </div>
 
 </div>
@@ -2567,8 +2564,8 @@ estimator.latest_training_job.name:  sagemaker-scikit-learn-2022-07-14-17-53-33-
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>download: s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-33-172/output.tar.gz to datasets/2022-07-07-sagemaker-script-mode/tmp/output.tar.gz
-download: s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-14-17-53-33-172/source/sourcedir.tar.gz to datasets/2022-07-07-sagemaker-script-mode/tmp/sourcedir.tar.gz
+<pre>download: s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-43-22-192/output.tar.gz to datasets/2022-07-07-sagemaker-script-mode/tmp/output.tar.gz
+download: s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-43-22-192/source/sourcedir.tar.gz to datasets/2022-07-07-sagemaker-script-mode/tmp/sourcedir.tar.gz
 </pre>
 </div>
 </div>
@@ -2688,9 +2685,7 @@ success
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
-<details class="description" open>
-      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
-        <p><div class="input">
+<div class="input">
 
 <div class="inner_cell">
     <div class="input_area">
@@ -2773,8 +2768,7 @@ success
     </div>
 </div>
 </div>
-</p>
-    </details>
+
 <div class="output_wrapper">
 <div class="output">
 
@@ -2857,19 +2851,17 @@ success
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>command line arguments:  Namespace(estimators=10, sm_channel_test=&#39;./datasets/2022-07-07-sagemaker-script-mode/test&#39;, sm_channel_train=&#39;./datasets/2022-07-07-sagemaker-script-mode/train&#39;, sm_model_dir=&#39;./datasets/2022-07-07-sagemaker-script-mode/model&#39;, sm_output_data_dir=&#39;./datasets/2022-07-07-sagemaker-script-mode/output/data&#39;)
+<pre>command line arguments:  Namespace(estimators=10, sm_channel_test=&#39;./datasets/2022-07-07-sagemaker-script-mode/test&#39;, sm_channel_train=&#39;./datasets/2022-07-07-sagemaker-script-mode/train&#39;, sm_model_dir=&#39;./datasets/2022-07-07-sagemaker-script-mode/tmp&#39;, sm_output_data_dir=&#39;./datasets/2022-07-07-sagemaker-script-mode/tmp&#39;)
 training_dir: ./datasets/2022-07-07-sagemaker-script-mode/train
-training_dir files list: [&#39;train.csv&#39;, &#39;.ipynb_checkpoints&#39;]
+training_dir files list: [&#39;train.csv&#39;]
 testing_dir: ./datasets/2022-07-07-sagemaker-script-mode/test
-testing_dir files list: [&#39;.ipynb_checkpoints&#39;, &#39;test.csv&#39;]
-sm_model_dir: ./datasets/2022-07-07-sagemaker-script-mode/model
-output_data_dir: ./datasets/2022-07-07-sagemaker-script-mode/output/data
+testing_dir files list: [&#39;test.csv&#39;]
+sm_model_dir: ./datasets/2022-07-07-sagemaker-script-mode/tmp
+output_data_dir: ./datasets/2022-07-07-sagemaker-script-mode/tmp
 X_train.shape: (120, 4)
 y_train.shape: (120,)
 X_train.shape: (30, 4)
 y_train.shape: (30,)
-sm_model_dir: ./datasets/2022-07-07-sagemaker-script-mode/model
-sm_model_dir files list: [&#39;.ipynb_checkpoints&#39;, &#39;model.joblib&#39;]
 </pre>
 </div>
 </div>
@@ -2895,10 +2887,24 @@ sm_model_dir files list: [&#39;.ipynb_checkpoints&#39;, &#39;model.joblib&#39;]
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>ls <span class="nv">$local_tmp_path</span>
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>model.joblib  y_pred.csv
+</pre>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -2943,115 +2949,113 @@ sm_model_dir files list: [&#39;.ipynb_checkpoints&#39;, &#39;model.joblib&#39;]
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Creating 0b3yb3qvjt-algo-1-n90bz ... 
-Creating 0b3yb3qvjt-algo-1-n90bz ... done
-Attaching to 0b3yb3qvjt-algo-1-n90bz
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 2022-07-13 13:06:06,304 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 2022-07-13 13:06:06,308 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 2022-07-13 13:06:06,317 sagemaker_sklearn_container.training INFO     Invoking user training script.
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 2022-07-13 13:06:06,498 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 2022-07-13 13:06:06,512 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 2022-07-13 13:06:06,525 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 2022-07-13 13:06:06,534 sagemaker-training-toolkit INFO     Invoking user script
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> Training Env:
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> {
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;additional_framework_parameters&#34;: {},
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;channel_input_dirs&#34;: {
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>         &#34;train&#34;: &#34;/opt/ml/input/data/train&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>         &#34;test&#34;: &#34;/opt/ml/input/data/test&#34;
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     },
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;current_host&#34;: &#34;algo-1-n90bz&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>         &#34;algo-1-n90bz&#34;
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     ],
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;hyperparameters&#34;: {
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>         &#34;estimators&#34;: 10
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     },
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;input_data_config&#34;: {
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>         &#34;train&#34;: {
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>         },
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>         &#34;test&#34;: {
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>         }
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     },
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;is_master&#34;: true,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-13-13-06-03-671&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;log_level&#34;: 20,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;master_hostname&#34;: &#34;algo-1-n90bz&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-13-13-06-03-671/source/sourcedir.tar.gz&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;num_cpus&#34;: 2,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;num_gpus&#34;: 0,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;resource_config&#34;: {
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>         &#34;current_host&#34;: &#34;algo-1-n90bz&#34;,
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>         &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>             &#34;algo-1-n90bz&#34;
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>         ]
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     },
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> }
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> Environment variables:
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_HOSTS=[&#34;algo-1-n90bz&#34;]
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_NETWORK_INTERFACE_NAME=eth0
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_HPS={&#34;estimators&#34;:10}
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_USER_ENTRY_POINT=train_and_serve.py
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_FRAMEWORK_PARAMS={}
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-n90bz&#34;,&#34;hosts&#34;:[&#34;algo-1-n90bz&#34;]}
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_INPUT_DATA_CONFIG={&#34;test&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;},&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}}
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_CHANNELS=[&#34;test&#34;,&#34;train&#34;]
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_CURRENT_HOST=algo-1-n90bz
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_MODULE_NAME=train_and_serve
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_LOG_LEVEL=20
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_INPUT_DIR=/opt/ml/input
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_OUTPUT_DIR=/opt/ml/output
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_NUM_CPUS=2
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_NUM_GPUS=0
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_MODEL_DIR=/opt/ml/model
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-13-13-06-03-671/source/sourcedir.tar.gz
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{&#34;test&#34;:&#34;/opt/ml/input/data/test&#34;,&#34;train&#34;:&#34;/opt/ml/input/data/train&#34;},&#34;current_host&#34;:&#34;algo-1-n90bz&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-n90bz&#34;],&#34;hyperparameters&#34;:{&#34;estimators&#34;:10},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{&#34;test&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;},&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-13-13-06-03-671&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-n90bz&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-13-13-06-03-671/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-n90bz&#34;,&#34;hosts&#34;:[&#34;algo-1-n90bz&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_USER_ARGS=[&#34;--estimators&#34;,&#34;10&#34;]
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_CHANNEL_TRAIN=/opt/ml/input/data/train
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_CHANNEL_TEST=/opt/ml/input/data/test
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> SM_HP_ESTIMATORS=10
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> Invoking script with the following command:
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> /miniconda3/bin/python train_and_serve.py --estimators 10
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> command line arguments:  Namespace(estimators=10, sm_channel_test=&#39;/opt/ml/input/data/test&#39;, sm_channel_train=&#39;/opt/ml/input/data/train&#39;, sm_model_dir=&#39;/opt/ml/model&#39;, sm_output_data_dir=&#39;/opt/ml/output/data&#39;)
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> training_dir: /opt/ml/input/data/train
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> training_dir files list: [&#39;train.csv&#39;]
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> testing_dir: /opt/ml/input/data/test
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> testing_dir files list: [&#39;test.csv&#39;]
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> sm_model_dir: /opt/ml/model
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> output_data_dir: /opt/ml/output/data
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> X_train.shape: (120, 4)
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> y_train.shape: (120,)
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> X_train.shape: (30, 4)
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> y_train.shape: (30,)
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> sm_model_dir: /opt/ml/model
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> sm_model_dir files list: [&#39;model.joblib&#39;]
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz |</span> 2022-07-13 13:06:07,727 sagemaker-containers INFO     Reporting training SUCCESS
-<span class="ansi-cyan-fg">0b3yb3qvjt-algo-1-n90bz exited with code 0
+<pre>Creating fbf900wrc3-algo-1-rpajw ... 
+Creating fbf900wrc3-algo-1-rpajw ... done
+Attaching to fbf900wrc3-algo-1-rpajw
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 2022-07-15 15:45:04,886 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 2022-07-15 15:45:04,891 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 2022-07-15 15:45:04,900 sagemaker_sklearn_container.training INFO     Invoking user training script.
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 2022-07-15 15:45:05,138 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 2022-07-15 15:45:05,151 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 2022-07-15 15:45:05,163 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 2022-07-15 15:45:05,172 sagemaker-training-toolkit INFO     Invoking user script
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> Training Env:
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> {
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;additional_framework_parameters&#34;: {},
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;channel_input_dirs&#34;: {
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>         &#34;train&#34;: &#34;/opt/ml/input/data/train&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>         &#34;test&#34;: &#34;/opt/ml/input/data/test&#34;
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     },
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;current_host&#34;: &#34;algo-1-rpajw&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>         &#34;algo-1-rpajw&#34;
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     ],
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;hyperparameters&#34;: {
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>         &#34;estimators&#34;: 10
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     },
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;input_data_config&#34;: {
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>         &#34;train&#34;: {
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>         },
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>         &#34;test&#34;: {
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>         }
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     },
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;is_master&#34;: true,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-15-15-45-01-891&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;log_level&#34;: 20,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;master_hostname&#34;: &#34;algo-1-rpajw&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-45-01-891/source/sourcedir.tar.gz&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;num_cpus&#34;: 2,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;num_gpus&#34;: 0,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;resource_config&#34;: {
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>         &#34;current_host&#34;: &#34;algo-1-rpajw&#34;,
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>         &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>             &#34;algo-1-rpajw&#34;
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>         ]
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     },
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> }
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> Environment variables:
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_HOSTS=[&#34;algo-1-rpajw&#34;]
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_NETWORK_INTERFACE_NAME=eth0
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_HPS={&#34;estimators&#34;:10}
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_USER_ENTRY_POINT=train_and_serve.py
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_FRAMEWORK_PARAMS={}
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-rpajw&#34;,&#34;hosts&#34;:[&#34;algo-1-rpajw&#34;]}
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_INPUT_DATA_CONFIG={&#34;test&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;},&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}}
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_CHANNELS=[&#34;test&#34;,&#34;train&#34;]
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_CURRENT_HOST=algo-1-rpajw
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_MODULE_NAME=train_and_serve
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_LOG_LEVEL=20
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_INPUT_DIR=/opt/ml/input
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_OUTPUT_DIR=/opt/ml/output
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_NUM_CPUS=2
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_NUM_GPUS=0
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_MODEL_DIR=/opt/ml/model
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-45-01-891/source/sourcedir.tar.gz
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{&#34;test&#34;:&#34;/opt/ml/input/data/test&#34;,&#34;train&#34;:&#34;/opt/ml/input/data/train&#34;},&#34;current_host&#34;:&#34;algo-1-rpajw&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-rpajw&#34;],&#34;hyperparameters&#34;:{&#34;estimators&#34;:10},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{&#34;test&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;},&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-15-15-45-01-891&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-rpajw&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-45-01-891/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-rpajw&#34;,&#34;hosts&#34;:[&#34;algo-1-rpajw&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_USER_ARGS=[&#34;--estimators&#34;,&#34;10&#34;]
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_CHANNEL_TRAIN=/opt/ml/input/data/train
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_CHANNEL_TEST=/opt/ml/input/data/test
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> SM_HP_ESTIMATORS=10
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> Invoking script with the following command:
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> /miniconda3/bin/python train_and_serve.py --estimators 10
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> command line arguments:  Namespace(estimators=10, sm_channel_test=&#39;/opt/ml/input/data/test&#39;, sm_channel_train=&#39;/opt/ml/input/data/train&#39;, sm_model_dir=&#39;/opt/ml/model&#39;, sm_output_data_dir=&#39;/opt/ml/output/data&#39;)
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> training_dir: /opt/ml/input/data/train
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> training_dir files list: [&#39;train.csv&#39;]
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> testing_dir: /opt/ml/input/data/test
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> testing_dir files list: [&#39;test.csv&#39;]
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> sm_model_dir: /opt/ml/model
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> output_data_dir: /opt/ml/output/data
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> X_train.shape: (120, 4)
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> y_train.shape: (120,)
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> X_train.shape: (30, 4)
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> y_train.shape: (30,)
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw |</span> 2022-07-15 15:45:06,501 sagemaker-containers INFO     Reporting training SUCCESS
+<span class="ansi-cyan-fg">fbf900wrc3-algo-1-rpajw exited with code 0
 </span>Aborting on container exit...
 </pre>
 </div>
@@ -3060,7 +3064,7 @@ Attaching to 0b3yb3qvjt-algo-1-n90bz
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>Failed to delete: /tmp/tmp5kv1g_u7/algo-1-n90bz Please remove it manually.
+<pre>Failed to delete: /tmp/tmpsntvy68r/algo-1-rpajw Please remove it manually.
 </pre>
 </div>
 </div>
@@ -3077,6 +3081,24 @@ Attaching to 0b3yb3qvjt-algo-1-n90bz
 </div>
 </p>
     </details>
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># cleanup /tmp directory before moving to next section</span>
+<span class="o">!</span>rm -r <span class="nv">$local_tmp_path</span>/*
+</pre></div>
+
+    </div>
+</div>
+</div>
+
 </div>
     {% endraw %}
 
@@ -3137,9 +3159,7 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
-<details class="description" open>
-      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
-        <p><div class="input">
+<div class="input">
 
 <div class="inner_cell">
     <div class="input_area">
@@ -3168,15 +3188,14 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
     </div>
 </div>
 </div>
-</p>
-    </details>
+
 <div class="output_wrapper">
 <div class="output">
 
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Overwriting ./datasets/2022-07-07-sagemaker-script-mode/my_custom_library/seaborn_confusion_matrix.py
+<pre>Writing ./datasets/2022-07-07-sagemaker-script-mode/my_custom_library/seaborn_confusion_matrix.py
 </pre>
 </div>
 </div>
@@ -3216,7 +3235,7 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Overwriting ./datasets/2022-07-07-sagemaker-script-mode/my_custom_library/__init__.py
+<pre>Writing ./datasets/2022-07-07-sagemaker-script-mode/my_custom_library/__init__.py
 </pre>
 </div>
 </div>
@@ -3243,7 +3262,6 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%writefile</span> $script_path/requirements.txt
 
-<span class="c1"># matplotlib==3.5.2</span>
 <span class="n">seaborn</span><span class="o">==</span><span class="mf">0.11</span><span class="o">.</span><span class="mi">2</span>
 </pre></div>
 
@@ -3282,7 +3300,59 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># intall the dependiencies first</span>
+<span class="o">!</span>pip install -r <span class="nv">$script_path</span>/requirements.txt
+</pre></div>
+
+    </div>
+</div>
+</div>
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Looking in indexes: https://pypi.org/simple, https://pip.repos.neuron.amazonaws.com
+Requirement already satisfied: seaborn==0.11.2 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from -r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (0.11.2)
+Requirement already satisfied: matplotlib&gt;=2.2 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (3.5.0)
+Requirement already satisfied: pandas&gt;=0.23 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (1.3.4)
+Requirement already satisfied: numpy&gt;=1.15 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (1.20.3)
+Requirement already satisfied: scipy&gt;=1.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (1.5.3)
+Requirement already satisfied: packaging&gt;=20.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (21.3)
+Requirement already satisfied: kiwisolver&gt;=1.0.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (1.3.2)
+Requirement already satisfied: python-dateutil&gt;=2.7 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (2.8.2)
+Requirement already satisfied: pillow&gt;=6.2.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (9.0.1)
+Requirement already satisfied: fonttools&gt;=4.22.0 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (4.28.2)
+Requirement already satisfied: cycler&gt;=0.10 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (0.11.0)
+Requirement already satisfied: pyparsing&gt;=2.2.1 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (3.0.6)
+Requirement already satisfied: pytz&gt;=2017.3 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from pandas&gt;=0.23-&gt;seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (2021.3)
+Requirement already satisfied: six&gt;=1.5 in /home/ec2-user/anaconda3/envs/python3/lib/python3.8/site-packages (from python-dateutil&gt;=2.7-&gt;matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r ./datasets/2022-07-07-sagemaker-script-mode/src/requirements.txt (line 2)) (1.16.0)
+<span class="ansi-yellow-fg">WARNING: You are using pip version 22.0.4; however, version 22.1.2 is available.
+You should consider upgrading via the &#39;/home/ec2-user/anaconda3/envs/python3/bin/python -m pip install --upgrade pip&#39; command.</span><span class="ansi-yellow-fg">
+</span></pre>
+</div>
+</div>
+
+</div>
+</div>
+</p>
+    </details>
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># test the custom library</span>
+<span class="o">!</span>python3 <span class="nv">$custom_library_file</span> --path <span class="nv">$local_tmp_path</span>
 </pre></div>
 
     </div>
@@ -3299,27 +3369,25 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>python3 <span class="nv">$custom_library_file</span> --path <span class="nv">$local_tmp_path</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># verify the custom library output from the /tmp directory</span>
+<span class="o">!</span>ls <span class="nv">$local_tmp_path</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>output_cm.png
+</pre>
 </div>
-    {% endraw %}
+</div>
 
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
 </div>
 </div>
 
@@ -3336,9 +3404,7 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
-<details class="description" open>
-      <summary class="btn btn-sm" data-open="Hide Code" data-close="Show Code"></summary>
-        <p><div class="input">
+<div class="input">
 
 <div class="inner_cell">
     <div class="input_area">
@@ -3435,8 +3501,7 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
     </div>
 </div>
 </div>
-</p>
-    </details>
+
 <div class="output_wrapper">
 <div class="output">
 
@@ -3456,7 +3521,7 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>finally pass it to SKLearn container.</p>
+<p>Finally, all the ingredients are ready. Let's run our script from the SKLean container.</p>
 
 </div>
 </div>
@@ -3494,150 +3559,148 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Creating 96mwnip853-algo-1-gcn8f ... 
-Creating 96mwnip853-algo-1-gcn8f ... done
-Attaching to 96mwnip853-algo-1-gcn8f
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 2022-07-13 13:07:46,389 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 2022-07-13 13:07:46,393 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 2022-07-13 13:07:46,403 sagemaker_sklearn_container.training INFO     Invoking user training script.
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 2022-07-13 13:07:46,574 sagemaker-training-toolkit INFO     Installing dependencies from requirements.txt:
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> /miniconda3/bin/python -m pip install -r requirements.txt
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Collecting matplotlib==3.5.2
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>   Downloading matplotlib-3.5.2-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl (11.3 MB)
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">11.3/11.3 MB</span> <span class="ansi-red-fg">98.0 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>00:0100:01:--:--
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Collecting seaborn==0.11.2
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>   Downloading seaborn-0.11.2-py3-none-any.whl (292 kB)
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">292.8/292.8 kB</span> <span class="ansi-red-fg">51.8 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>31m? eta <span class="ansi-cyan-fg">-:--:--</span>
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Collecting pyparsing&gt;=2.2.1
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>   Downloading pyparsing-3.0.9-py3-none-any.whl (98 kB)
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">98.3/98.3 kB</span> <span class="ansi-red-fg">24.3 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>1m? eta <span class="ansi-cyan-fg">-:--:--</span>
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Requirement already satisfied: pillow&gt;=6.2.0 in /miniconda3/lib/python3.8/site-packages (from matplotlib==3.5.2-&gt;-r requirements.txt (line 2)) (9.1.1)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Requirement already satisfied: python-dateutil&gt;=2.7 in /miniconda3/lib/python3.8/site-packages (from matplotlib==3.5.2-&gt;-r requirements.txt (line 2)) (2.8.1)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Collecting cycler&gt;=0.10
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>   Downloading cycler-0.11.0-py3-none-any.whl (6.4 kB)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Requirement already satisfied: numpy&gt;=1.17 in /miniconda3/lib/python3.8/site-packages (from matplotlib==3.5.2-&gt;-r requirements.txt (line 2)) (1.21.0)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Collecting packaging&gt;=20.0
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>   Downloading packaging-21.3-py3-none-any.whl (40 kB)
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">40.8/40.8 kB</span> <span class="ansi-red-fg">11.4 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>1m? eta <span class="ansi-cyan-fg">-:--:--</span>
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Collecting kiwisolver&gt;=1.0.1
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>   Downloading kiwisolver-1.4.3-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl (1.2 MB)
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">1.2/1.2 MB</span> <span class="ansi-red-fg">93.6 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>31m? eta <span class="ansi-cyan-fg">-:--:--</span>
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Collecting fonttools&gt;=4.22.0
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>   Downloading fonttools-4.34.4-py3-none-any.whl (944 kB)
-     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">944.1/944.1 kB</span> <span class="ansi-red-fg">11.6 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>00:01eta <span class="ansi-cyan-fg">-:--:--</span>
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Requirement already satisfied: scipy&gt;=1.0 in /miniconda3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r requirements.txt (line 3)) (1.5.3)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Requirement already satisfied: pandas&gt;=0.23 in /miniconda3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r requirements.txt (line 3)) (1.1.3)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Requirement already satisfied: pytz&gt;=2017.2 in /miniconda3/lib/python3.8/site-packages (from pandas&gt;=0.23-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 3)) (2022.1)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Requirement already satisfied: six&gt;=1.5 in /miniconda3/lib/python3.8/site-packages (from python-dateutil&gt;=2.7-&gt;matplotlib==3.5.2-&gt;-r requirements.txt (line 2)) (1.15.0)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Installing collected packages: pyparsing, kiwisolver, fonttools, cycler, packaging, matplotlib, seaborn
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Successfully installed cycler-0.11.0 fonttools-4.34.4 kiwisolver-1.4.3 matplotlib-3.5.2 packaging-21.3 pyparsing-3.0.9 seaborn-0.11.2
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> <span class="ansi-yellow-fg">WARNING: Running pip as the &#39;root&#39; user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv</span><span class="ansi-yellow-fg">
-</span><span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 2022-07-13 13:07:51,183 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 2022-07-13 13:07:51,197 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 2022-07-13 13:07:51,210 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 2022-07-13 13:07:51,219 sagemaker-training-toolkit INFO     Invoking user script
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Training Env:
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> {
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;additional_framework_parameters&#34;: {},
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;channel_input_dirs&#34;: {
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>         &#34;train&#34;: &#34;/opt/ml/input/data/train&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>         &#34;test&#34;: &#34;/opt/ml/input/data/test&#34;
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     },
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;current_host&#34;: &#34;algo-1-gcn8f&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>         &#34;algo-1-gcn8f&#34;
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     ],
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;hyperparameters&#34;: {
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>         &#34;estimators&#34;: 10
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     },
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;input_data_config&#34;: {
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>         &#34;train&#34;: {
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>         },
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>         &#34;test&#34;: {
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>         }
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     },
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;is_master&#34;: true,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-13-13-07-43-761&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;log_level&#34;: 20,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;master_hostname&#34;: &#34;algo-1-gcn8f&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-13-13-07-43-761/source/sourcedir.tar.gz&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;num_cpus&#34;: 2,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;num_gpus&#34;: 0,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;resource_config&#34;: {
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>         &#34;current_host&#34;: &#34;algo-1-gcn8f&#34;,
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>         &#34;hosts&#34;: [
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>             &#34;algo-1-gcn8f&#34;
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>         ]
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     },
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> }
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Environment variables:
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_HOSTS=[&#34;algo-1-gcn8f&#34;]
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_NETWORK_INTERFACE_NAME=eth0
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_HPS={&#34;estimators&#34;:10}
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_USER_ENTRY_POINT=train_and_serve.py
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_FRAMEWORK_PARAMS={}
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-gcn8f&#34;,&#34;hosts&#34;:[&#34;algo-1-gcn8f&#34;]}
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_INPUT_DATA_CONFIG={&#34;test&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;},&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}}
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_CHANNELS=[&#34;test&#34;,&#34;train&#34;]
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_CURRENT_HOST=algo-1-gcn8f
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_MODULE_NAME=train_and_serve
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_LOG_LEVEL=20
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_INPUT_DIR=/opt/ml/input
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_OUTPUT_DIR=/opt/ml/output
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_NUM_CPUS=2
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_NUM_GPUS=0
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_MODEL_DIR=/opt/ml/model
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-13-13-07-43-761/source/sourcedir.tar.gz
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{&#34;test&#34;:&#34;/opt/ml/input/data/test&#34;,&#34;train&#34;:&#34;/opt/ml/input/data/train&#34;},&#34;current_host&#34;:&#34;algo-1-gcn8f&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-gcn8f&#34;],&#34;hyperparameters&#34;:{&#34;estimators&#34;:10},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{&#34;test&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;},&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-13-13-07-43-761&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-gcn8f&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-13-13-07-43-761/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-gcn8f&#34;,&#34;hosts&#34;:[&#34;algo-1-gcn8f&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_USER_ARGS=[&#34;--estimators&#34;,&#34;10&#34;]
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_CHANNEL_TRAIN=/opt/ml/input/data/train
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_CHANNEL_TEST=/opt/ml/input/data/test
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> SM_HP_ESTIMATORS=10
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> Invoking script with the following command:
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> /miniconda3/bin/python train_and_serve.py --estimators 10
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> command line arguments:  Namespace(estimators=10, sm_channel_test=&#39;/opt/ml/input/data/test&#39;, sm_channel_train=&#39;/opt/ml/input/data/train&#39;, sm_model_dir=&#39;/opt/ml/model&#39;, sm_output_data_dir=&#39;/opt/ml/output/data&#39;)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> training_dir: /opt/ml/input/data/train
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> training_dir files list: [&#39;train.csv&#39;]
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> testing_dir: /opt/ml/input/data/test
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> testing_dir files list: [&#39;test.csv&#39;]
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> sm_model_dir: /opt/ml/model
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> output_data_dir: /opt/ml/output/data
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> X_train.shape: (120, 4)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> y_train.shape: (120,)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> X_train.shape: (30, 4)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> y_train.shape: (30,)
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> sm_model_dir: /opt/ml/model
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> sm_model_dir files list: [&#39;model.joblib&#39;]
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> output_data_dir: /opt/ml/output/data
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> output_data_dir files list: [&#39;y_pred.csv&#39;, &#39;output_cm.png&#39;]
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f |</span> 2022-07-13 13:07:53,296 sagemaker-containers INFO     Reporting training SUCCESS
-<span class="ansi-cyan-fg">96mwnip853-algo-1-gcn8f exited with code 0
-</span>Aborting on container exit...
+<pre>Creating 92ur61eo7m-algo-1-s3euc ... 
+Creating 92ur61eo7m-algo-1-s3euc ... done
+Attaching to 92ur61eo7m-algo-1-s3euc
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 2022-07-15 15:50:57,659 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 2022-07-15 15:50:57,663 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 2022-07-15 15:50:57,672 sagemaker_sklearn_container.training INFO     Invoking user training script.
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 2022-07-15 15:50:57,872 sagemaker-training-toolkit INFO     Installing dependencies from requirements.txt:
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> /miniconda3/bin/python -m pip install -r requirements.txt
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Collecting seaborn==0.11.2
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>   Downloading seaborn-0.11.2-py3-none-any.whl (292 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">292.8/292.8 kB</span> <span class="ansi-red-fg">30.3 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>31m? eta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Requirement already satisfied: pandas&gt;=0.23 in /miniconda3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (1.1.3)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Collecting matplotlib&gt;=2.2
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>   Downloading matplotlib-3.5.2-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl (11.3 MB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">11.3/11.3 MB</span> <span class="ansi-red-fg">29.6 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>00:0100:01:--:--
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Requirement already satisfied: numpy&gt;=1.15 in /miniconda3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (1.21.0)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Requirement already satisfied: scipy&gt;=1.0 in /miniconda3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (1.5.3)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Collecting packaging&gt;=20.0
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>   Downloading packaging-21.3-py3-none-any.whl (40 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">40.8/40.8 kB</span> <span class="ansi-red-fg">8.3 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>31m? eta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Collecting kiwisolver&gt;=1.0.1
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>   Downloading kiwisolver-1.4.3-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl (1.2 MB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">1.2/1.2 MB</span> <span class="ansi-red-fg">8.5 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>0:00:01ta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Requirement already satisfied: python-dateutil&gt;=2.7 in /miniconda3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (2.8.1)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Requirement already satisfied: pillow&gt;=6.2.0 in /miniconda3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (9.1.1)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Collecting pyparsing&gt;=2.2.1
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>   Downloading pyparsing-3.0.9-py3-none-any.whl (98 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">98.3/98.3 kB</span> <span class="ansi-red-fg">11.7 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>1m? eta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Collecting cycler&gt;=0.10
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>   Downloading cycler-0.11.0-py3-none-any.whl (6.4 kB)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Collecting fonttools&gt;=4.22.0
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>   Downloading fonttools-4.34.4-py3-none-any.whl (944 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">944.1/944.1 kB</span> <span class="ansi-red-fg">22.3 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>00:01eta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Requirement already satisfied: pytz&gt;=2017.2 in /miniconda3/lib/python3.8/site-packages (from pandas&gt;=0.23-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (2022.1)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Requirement already satisfied: six&gt;=1.5 in /miniconda3/lib/python3.8/site-packages (from python-dateutil&gt;=2.7-&gt;matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (1.15.0)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Installing collected packages: pyparsing, kiwisolver, fonttools, cycler, packaging, matplotlib, seaborn
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Successfully installed cycler-0.11.0 fonttools-4.34.4 kiwisolver-1.4.3 matplotlib-3.5.2 packaging-21.3 pyparsing-3.0.9 seaborn-0.11.2
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> <span class="ansi-yellow-fg">WARNING: Running pip as the &#39;root&#39; user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv</span><span class="ansi-yellow-fg">
+</span><span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 2022-07-15 15:51:04,191 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 2022-07-15 15:51:04,205 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 2022-07-15 15:51:04,218 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 2022-07-15 15:51:04,227 sagemaker-training-toolkit INFO     Invoking user script
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Training Env:
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> {
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;additional_framework_parameters&#34;: {},
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;channel_input_dirs&#34;: {
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>         &#34;train&#34;: &#34;/opt/ml/input/data/train&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>         &#34;test&#34;: &#34;/opt/ml/input/data/test&#34;
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     },
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;current_host&#34;: &#34;algo-1-s3euc&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>         &#34;algo-1-s3euc&#34;
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     ],
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;hyperparameters&#34;: {
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>         &#34;estimators&#34;: 10
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     },
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;input_data_config&#34;: {
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>         &#34;train&#34;: {
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>         },
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>         &#34;test&#34;: {
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>         }
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     },
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;is_master&#34;: true,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-15-15-50-54-741&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;log_level&#34;: 20,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;master_hostname&#34;: &#34;algo-1-s3euc&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-50-54-741/source/sourcedir.tar.gz&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;num_cpus&#34;: 2,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;num_gpus&#34;: 0,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;resource_config&#34;: {
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>         &#34;current_host&#34;: &#34;algo-1-s3euc&#34;,
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>         &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>             &#34;algo-1-s3euc&#34;
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>         ]
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     },
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> }
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Environment variables:
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_HOSTS=[&#34;algo-1-s3euc&#34;]
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_NETWORK_INTERFACE_NAME=eth0
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_HPS={&#34;estimators&#34;:10}
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_USER_ENTRY_POINT=train_and_serve.py
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_FRAMEWORK_PARAMS={}
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-s3euc&#34;,&#34;hosts&#34;:[&#34;algo-1-s3euc&#34;]}
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_INPUT_DATA_CONFIG={&#34;test&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;},&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}}
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_CHANNELS=[&#34;test&#34;,&#34;train&#34;]
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_CURRENT_HOST=algo-1-s3euc
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_MODULE_NAME=train_and_serve
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_LOG_LEVEL=20
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_INPUT_DIR=/opt/ml/input
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_OUTPUT_DIR=/opt/ml/output
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_NUM_CPUS=2
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_NUM_GPUS=0
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_MODEL_DIR=/opt/ml/model
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-50-54-741/source/sourcedir.tar.gz
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{&#34;test&#34;:&#34;/opt/ml/input/data/test&#34;,&#34;train&#34;:&#34;/opt/ml/input/data/train&#34;},&#34;current_host&#34;:&#34;algo-1-s3euc&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-s3euc&#34;],&#34;hyperparameters&#34;:{&#34;estimators&#34;:10},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{&#34;test&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;},&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-15-15-50-54-741&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-s3euc&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-15-50-54-741/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-s3euc&#34;,&#34;hosts&#34;:[&#34;algo-1-s3euc&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_USER_ARGS=[&#34;--estimators&#34;,&#34;10&#34;]
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_CHANNEL_TRAIN=/opt/ml/input/data/train
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_CHANNEL_TEST=/opt/ml/input/data/test
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> SM_HP_ESTIMATORS=10
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> Invoking script with the following command:
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> /miniconda3/bin/python train_and_serve.py --estimators 10
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> command line arguments:  Namespace(estimators=10, sm_channel_test=&#39;/opt/ml/input/data/test&#39;, sm_channel_train=&#39;/opt/ml/input/data/train&#39;, sm_model_dir=&#39;/opt/ml/model&#39;, sm_output_data_dir=&#39;/opt/ml/output/data&#39;)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> training_dir: /opt/ml/input/data/train
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> training_dir files list: [&#39;train.csv&#39;]
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> testing_dir: /opt/ml/input/data/test
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> testing_dir files list: [&#39;test.csv&#39;]
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> sm_model_dir: /opt/ml/model
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> output_data_dir: /opt/ml/output/data
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> X_train.shape: (120, 4)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> y_train.shape: (120,)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> X_train.shape: (30, 4)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> y_train.shape: (30,)
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> sm_model_dir: /opt/ml/model
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> sm_model_dir files list: [&#39;model.joblib&#39;]
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> output_data_dir: /opt/ml/output/data
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> output_data_dir files list: [&#39;y_pred.csv&#39;, &#39;output_cm.png&#39;]
+<span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc |</span> 2022-07-15 15:51:06,714 sagemaker-containers INFO     Reporting training SUCCESS
 </pre>
 </div>
 </div>
@@ -3645,7 +3708,7 @@ Attaching to 96mwnip853-algo-1-gcn8f
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stderr output_text">
-<pre>Failed to delete: /tmp/tmp58lfmx49/algo-1-gcn8f Please remove it manually.
+<pre>Failed to delete: /tmp/tmp4vo1y3fi/algo-1-s3euc Please remove it manually.
 </pre>
 </div>
 </div>
@@ -3653,7 +3716,9 @@ Attaching to 96mwnip853-algo-1-gcn8f
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>===== Job Complete =====
+<pre><span class="ansi-cyan-fg">92ur61eo7m-algo-1-s3euc exited with code 0
+</span>Aborting on container exit...
+===== Job Complete =====
 </pre>
 </div>
 </div>
@@ -3667,14 +3732,28 @@ Attaching to 96mwnip853-algo-1-gcn8f
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>At this point we have a trained model. Can we deploy this model already?</p>
-<p>If I try to deploy this model using command</p>
+<p><strong>image here</strong>
+SKLearn container shows that our classifier is successfully trained, and the model and output artifacts are placed in their respective folders. We know from the first section of this post that these artifacts will automatically be uploaded to the S3 bucket. This concluded the model training part of our implementation. Let's now proceed to model serving part of our solution.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Serve-SKLearn-model-in-local-mode">Serve SKLearn model in local mode<a class="anchor-link" href="#Serve-SKLearn-model-in-local-mode"> </a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>At this point, we have our trained model ready. Can we deploy it already?</p>
+<p>The answer is no. If we try to deploy this model using command</p>
 
 <pre><code>sk_predictor = sk_estimator.deploy(
     initial_instance_count=1,
     instance_type='local'
 )</code></pre>
-<p>i will get exception messages</p>
+<p>It will generate an exception message telling us that the estimator does not know how to load the model. So we need to tell the estimator by implementing <code>model_fn</code> function in our script.</p>
 
 <pre><code>[2022-07-09 06:15:45 +0000] [31] [ERROR] Error handling request /ping
 Traceback (most recent call last):
@@ -3687,8 +3766,18 @@ Traceback (most recent call last):
 NotImplementedError: 
 Please provide a model_fn implementation.
 See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk</code></pre>
-<p>this is because Before a model can be served, it must be loaded. The SageMaker Scikit-learn model server loads your model by invoking a model_fn function that you must provide in your script. The model_fn should have the following signature:</p>
-<p>def model_fn(model_dir)</p>
+<p>The <em>model_fn</em> should have the following signature:</p>
+
+<pre><code>def model_fn(model_dir)</code></pre>
+<p>Besides loading the model, we also need the model server to get predictions from the loaded model. For this, we need to implement the second function <em>predict_fn</em> which should have the following signature.</p>
+
+<pre><code>def predict_fn(input_data, model)</code></pre>
+<p>After we have called the <code>fit</code> function on our SKLearn estimator, we can deploy it by calling the <code>deploy</code> function to create an inference endpoint. Once you call <code>deploy</code> on the estimator two objects are created in response</p>
+<ul>
+<li>SageMaker scikit-learn Endpoint: This Endpoint encapsulates a model server running under it. The model server will load the model saved during training and perform inference on it. It requires two helper functions to load the model and make inferences on it: model_fn and predict_fn.</li>
+<li>Predictor object: This object is returned in response to the deploy call. It can be used to do inference on the Endpoint hosting our SKLearn model.</li>
+</ul>
+<p>Let's update our script and add these two functions.</p>
 
 </div>
 </div>
@@ -3707,9 +3796,11 @@ See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk</c
 <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
 <span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">StandardScaler</span>
-<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestRegressor</span>
-<span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">metrics</span>
+<span class="kn">from</span> <span class="nn">sklearn.ensemble</span> <span class="kn">import</span> <span class="n">RandomForestClassifier</span>
+<span class="kn">from</span> <span class="nn">sklearn.metrics</span> <span class="kn">import</span> <span class="n">confusion_matrix</span>
 <span class="kn">import</span> <span class="nn">joblib</span>
+
+<span class="kn">from</span> <span class="nn">my_custom_library</span> <span class="kn">import</span> <span class="n">save_confusion_matrix</span>
 
 <span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
 
@@ -3720,42 +3811,74 @@ See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk</c
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--estimators&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">int</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">15</span><span class="p">)</span>
 
     <span class="c1"># sm_model_dir: model artifacts stored here after training</span>
+    <span class="c1"># sm-channel-train: input training data location</span>
+    <span class="c1"># sm-channel-test: input test data location</span>
+    <span class="c1"># sm-output-data-dir: output artifacts location</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--sm-model-dir&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SM_MODEL_DIR&quot;</span><span class="p">))</span>
-    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--train&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SM_CHANNEL_TRAIN&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--sm-channel-train&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SM_CHANNEL_TRAIN&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--sm-channel-test&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SM_CHANNEL_TEST&quot;</span><span class="p">))</span>
+    <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span><span class="s2">&quot;--sm-output-data-dir&quot;</span><span class="p">,</span> <span class="nb">type</span><span class="o">=</span><span class="nb">str</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;SM_OUTPUT_DATA_DIR&quot;</span><span class="p">))</span>
 
     <span class="n">args</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_known_args</span><span class="p">()</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;command line arguments: &quot;</span><span class="p">,</span> <span class="n">args</span><span class="p">)</span>
+
     <span class="n">estimators</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">estimators</span>
     <span class="n">sm_model_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">sm_model_dir</span>
-    <span class="n">training_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">train</span>
-    
-    <span class="c1"># print training_dir info</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;training_dir: </span><span class="si">{</span><span class="n">training_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># print training_dir path</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;training_dir files list: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">training_dir</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># print training_dir files list</span>
-    
+    <span class="n">training_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">sm_channel_train</span>
+    <span class="n">testing_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">sm_channel_test</span>
+    <span class="n">output_data_dir</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">sm_output_data_dir</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;training_dir: </span><span class="si">{</span><span class="n">training_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;training_dir files list: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">training_dir</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>  
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;testing_dir: </span><span class="si">{</span><span class="n">testing_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;testing_dir files list: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">testing_dir</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sm_model_dir: </span><span class="si">{</span><span class="n">sm_model_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;output_data_dir: </span><span class="si">{</span><span class="n">output_data_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
     <span class="c1"># Read in data</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">training_dir</span> <span class="o">+</span> <span class="s2">&quot;/train.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    <span class="n">df_train</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">training_dir</span> <span class="o">+</span> <span class="s2">&quot;/train.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
+    <span class="n">df_test</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">testing_dir</span> <span class="o">+</span> <span class="s2">&quot;/test.csv&quot;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;,&quot;</span><span class="p">)</span>
 
     <span class="c1"># Preprocess data</span>
-    <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="s2">&quot;class_cat&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="s2">&quot;class_cat&quot;</span><span class="p">]</span>
-    <span class="n">X_train</span><span class="p">,</span> <span class="n">X_test</span><span class="p">,</span> <span class="n">y_train</span><span class="p">,</span> <span class="n">y_test</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="mf">0.2</span><span class="p">)</span>
+    <span class="n">X_train</span> <span class="o">=</span> <span class="n">df_train</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="s2">&quot;class_cat&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y_train</span> <span class="o">=</span> <span class="n">df_train</span><span class="p">[</span><span class="s2">&quot;class_cat&quot;</span><span class="p">]</span>
+    <span class="n">X_test</span> <span class="o">=</span> <span class="n">df_test</span><span class="o">.</span><span class="n">drop</span><span class="p">([</span><span class="s2">&quot;class&quot;</span><span class="p">,</span> <span class="s2">&quot;class_cat&quot;</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">y_test</span> <span class="o">=</span> <span class="n">df_test</span><span class="p">[</span><span class="s2">&quot;class_cat&quot;</span><span class="p">]</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;X_train.shape: </span><span class="si">{</span><span class="n">X_train</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;y_train.shape: </span><span class="si">{</span><span class="n">y_train</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;X_train.shape: </span><span class="si">{</span><span class="n">X_test</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;y_train.shape: </span><span class="si">{</span><span class="n">y_test</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
     <span class="n">sc</span> <span class="o">=</span> <span class="n">StandardScaler</span><span class="p">()</span>
     <span class="n">X_train</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
     <span class="n">X_test</span> <span class="o">=</span> <span class="n">sc</span><span class="o">.</span><span class="n">transform</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
 
     <span class="c1"># Build model</span>
-    <span class="n">regressor</span> <span class="o">=</span> <span class="n">RandomForestRegressor</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="n">estimators</span><span class="p">)</span>
+    <span class="n">regressor</span> <span class="o">=</span> <span class="n">RandomForestClassifier</span><span class="p">(</span><span class="n">n_estimators</span><span class="o">=</span><span class="n">estimators</span><span class="p">)</span>
     <span class="n">regressor</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">y_train</span><span class="p">)</span>
     <span class="n">y_pred</span> <span class="o">=</span> <span class="n">regressor</span><span class="o">.</span><span class="n">predict</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
 
-    <span class="c1"># Save model</span>
-    <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">regressor</span><span class="p">,</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">sm_model_dir</span><span class="p">,</span> <span class="s2">&quot;model.joblib&quot;</span><span class="p">))</span>
-    
-    <span class="c1"># print sm_model_dir info</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sm_model_dir: </span><span class="si">{</span><span class="n">sm_model_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># print sm_model_dir path</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sm_model_dir files list: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">sm_model_dir</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span> <span class="c1"># print sm_model_dir files list</span>
+    <span class="c1"># Save the model</span>
+    <span class="n">joblib</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">regressor</span><span class="p">,</span> <span class="n">sm_model_dir</span> <span class="o">+</span> <span class="s2">&quot;/model.joblib&quot;</span><span class="p">)</span>
 
-    
+    <span class="c1"># Save the results</span>
+    <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span><span class="o">.</span><span class="n">to_csv</span><span class="p">(</span><span class="n">output_data_dir</span> <span class="o">+</span> <span class="s2">&quot;/y_pred.csv&quot;</span><span class="p">)</span>
+
+    <span class="c1"># save the confusion matrix</span>
+    <span class="n">cf_matrix</span> <span class="o">=</span> <span class="n">confusion_matrix</span><span class="p">(</span><span class="n">y_test</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">save_confusion_matrix</span><span class="p">(</span><span class="n">cf_matrix</span><span class="p">,</span> <span class="n">output_data_dir</span><span class="p">)</span>
+
+    <span class="c1"># print sm_model_dir info</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sm_model_dir: </span><span class="si">{</span><span class="n">sm_model_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;sm_model_dir files list: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">sm_model_dir</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+    <span class="c1"># print output_data_dir info</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;output_data_dir: </span><span class="si">{</span><span class="n">output_data_dir</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;output_data_dir files list: </span><span class="si">{</span><span class="n">os</span><span class="o">.</span><span class="n">listdir</span><span class="p">(</span><span class="n">output_data_dir</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+
 <span class="c1"># Model serving</span>
 <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">Deserialize fitted model</span>
@@ -3778,6 +3901,20 @@ See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk</c
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Overwriting ./datasets/2022-07-07-sagemaker-script-mode/src/train_and_serve.py
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
     {% endraw %}
 
@@ -3789,7 +3926,9 @@ See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk</c
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sk_estimator</span> <span class="o">=</span> <span class="n">SKLearn</span><span class="p">(</span>
-    <span class="n">entry_point</span><span class="o">=</span><span class="n">script_file</span><span class="p">,</span>
+    <span class="n">entry_point</span><span class="o">=</span><span class="n">script_file_name</span><span class="p">,</span>
+    <span class="n">source_dir</span><span class="o">=</span><span class="n">script_path</span><span class="p">,</span>
+    <span class="n">dependencies</span><span class="o">=</span><span class="p">[</span><span class="n">custom_library_path</span><span class="p">],</span>
     <span class="n">role</span><span class="o">=</span><span class="n">role</span><span class="p">,</span>
     <span class="n">instance_count</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
     <span class="n">instance_type</span><span class="o">=</span><span class="s1">&#39;local&#39;</span><span class="p">,</span>
@@ -3797,14 +3936,189 @@ See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk</c
     <span class="n">hyperparameters</span><span class="o">=</span><span class="p">{</span><span class="s2">&quot;estimators&quot;</span><span class="p">:</span><span class="mi">10</span><span class="p">},</span>
 <span class="p">)</span>
 
-<span class="c1"># Train the estimator</span>
-<span class="n">sk_estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">({</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">s3_train_uri</span><span class="p">})</span>
+<span class="n">sk_estimator</span><span class="o">.</span><span class="n">fit</span><span class="p">({</span><span class="s2">&quot;train&quot;</span><span class="p">:</span> <span class="n">s3_train_uri</span><span class="p">,</span> <span class="s2">&quot;test&quot;</span><span class="p">:</span> <span class="n">s3_test_uri</span><span class="p">})</span>
 </pre></div>
 
     </div>
 </div>
 </div>
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
+<div class="output_wrapper">
+<div class="output">
 
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Creating 2x2umr6uyk-algo-1-475rz ... 
+Creating 2x2umr6uyk-algo-1-475rz ... done
+Attaching to 2x2umr6uyk-algo-1-475rz
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 2022-07-15 16:48:01,871 sagemaker-containers INFO     Imported framework sagemaker_sklearn_container.training
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 2022-07-15 16:48:01,878 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 2022-07-15 16:48:01,892 sagemaker_sklearn_container.training INFO     Invoking user training script.
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 2022-07-15 16:48:02,113 sagemaker-training-toolkit INFO     Installing dependencies from requirements.txt:
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> /miniconda3/bin/python -m pip install -r requirements.txt
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Collecting seaborn==0.11.2
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>   Downloading seaborn-0.11.2-py3-none-any.whl (292 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">292.8/292.8 kB</span> <span class="ansi-red-fg">20.9 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>31m? eta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Collecting matplotlib&gt;=2.2
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>   Downloading matplotlib-3.5.2-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl (11.3 MB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">11.3/11.3 MB</span> <span class="ansi-red-fg">23.7 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>00:0100:01:--:--
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Requirement already satisfied: scipy&gt;=1.0 in /miniconda3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (1.5.3)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Requirement already satisfied: pandas&gt;=0.23 in /miniconda3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (1.1.3)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Requirement already satisfied: numpy&gt;=1.15 in /miniconda3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (1.21.0)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Collecting packaging&gt;=20.0
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>   Downloading packaging-21.3-py3-none-any.whl (40 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">40.8/40.8 kB</span> <span class="ansi-red-fg">818.0 kB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>a <span class="ansi-cyan-fg">0:00:01</span>:--:--
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Collecting kiwisolver&gt;=1.0.1
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>   Downloading kiwisolver-1.4.3-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl (1.2 MB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">1.2/1.2 MB</span> <span class="ansi-red-fg">13.3 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>:00:01ta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Requirement already satisfied: pillow&gt;=6.2.0 in /miniconda3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (9.1.1)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Collecting pyparsing&gt;=2.2.1
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>   Downloading pyparsing-3.0.9-py3-none-any.whl (98 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">98.3/98.3 kB</span> <span class="ansi-red-fg">20.1 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>1m? eta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Collecting fonttools&gt;=4.22.0
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>   Downloading fonttools-4.34.4-py3-none-any.whl (944 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">944.1/944.1 kB</span> <span class="ansi-red-fg">11.7 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>00:01eta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Requirement already satisfied: python-dateutil&gt;=2.7 in /miniconda3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (2.8.1)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Collecting cycler&gt;=0.10
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>   Downloading cycler-0.11.0-py3-none-any.whl (6.4 kB)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Requirement already satisfied: pytz&gt;=2017.2 in /miniconda3/lib/python3.8/site-packages (from pandas&gt;=0.23-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (2022.1)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Requirement already satisfied: six&gt;=1.5 in /miniconda3/lib/python3.8/site-packages (from python-dateutil&gt;=2.7-&gt;matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (1.15.0)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Installing collected packages: pyparsing, kiwisolver, fonttools, cycler, packaging, matplotlib, seaborn
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Successfully installed cycler-0.11.0 fonttools-4.34.4 kiwisolver-1.4.3 matplotlib-3.5.2 packaging-21.3 pyparsing-3.0.9 seaborn-0.11.2
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> <span class="ansi-yellow-fg">WARNING: Running pip as the &#39;root&#39; user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv</span><span class="ansi-yellow-fg">
+</span><span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 2022-07-15 16:48:08,784 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 2022-07-15 16:48:08,802 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 2022-07-15 16:48:08,822 sagemaker-training-toolkit INFO     No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 2022-07-15 16:48:08,835 sagemaker-training-toolkit INFO     Invoking user script
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Training Env:
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> {
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;additional_framework_parameters&#34;: {},
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;channel_input_dirs&#34;: {
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>         &#34;train&#34;: &#34;/opt/ml/input/data/train&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>         &#34;test&#34;: &#34;/opt/ml/input/data/test&#34;
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     },
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;current_host&#34;: &#34;algo-1-475rz&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;framework_module&#34;: &#34;sagemaker_sklearn_container.training:main&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>         &#34;algo-1-475rz&#34;
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     ],
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;hyperparameters&#34;: {
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>         &#34;estimators&#34;: 10
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     },
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;input_config_dir&#34;: &#34;/opt/ml/input/config&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;input_data_config&#34;: {
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>         &#34;train&#34;: {
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>         },
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>         &#34;test&#34;: {
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>             &#34;TrainingInputMode&#34;: &#34;File&#34;
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>         }
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     },
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;input_dir&#34;: &#34;/opt/ml/input&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;is_master&#34;: true,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;job_name&#34;: &#34;sagemaker-scikit-learn-2022-07-15-16-47-59-202&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;log_level&#34;: 20,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;master_hostname&#34;: &#34;algo-1-475rz&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;model_dir&#34;: &#34;/opt/ml/model&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;module_dir&#34;: &#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-16-47-59-202/source/sourcedir.tar.gz&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;module_name&#34;: &#34;train_and_serve&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;network_interface_name&#34;: &#34;eth0&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;num_cpus&#34;: 2,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;num_gpus&#34;: 0,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;output_data_dir&#34;: &#34;/opt/ml/output/data&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;output_dir&#34;: &#34;/opt/ml/output&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;output_intermediate_dir&#34;: &#34;/opt/ml/output/intermediate&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;resource_config&#34;: {
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>         &#34;current_host&#34;: &#34;algo-1-475rz&#34;,
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>         &#34;hosts&#34;: [
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>             &#34;algo-1-475rz&#34;
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>         ]
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     },
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span>     &#34;user_entry_point&#34;: &#34;train_and_serve.py&#34;
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> }
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Environment variables:
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_HOSTS=[&#34;algo-1-475rz&#34;]
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_NETWORK_INTERFACE_NAME=eth0
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_HPS={&#34;estimators&#34;:10}
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_USER_ENTRY_POINT=train_and_serve.py
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_FRAMEWORK_PARAMS={}
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_RESOURCE_CONFIG={&#34;current_host&#34;:&#34;algo-1-475rz&#34;,&#34;hosts&#34;:[&#34;algo-1-475rz&#34;]}
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_INPUT_DATA_CONFIG={&#34;test&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;},&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}}
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_OUTPUT_DATA_DIR=/opt/ml/output/data
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_CHANNELS=[&#34;test&#34;,&#34;train&#34;]
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_CURRENT_HOST=algo-1-475rz
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_MODULE_NAME=train_and_serve
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_LOG_LEVEL=20
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_FRAMEWORK_MODULE=sagemaker_sklearn_container.training:main
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_INPUT_DIR=/opt/ml/input
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_INPUT_CONFIG_DIR=/opt/ml/input/config
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_OUTPUT_DIR=/opt/ml/output
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_NUM_CPUS=2
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_NUM_GPUS=0
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_MODEL_DIR=/opt/ml/model
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_MODULE_DIR=s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-16-47-59-202/source/sourcedir.tar.gz
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_TRAINING_ENV={&#34;additional_framework_parameters&#34;:{},&#34;channel_input_dirs&#34;:{&#34;test&#34;:&#34;/opt/ml/input/data/test&#34;,&#34;train&#34;:&#34;/opt/ml/input/data/train&#34;},&#34;current_host&#34;:&#34;algo-1-475rz&#34;,&#34;framework_module&#34;:&#34;sagemaker_sklearn_container.training:main&#34;,&#34;hosts&#34;:[&#34;algo-1-475rz&#34;],&#34;hyperparameters&#34;:{&#34;estimators&#34;:10},&#34;input_config_dir&#34;:&#34;/opt/ml/input/config&#34;,&#34;input_data_config&#34;:{&#34;test&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;},&#34;train&#34;:{&#34;TrainingInputMode&#34;:&#34;File&#34;}},&#34;input_dir&#34;:&#34;/opt/ml/input&#34;,&#34;is_master&#34;:true,&#34;job_name&#34;:&#34;sagemaker-scikit-learn-2022-07-15-16-47-59-202&#34;,&#34;log_level&#34;:20,&#34;master_hostname&#34;:&#34;algo-1-475rz&#34;,&#34;model_dir&#34;:&#34;/opt/ml/model&#34;,&#34;module_dir&#34;:&#34;s3://sagemaker-us-east-1-801598032724/sagemaker-scikit-learn-2022-07-15-16-47-59-202/source/sourcedir.tar.gz&#34;,&#34;module_name&#34;:&#34;train_and_serve&#34;,&#34;network_interface_name&#34;:&#34;eth0&#34;,&#34;num_cpus&#34;:2,&#34;num_gpus&#34;:0,&#34;output_data_dir&#34;:&#34;/opt/ml/output/data&#34;,&#34;output_dir&#34;:&#34;/opt/ml/output&#34;,&#34;output_intermediate_dir&#34;:&#34;/opt/ml/output/intermediate&#34;,&#34;resource_config&#34;:{&#34;current_host&#34;:&#34;algo-1-475rz&#34;,&#34;hosts&#34;:[&#34;algo-1-475rz&#34;]},&#34;user_entry_point&#34;:&#34;train_and_serve.py&#34;}
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_USER_ARGS=[&#34;--estimators&#34;,&#34;10&#34;]
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_OUTPUT_INTERMEDIATE_DIR=/opt/ml/output/intermediate
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_CHANNEL_TRAIN=/opt/ml/input/data/train
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_CHANNEL_TEST=/opt/ml/input/data/test
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> SM_HP_ESTIMATORS=10
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> PYTHONPATH=/opt/ml/code:/miniconda3/bin:/miniconda3/lib/python38.zip:/miniconda3/lib/python3.8:/miniconda3/lib/python3.8/lib-dynload:/miniconda3/lib/python3.8/site-packages
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> Invoking script with the following command:
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> /miniconda3/bin/python train_and_serve.py --estimators 10
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> command line arguments:  Namespace(estimators=10, sm_channel_test=&#39;/opt/ml/input/data/test&#39;, sm_channel_train=&#39;/opt/ml/input/data/train&#39;, sm_model_dir=&#39;/opt/ml/model&#39;, sm_output_data_dir=&#39;/opt/ml/output/data&#39;)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> training_dir: /opt/ml/input/data/train
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> training_dir files list: [&#39;train.csv&#39;]
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> testing_dir: /opt/ml/input/data/test
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> testing_dir files list: [&#39;test.csv&#39;]
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> sm_model_dir: /opt/ml/model
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> output_data_dir: /opt/ml/output/data
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> X_train.shape: (120, 4)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> y_train.shape: (120,)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> X_train.shape: (30, 4)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> y_train.shape: (30,)
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> sm_model_dir: /opt/ml/model
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> sm_model_dir files list: [&#39;model.joblib&#39;]
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> output_data_dir: /opt/ml/output/data
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> output_data_dir files list: [&#39;y_pred.csv&#39;, &#39;output_cm.png&#39;]
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz |</span> 2022-07-15 16:48:11,962 sagemaker-containers INFO     Reporting training SUCCESS
+<span class="ansi-cyan-fg">2x2umr6uyk-algo-1-475rz exited with code 0
+</span>Aborting on container exit...
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stderr output_text">
+<pre>Failed to delete: /tmp/tmpz8otahgz/algo-1-475rz Please remove it manually.
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>===== Job Complete =====
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+</p>
+    </details>
 </div>
     {% endraw %}
 
@@ -3824,7 +4138,125 @@ See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk</c
     </div>
 </div>
 </div>
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
+<div class="output_wrapper">
+<div class="output">
 
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Attaching to qveck8plk5-algo-1-j6ron
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 2022-07-15 16:48:19,368 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 2022-07-15 16:48:19,372 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 2022-07-15 16:48:19,373 INFO - sagemaker-containers - nginx config: 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> worker_processes auto;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> daemon off;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> pid /tmp/nginx.pid;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> error_log  /dev/stderr;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> worker_rlimit_nofile 4096;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> events {
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   worker_connections 2048;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> }
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> http {
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   include /etc/nginx/mime.types;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   default_type application/octet-stream;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   access_log /dev/stdout combined;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   upstream gunicorn {
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>     server unix:/tmp/gunicorn.sock;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   }
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   server {
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>     listen 8080 deferred;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>     client_max_body_size 0;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>     keepalive_timeout 3;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>     location ~ ^/(ping|invocations|execution-parameters) {
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>       proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>       proxy_set_header Host $http_host;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>       proxy_redirect off;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>       proxy_read_timeout 60s;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>       proxy_pass http://gunicorn;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>     }
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>     location / {
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>       return 404 &#34;{}&#34;;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>     }
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   }
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> }
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 2022-07-15 16:48:19,594 INFO - sagemaker-containers - Module train_and_serve does not provide a setup.py. 
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Generating setup.py
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 2022-07-15 16:48:19,595 INFO - sagemaker-containers - Generating setup.cfg
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 2022-07-15 16:48:19,595 INFO - sagemaker-containers - Generating MANIFEST.in
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 2022-07-15 16:48:19,595 INFO - sagemaker-containers - Installing module with the following command:
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> /miniconda3/bin/python3 -m pip install . -r requirements.txt
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Processing /opt/ml/code
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   Preparing metadata (setup.py) ... done
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Collecting seaborn==0.11.2
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 2022/07/15 16:48:22 [crit] 13#13: *1 connect() to unix:/tmp/gunicorn.sock failed (2: No such file or directory) while connecting to upstream, client: 172.18.0.1, server: , request: &#34;GET /ping HTTP/1.1&#34;, upstream: &#34;http://unix:/tmp/gunicorn.sock:/ping&#34;, host: &#34;localhost:8080&#34;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 172.18.0.1 - - [15/Jul/2022:16:48:22 +0000] &#34;GET /ping HTTP/1.1&#34; 502 182 &#34;-&#34; &#34;python-urllib3/1.26.8&#34;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   Downloading seaborn-0.11.2-py3-none-any.whl (292 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">292.8/292.8 kB</span> <span class="ansi-red-fg">24.4 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>31m? eta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Requirement already satisfied: scipy&gt;=1.0 in /miniconda3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (1.5.3)
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Requirement already satisfied: pandas&gt;=0.23 in /miniconda3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (1.1.3)
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Collecting matplotlib&gt;=2.2
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   Downloading matplotlib-3.5.2-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl (11.3 MB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">11.3/11.3 MB</span> <span class="ansi-red-fg">31.5 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>00:0100:01:--:--
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Requirement already satisfied: numpy&gt;=1.15 in /miniconda3/lib/python3.8/site-packages (from seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (1.21.0)
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Collecting pyparsing&gt;=2.2.1
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   Downloading pyparsing-3.0.9-py3-none-any.whl (98 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">98.3/98.3 kB</span> <span class="ansi-red-fg">2.5 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>ta <span class="ansi-cyan-fg">0:00:01</span>:--:--
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Requirement already satisfied: pillow&gt;=6.2.0 in /miniconda3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (9.1.1)
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Collecting cycler&gt;=0.10
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   Downloading cycler-0.11.0-py3-none-any.whl (6.4 kB)
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Requirement already satisfied: python-dateutil&gt;=2.7 in /miniconda3/lib/python3.8/site-packages (from matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (2.8.1)
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Collecting kiwisolver&gt;=1.0.1
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   Downloading kiwisolver-1.4.3-cp38-cp38-manylinux_2_5_x86_64.manylinux1_x86_64.whl (1.2 MB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">1.2/1.2 MB</span> <span class="ansi-red-fg">20.1 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>:00:01ta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Collecting fonttools&gt;=4.22.0
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   Downloading fonttools-4.34.4-py3-none-any.whl (944 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">944.1/944.1 kB</span> <span class="ansi-red-fg">18.8 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>00:01eta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Collecting packaging&gt;=20.0
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   Downloading packaging-21.3-py3-none-any.whl (40 kB)
+     <span class="ansi-black-intense-fg">━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━</span> <span class="ansi-green-fg">40.8/40.8 kB</span> <span class="ansi-red-fg">9.6 MB/s</span> eta <span class="ansi-cyan-fg">0:00:00</span>31m? eta <span class="ansi-cyan-fg">-:--:--</span>
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Requirement already satisfied: pytz&gt;=2017.2 in /miniconda3/lib/python3.8/site-packages (from pandas&gt;=0.23-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (2022.1)
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Requirement already satisfied: six&gt;=1.5 in /miniconda3/lib/python3.8/site-packages (from python-dateutil&gt;=2.7-&gt;matplotlib&gt;=2.2-&gt;seaborn==0.11.2-&gt;-r requirements.txt (line 2)) (1.15.0)
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Building wheels for collected packages: train-and-serve
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   Building wheel for train-and-serve (setup.py) ... done
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   Created wheel for train-and-serve: filename=train_and_serve-1.0.0-py2.py3-none-any.whl size=6122 sha256=6691974465579da8871d511531da3d05b51290a2cc27ed694f999ed3dfcd6137
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span>   Stored in directory: /home/model-server/tmp/pip-ephem-wheel-cache-ragqrv8c/wheels/f3/75/57/158162e9eab7af12b5c338c279b3a81f103b89d74eeb911c00
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Successfully built train-and-serve
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Installing collected packages: train-and-serve, pyparsing, kiwisolver, fonttools, cycler, packaging, matplotlib, seaborn
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 2022/07/15 16:48:27 [crit] 13#13: *3 connect() to unix:/tmp/gunicorn.sock failed (2: No such file or directory) while connecting to upstream, client: 172.18.0.1, server: , request: &#34;GET /ping HTTP/1.1&#34;, upstream: &#34;http://unix:/tmp/gunicorn.sock:/ping&#34;, host: &#34;localhost:8080&#34;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 172.18.0.1 - - [15/Jul/2022:16:48:27 +0000] &#34;GET /ping HTTP/1.1&#34; 502 182 &#34;-&#34; &#34;python-urllib3/1.26.8&#34;
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> Successfully installed cycler-0.11.0 fonttools-4.34.4 kiwisolver-1.4.3 matplotlib-3.5.2 packaging-21.3 pyparsing-3.0.9 seaborn-0.11.2 train-and-serve-1.0.0
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> <span class="ansi-yellow-fg">WARNING: Running pip as the &#39;root&#39; user can result in broken permissions and conflicting behaviour with the system package manager. It is recommended to use a virtual environment instead: https://pip.pypa.io/warnings/venv</span><span class="ansi-yellow-fg">
+</span><span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 2022-07-15 16:48:31,169 INFO - matplotlib.font_manager - generated new fontManager
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> [2022-07-15 16:48:32 +0000] [35] [INFO] Starting gunicorn 20.0.4
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> [2022-07-15 16:48:32 +0000] [35] [INFO] Listening at: unix:/tmp/gunicorn.sock (35)
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> [2022-07-15 16:48:32 +0000] [35] [INFO] Using worker: gevent
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> [2022-07-15 16:48:32 +0000] [37] [INFO] Booting worker with pid: 37
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> [2022-07-15 16:48:32 +0000] [38] [INFO] Booting worker with pid: 38
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 2022-07-15 16:48:33,388 INFO - sagemaker-containers - No GPUs detected (normal if no gpus installed)
+<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> model_fn model_dir: /opt/ml/model
+!<span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 172.18.0.1 - - [15/Jul/2022:16:48:34 +0000] &#34;GET /ping HTTP/1.1&#34; 200 0 &#34;-&#34; &#34;python-urllib3/1.26.8&#34;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+</p>
+    </details>
 </div>
     {% endraw %}
 
@@ -3846,6 +4278,30 @@ See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk</c
 </div>
 </div>
 
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>2</pre>
+</div>
+
+</div>
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre><span class="ansi-cyan-fg">qveck8plk5-algo-1-j6ron |</span> 172.18.0.1 - - [15/Jul/2022:16:48:52 +0000] &#34;POST /invocations HTTP/1.1&#34; 200 136 &#34;-&#34; &#34;python-urllib3/1.26.8&#34;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
 </div>
     {% endraw %}
 
@@ -3860,6 +4316,20 @@ See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk</c
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Predicted class category 2 (Iris-virginica)
+</pre>
+</div>
+</div>
+
 </div>
 </div>
 
@@ -3890,10 +4360,56 @@ See documentation for model_fn at https://github.com/aws/sagemaker-python-sdk</c
 
 <div class="inner_cell">
     <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>docker ps
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>CONTAINER ID   IMAGE                                                                               COMMAND   CREATED          STATUS          PORTS                                       NAMES
+dac241b02727   683313688378.dkr.ecr.us-east-1.amazonaws.com/sagemaker-scikit-learn:1.0-1-cpu-py3   &#34;serve&#34;   59 seconds ago   Up 57 seconds   0.0.0.0:8080-&gt;8080/tcp, :::8080-&gt;8080/tcp   qveck8plk5-algo-1-j6ron
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="n">sk_predictor</span><span class="o">.</span><span class="n">delete_endpoint</span><span class="p">()</span>
 </pre></div>
 
     </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Gracefully stopping... (press Ctrl+C again to force)
+</pre>
+</div>
+</div>
+
 </div>
 </div>
 
