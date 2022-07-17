@@ -3585,7 +3585,7 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Convert directory container seaborn code into a Python package directory.</p>
+<p>Convert the directory containing seaborn code into a Python package directory.</p>
 
 </div>
 </div>
@@ -3626,7 +3626,7 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Our custom library has a dependency on the seaborn Python package. So let's create 'requirements.txt' and put all our dependencies in it. Later it will be passed to the SKLean container to install them during initialization.</p>
+<p>Our custom library has a dependency on the <a href="https://seaborn.pydata.org/">seaborn Python package</a>. So let's create 'requirements.txt' and put all our dependencies in it. Later it will be passed to the SKLean container to install them during initialization.</p>
 
 </div>
 </div>
@@ -3667,7 +3667,7 @@ custom_library_file: ./datasets/2022-07-07-sagemaker-script-mode/my_custom_libra
 <div class="cell border-box-sizing text_cell rendered">
 <div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Let's test this library in our local environment first. It should plot a dummy confusion matrix in local temp directory.</p>
+<p>Let's first test this library in our local environment. It should plot a dummy confusion matrix in local <code>/tmp</code> directory.</p>
 
 </div>
 </div>
@@ -5526,7 +5526,7 @@ Attaching to e6h08rxuj4-algo-1-bitrj
 <h1 id="SKLearn-model-training-and-serving-in-SageMaker-managed-environment">
 <a class="anchor" href="#SKLearn-model-training-and-serving-in-SageMaker-managed-environment" aria-hidden="true"><span class="octicon octicon-link"></span></a>SKLearn model training and serving in SageMaker managed environment<a class="anchor-link" href="#SKLearn-model-training-and-serving-in-SageMaker-managed-environment"> </a>
 </h1>
-<p>Now that our script is complete and we have tested it in a local environment, let's proceed and train and deploy it in Amazon SageMaker managed environment. Moving from a local environment to managed environment is very simple. We only need to change the instance type.</p>
+<p>Now that our script is complete and we have tested it in a local environment, let's proceed to train and deploy it in Amazon SageMaker managed environment. Moving from a local environment to managed environment is very simple. We only need to change the instance type.</p>
 
 </div>
 </div>
