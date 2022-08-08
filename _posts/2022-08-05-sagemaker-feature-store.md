@@ -1,6 +1,6 @@
 ---
 keywords: fastai
-description: The aim of this notebook is to demonstrate how to built a central feature repository using Amazon SageMaker Feature Store. Feature Store is used to store, retrieve, and share machine learning features.
+description: This notebook demonstrates how to build a central feature repository using Amazon SageMaker Feature Store. Feature Store is used to store, retrieve, and share machine learning features.
 title: Building a Feature Repository with SageMaker Feature Store
 toc: true 
 badges: true
@@ -31,6 +31,7 @@ layout: notebook
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
 <h1 id="Introduction">Introduction<a class="anchor-link" href="#Introduction"> </a></h1><p>Amazon SageMaker Feature Store is a fully managed, purpose-built repository to store, share, and manage features for machine learning (ML) models. Features are inputs to ML models used during training and inference. For example, in an application that recommends a music playlist, features could include song ratings, listening duration, and listener demographics. Features are used repeatedly by multiple teams and feature quality is critical to ensure a highly accurate model. Also, when features used to train models offline in batch are made available for real-time inference, it’s hard to keep the two feature stores synchronized. SageMaker Feature Store provides a secured and unified store for feature use across the ML lifecycle.</p>
+<p><a href="https://aws.amazon.com/sagemaker/feature-store/">https://aws.amazon.com/sagemaker/feature-store/</a></p>
 <p><img src="/myblog/images/copied_from_nb/images/2022-08-05-sagemaker-feature-store/feature-store.png" alt="feature-store.png"></p>
 
 </div>
@@ -38,7 +39,7 @@ layout: notebook
 </div>
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Environment">Environment<a class="anchor-link" href="#Environment"> </a></h1><p>This notebook is prepared with AWS SageMaker notebook running on <code>ml.t3.medium</code> instance and "conda_python3" kernel.</p>
+<h1 id="Environment">Environment<a class="anchor-link" href="#Environment"> </a></h1><p>This notebook is prepared using Amazon SageMaker studio using <code>Python 3 (Data Science)</code> kernel running on <code>ml.t3.medium</code> instance.</p>
 
 </div>
 </div>
@@ -63,7 +64,7 @@ layout: notebook
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>aws-cli/1.22.97 Python/3.8.12 Linux/5.10.102-99.473.amzn2.x86_64 botocore/1.24.19
+<pre>aws-cli/1.25.27 Python/3.7.10 Linux/4.14.281-212.502.amzn2.x86_64 botocore/1.27.27
 </pre>
 </div>
 </div>
@@ -71,139 +72,2824 @@ layout: notebook
 </div>
 </div>
 
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>cat /etc/os-release
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>NAME=&#34;Amazon Linux&#34;
-VERSION=&#34;2&#34;
-ID=&#34;amzn&#34;
-ID_LIKE=&#34;centos rhel fedora&#34;
-VERSION_ID=&#34;2&#34;
-PRETTY_NAME=&#34;Amazon Linux 2&#34;
-ANSI_COLOR=&#34;0;33&#34;
-CPE_NAME=&#34;cpe:2.3:o:amazon:amazon_linux:2&#34;
-HOME_URL=&#34;https://amazonlinux.com/&#34;
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>python3 --version
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Python 3.8.12
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>conda env list
-</pre></div>
-
-    </div>
-</div>
-</div>
-<details class="description">
-      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
-        <p>
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_stream output_stdout output_text">
-<pre># conda environments:
-#
-base                     /home/ec2-user/anaconda3
-JupyterSystemEnv         /home/ec2-user/anaconda3/envs/JupyterSystemEnv
-R                        /home/ec2-user/anaconda3/envs/R
-amazonei_mxnet_p36       /home/ec2-user/anaconda3/envs/amazonei_mxnet_p36
-amazonei_pytorch_latest_p37     /home/ec2-user/anaconda3/envs/amazonei_pytorch_latest_p37
-amazonei_tensorflow2_p36     /home/ec2-user/anaconda3/envs/amazonei_tensorflow2_p36
-mxnet_p37                /home/ec2-user/anaconda3/envs/mxnet_p37
-python3               *  /home/ec2-user/anaconda3/envs/python3
-pytorch_p38              /home/ec2-user/anaconda3/envs/pytorch_p38
-tensorflow2_p38          /home/ec2-user/anaconda3/envs/tensorflow2_p38
-
-</pre>
-</div>
-</div>
-
-</div>
-</div>
-</p>
-    </details>
 </div>
     {% endraw %}
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h1 id="Prepare-training-and-test-data">Prepare training and test data<a class="anchor-link" href="#Prepare-training-and-test-data"> </a></h1><p>We will use <strong>Iris flower dataset</strong>. It includes three iris species (Iris setosa, Iris virginica, and Iris versicolor) with 50 samples each. Four features were measured for each sample: the length and the width of the sepals and petals, in centimeters. We can train a model to distinguish the species from each other based on the combination of these four features. You can read more about this dataset at <a href="https://en.wikipedia.org/wiki/Iris_flower_data_set">Iris flower data set</a>. The dataset has five columns representing.</p>
+<h1 id="Dataset-used-for-this-notebook">Dataset used for this notebook<a class="anchor-link" href="#Dataset-used-for-this-notebook"> </a></h1><p>We will use a publically available bank marketing dataset. The data is related to direct marketing campaigns of a Portuguese banking institution. The marketing campaigns were based on phone calls. Often, more than one contact with the same client was required to access if the product (bank term deposit) would be ('yes') or not ('no') subscribed.</p>
+<h2 id="Data-source">Data source<a class="anchor-link" href="#Data-source"> </a></h2><p>[Moro et al., 2014] S. Moro, P. Cortez and P. Rita. A Data-Driven Approach to Predict the Success of Bank Telemarketing. Decision Support Systems, Elsevier, 62:22-31, June 2014</p>
+<h2 id="Data-link">Data link<a class="anchor-link" href="#Data-link"> </a></h2><p>UCI Machine Learning Repository: <a href="https://archive.ics.uci.edu/ml/datasets/bank+marketing">https://archive.ics.uci.edu/ml/datasets/bank+marketing</a>. Dataset has multiple files. we will use <code>bank-additional-full.csv</code> file that has all examples (41188) and 20 inputs, ordered by date.</p>
+<h2 id="Data-classification-goal/target">Data classification goal/target<a class="anchor-link" href="#Data-classification-goal/target"> </a></h2><p>The classification goal is to predict if the client will subscribe (yes/no) a term deposit (variable <code>y</code>)</p>
+<h2 id="Data-attributes-information">Data attributes information<a class="anchor-link" href="#Data-attributes-information"> </a></h2><h3 id="Input-variables">Input variables<a class="anchor-link" href="#Input-variables"> </a></h3><p><strong>attributes from bank client data</strong></p>
 <ol>
-<li>sepal length in cm</li>
-<li>sepal width in cm</li>
-<li>petal length in cm</li>
-<li>petal width in cm</li>
-<li>class: Iris Setosa, Iris Versicolour, Iris Virginica</li>
+<li>age (numeric)</li>
+<li>job : type of job (categorical: 'admin.', 'blue-collar', 'entrepreneur', 'housemaid', 'management', 'retired', 'self-employed', 'services','student', 'technician', 'unemployed', 'unknown')</li>
+<li>marital : marital status (categorical: 'divorced', 'married', 'single', 'unknown'; note: 'divorced' means divorced or widowed)</li>
+<li>education (categorical: 'basic.4y', 'basic.6y', 'basic.9y', 'high.school', 'illiterate','professional.course', 'university.degree','unknown')</li>
+<li>default: has credit in default? (categorical: 'no','yes','unknown')</li>
+<li>housing: has housing loan? (categorical: 'no','yes','unknown')</li>
+<li>loan: has personal loan? (categorical: 'no','yes','unknown')</li>
+</ol>
+<p><strong>attributes related with the last contact of the current campaign</strong></p>
+<ol>
+<li>contact: contact communication type (categorical: 'cellular','telephone')</li>
+<li>month: last contact month of year (categorical: 'jan', 'feb', 'mar', ..., 'nov', 'dec')</li>
+<li>day_of_week: last contact day of the week (categorical: 'mon','tue','wed','thu','fri')</li>
+<li>duration: last contact duration, in seconds (numeric). Important note: this attribute highly affects the output target (e.g., if duration=0 then y='no'). Yet, the duration is not known before a call is performed. Also, after the end of the call y is obviously known. Thus, this input should only be included for benchmark purposes and should be discarded if the intention is to have a realistic predictive model.</li>
+</ol>
+<p><strong>other attributes</strong></p>
+<ol>
+<li>campaign: number of contacts performed during this campaign and for this client (numeric, includes last contact)</li>
+<li>pdays: number of days that passed by after the client was last contacted from a previous campaign (numeric; 999 means client was not previously contacted)</li>
+<li>previous: number of contacts performed before this campaign and for this client (numeric)</li>
+<li>poutcome: outcome of the previous marketing campaign (categorical: 'failure','nonexistent','success')</li>
+</ol>
+<p><strong>social and economic context attributes</strong></p>
+<ol>
+<li>emp.var.rate: employment variation rate - quarterly indicator (numeric)</li>
+<li>cons.price.idx: consumer price index - monthly indicator (numeric)</li>
+<li>cons.conf.idx: consumer confidence index - monthly indicator (numeric)</li>
+<li>euribor3m: euribor 3 month rate - daily indicator (numeric)</li>
+<li>nr.employed: number of employees - quarterly indicator (numeric)</li>
+</ol>
+<h3 id="Output-variable-(desired-target)">Output variable (desired target)<a class="anchor-link" href="#Output-variable-(desired-target)"> </a></h3><ol>
+<li>y: has the client subscribed a term deposit? (binary: 'yes','no')</li>
 </ol>
 
 </div>
 </div>
 </div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Load-and-explore-data">Load and explore data<a class="anchor-link" href="#Load-and-explore-data"> </a></h1><p>Let's define a local directory <code>local_path</code> to keep all the files and artifacts related to this post.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># local path will be the root directory for this post</span>
+<span class="n">local_path</span> <span class="o">=</span> <span class="s2">&quot;./datasets/2022-08-05-sagemaker-feature-store/&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's make sure that the local directory folder exists.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
+
+<span class="n">Path</span><span class="p">(</span><span class="n">local_path</span><span class="p">)</span><span class="o">.</span><span class="n">mkdir</span><span class="p">(</span><span class="n">parents</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now download the data file to the <code>local_path</code>.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>wget <span class="s1">&#39;https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip&#39;</span> -P <span class="o">{</span>local_path<span class="o">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>--2022-08-07 13:00:30--  https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip
+Resolving archive.ics.uci.edu (archive.ics.uci.edu)... 128.195.10.252
+Connecting to archive.ics.uci.edu (archive.ics.uci.edu)|128.195.10.252|:443... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 444572 (434K) [application/x-httpd-php]
+Saving to: ‘./datasets/2022-08-05-sagemaker-feature-store/bank-additional.zip.7’
+
+bank-additional.zip 100%[===================&gt;] 434.15K  1.51MB/s    in 0.3s    
+
+2022-08-07 13:00:31 (1.51 MB/s) - ‘./datasets/2022-08-05-sagemaker-feature-store/bank-additional.zip.7’ saved [444572/444572]
+
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Unzip the downloaded file.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">!</span>unzip -o <span class="o">{</span>local_path<span class="o">}</span>bank-additional.zip -d <span class="o">{</span>local_path<span class="o">}</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Archive:  ./datasets/2022-08-05-sagemaker-feature-store/bank-additional.zip
+  inflating: ./datasets/2022-08-05-sagemaker-feature-store/bank-additional/.DS_Store  
+  inflating: ./datasets/2022-08-05-sagemaker-feature-store/__MACOSX/bank-additional/._.DS_Store  
+  inflating: ./datasets/2022-08-05-sagemaker-feature-store/bank-additional/.Rhistory  
+  inflating: ./datasets/2022-08-05-sagemaker-feature-store/bank-additional/bank-additional-full.csv  
+  inflating: ./datasets/2022-08-05-sagemaker-feature-store/bank-additional/bank-additional-names.txt  
+  inflating: ./datasets/2022-08-05-sagemaker-feature-store/bank-additional/bank-additional.csv  
+  inflating: ./datasets/2022-08-05-sagemaker-feature-store/__MACOSX/._bank-additional  
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Extracted files contains multiple datasets. We will use <code>bank-additional-full.csv</code> which has all the examples (41188) and 20 inputs, ordered by date.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># define data file path</span>
+<span class="n">local_data_file</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s2">bank-additional/bank-additional-full.csv&quot;</span>
+<span class="n">local_data_file</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;./datasets/2022-08-05-sagemaker-feature-store/bank-additional/bank-additional-full.csv&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's read the dataset and explore it.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_columns&quot;</span><span class="p">,</span> <span class="mi">500</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.width&quot;</span><span class="p">,</span> <span class="mi">1000</span><span class="p">)</span>
+
+<span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">local_data_file</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s2">&quot;;&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;df.shape: &quot;</span><span class="p">,</span> <span class="n">df</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>df.shape:  (41188, 21)
+</pre>
+</div>
+</div>
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+      <th>job</th>
+      <th>marital</th>
+      <th>education</th>
+      <th>default</th>
+      <th>housing</th>
+      <th>loan</th>
+      <th>contact</th>
+      <th>month</th>
+      <th>day_of_week</th>
+      <th>duration</th>
+      <th>campaign</th>
+      <th>pdays</th>
+      <th>previous</th>
+      <th>poutcome</th>
+      <th>emp.var.rate</th>
+      <th>cons.price.idx</th>
+      <th>cons.conf.idx</th>
+      <th>euribor3m</th>
+      <th>nr.employed</th>
+      <th>y</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>56</td>
+      <td>housemaid</td>
+      <td>married</td>
+      <td>basic.4y</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>261</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>57</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>unknown</td>
+      <td>no</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>149</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>37</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>226</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>40</td>
+      <td>admin.</td>
+      <td>married</td>
+      <td>basic.6y</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>151</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>56</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>307</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Creating-a-feature-group">Creating a feature group<a class="anchor-link" href="#Creating-a-feature-group"> </a></h1><p>A feature group in the SageMaker feature store defines the metadata, feature definition, unique identifier for data entries, and other store configurations.</p>
+<p>There are two ways to create a feature group in SageMaker.</p>
+<ul>
+<li>Using SageMaker Studio IDE</li>
+<li>SageMaker Python SDK</li>
+</ul>
+<h2 id="Considerations-for-creating-a-feature-group">Considerations for creating a feature group<a class="anchor-link" href="#Considerations-for-creating-a-feature-group"> </a></h2><ul>
+<li>Supported data types in feature group are: string, integral, and fractional</li>
+<li>There should be a feature that can uniquely identify each row</li>
+<li>There should be a feature that defines event time (event_time). This feature is required for versioning and time travel. Excepted data types for this feature are string or fractional.<ul>
+<li>For <code>String</code> type event time has to be ISO-8601 format in UTC time with the <code>yyyy-MM-dd'T'HH:mm:ssZ</code> or <code>yyyy-MM-dd'T'HH:mm:ss.SSSZ</code> patterns</li>
+<li>For <code>Fractional</code> type, the values are expected to be in seconds from Unix epoch time with millisecond precision</li>
+</ul>
+</li>
+</ul>
+<p>Our dataset does not have a feature that can uniquely identify each row. So let's create one.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># &#39;FS_id&#39; defines unique id for each row</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;FS_id&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Similarly, we also need to create an event time feature. For this, we will use string type with <code>yyyy-MM-dd'T'HH:mm:ss.SSSZ</code> pattern.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span><span class="p">,</span> <span class="n">timezone</span><span class="p">,</span> <span class="n">date</span>
+
+<span class="k">def</span> <span class="nf">generate_event_timestamp</span><span class="p">():</span>
+    <span class="c1"># naive datetime representing local time</span>
+    <span class="n">naive_dt</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span>
+    <span class="c1"># take timezone into account</span>
+    <span class="n">aware_dt</span> <span class="o">=</span> <span class="n">naive_dt</span><span class="o">.</span><span class="n">astimezone</span><span class="p">()</span>
+    <span class="c1"># time in UTC</span>
+    <span class="n">utc_dt</span> <span class="o">=</span> <span class="n">aware_dt</span><span class="o">.</span><span class="n">astimezone</span><span class="p">(</span><span class="n">timezone</span><span class="o">.</span><span class="n">utc</span><span class="p">)</span>
+    <span class="c1"># transform to ISO-8601 format</span>
+    <span class="n">event_time</span> <span class="o">=</span> <span class="n">utc_dt</span><span class="o">.</span><span class="n">isoformat</span><span class="p">(</span><span class="n">timespec</span><span class="o">=</span><span class="s2">&quot;milliseconds&quot;</span><span class="p">)</span>
+    <span class="n">event_time</span> <span class="o">=</span> <span class="n">event_time</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;+00:00&quot;</span><span class="p">,</span> <span class="s2">&quot;Z&quot;</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">event_time</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">generate_event_timestamp</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;2022-08-07T13:01:10.333Z&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># `FS_event_time` contains event timestamps</span>
+<span class="n">df</span><span class="p">[</span><span class="s1">&#39;FS_event_time&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">generate_event_timestamp</span><span class="p">()</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">df</span><span class="p">))]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's check our dataset with two new features.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+      <th>job</th>
+      <th>marital</th>
+      <th>education</th>
+      <th>default</th>
+      <th>housing</th>
+      <th>loan</th>
+      <th>contact</th>
+      <th>month</th>
+      <th>day_of_week</th>
+      <th>duration</th>
+      <th>campaign</th>
+      <th>pdays</th>
+      <th>previous</th>
+      <th>poutcome</th>
+      <th>emp.var.rate</th>
+      <th>cons.price.idx</th>
+      <th>cons.conf.idx</th>
+      <th>euribor3m</th>
+      <th>nr.employed</th>
+      <th>y</th>
+      <th>FS_id</th>
+      <th>FS_event_time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>56</td>
+      <td>housemaid</td>
+      <td>married</td>
+      <td>basic.4y</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>261</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>0</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>57</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>unknown</td>
+      <td>no</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>149</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>1</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>37</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>226</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>2</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>40</td>
+      <td>admin.</td>
+      <td>married</td>
+      <td>basic.6y</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>151</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>3</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>56</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>307</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>4</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Initialize SageMaker session.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">sagemaker</span>
+
+<span class="n">session</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="n">role</span> <span class="o">=</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">get_execution_role</span><span class="p">()</span>
+<span class="n">bucket</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">default_bucket</span><span class="p">()</span>
+<span class="n">region</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">boto_region_name</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sagemaker.__version__: &quot;</span><span class="p">,</span> <span class="n">sagemaker</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Session: &quot;</span><span class="p">,</span> <span class="n">session</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Role: &quot;</span><span class="p">,</span> <span class="n">role</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Bucket: &quot;</span><span class="p">,</span> <span class="n">bucket</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Region: &quot;</span><span class="p">,</span> <span class="n">region</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>sagemaker.__version__:  2.99.0
+Session:  &lt;sagemaker.session.Session object at 0x7f2ae69ceb90&gt;
+Role:  arn:aws:iam::801598032724:role/service-role/AmazonSageMaker-ExecutionRole-20220804T174502
+Bucket:  sagemaker-us-east-1-801598032724
+Region:  us-east-1
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># All the data related to this post will be under this prefix.</span>
+<span class="n">bucket_prefix</span> <span class="o">=</span> <span class="s2">&quot;2022-08-05-sagemaker-feature-store&quot;</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Feature store requires an S3 location for storing the ingested data. Let's define it as well.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fs_offline_bucket_studio</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;s3://</span><span class="si">{</span><span class="n">bucket</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">bucket_prefix</span><span class="si">}</span><span class="s2">/fs_offline/studio&quot;</span>
+<span class="n">fs_offline_bucket_studio</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;s3://sagemaker-us-east-1-801598032724/2022-08-05-sagemaker-feature-store/fs_offline/studio&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-feature-group-from-SageMaker-studio-IDE">Create feature group from SageMaker studio IDE<a class="anchor-link" href="#Create-feature-group-from-SageMaker-studio-IDE"> </a></h2><p>Let's see how we can create a feature group using SageMaker Studio IDE. You don't need to write any code while creating a feature group using Studio IDE. From the left sidebar, use the <code>SageMaker Resources</code> menu to open the <code>Feature Group</code> pane, and click the <code>create feature group</code> option. This will open a new tab in IDE to create a feature group.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-08-05-sagemaker-feature-store/create-feature-group.PNG" alt="create-feature-group.PNG"></p>
+<p>On the <code>create feature group</code> tab, define the following settings:</p>
+<ul>
+<li>Feature group name : "bank-marketing-studio"</li>
+<li>Description (optional) : "The data is related to direct marketing campaigns (phone calls) of a Portuguese banking institution."</li>
+<li>Feature group storage configurations<ul>
+<li>Enable online store : Check this box. Note that for the online store there is no S3 bucket requirement.</li>
+<li>Enable offline store : Check this box too. <ul>
+<li>Enter S3 location from <code>fs_offline_bucket_studio</code></li>
+<li>IAM Role ARN : Default SageMaker role.</li>
+</ul>
+</li>
+<li>Enable Data Catalog for offline store</li>
+</ul>
+</li>
+<li>Select <code>continue</code></li>
+</ul>
+<p>On the next page, you will be asked to specify feature definitions. There are two ways to define them.</p>
+<ul>
+<li>Using Table, and manually fill each feature and its type</li>
+<li>Using JSON. We will use this option to define the features and their types.</li>
+</ul>
+<p>Remember that the feature group only supports three data types: string, integral, and fractional. So we need to create a mapping between Pandas Dataframe data types and that of a feature store.</p>
+<ul>
+<li>"object" -&gt; "String"</li>
+<li>"int64" -&gt; "Integral"</li>
+<li>"float64" -&gt; "Fractional"</li>
+</ul>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># map DataFrame types to feature group.</span>
+<span class="k">def</span> <span class="nf">get_mapping</span><span class="p">(</span><span class="n">dt</span><span class="p">):</span>
+
+    <span class="n">feature_store_dtype_mapping</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="s2">&quot;object&quot;</span><span class="p">:</span> <span class="s2">&quot;String&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;int64&quot;</span><span class="p">:</span> <span class="s2">&quot;Integral&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;float64&quot;</span><span class="p">:</span> <span class="s2">&quot;Fractional&quot;</span><span class="p">,</span>
+    <span class="p">}</span>
+
+    <span class="k">return</span> <span class="n">feature_store_dtype_mapping</span><span class="p">[</span><span class="nb">str</span><span class="p">(</span><span class="n">dt</span><span class="p">)]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># DataFrame feature data types</span>
+<span class="n">df</span><span class="o">.</span><span class="n">dtypes</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>age                 int64
+job                object
+marital            object
+education          object
+default            object
+housing            object
+loan               object
+contact            object
+month              object
+day_of_week        object
+duration            int64
+campaign            int64
+pdays               int64
+previous            int64
+poutcome           object
+emp.var.rate      float64
+cons.price.idx    float64
+cons.conf.idx     float64
+euribor3m         float64
+nr.employed       float64
+y                  object
+FS_id               int64
+FS_event_time      object
+dtype: object</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># prepare list of feature names and correct data types</span>
+<span class="n">feature_names</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">feature_types</span> <span class="o">=</span> <span class="p">[</span><span class="n">get_mapping</span><span class="p">(</span><span class="n">dt</span><span class="p">)</span> <span class="k">for</span> <span class="n">dt</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">dtypes</span><span class="p">]</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Feature names allow alphanumeric characters including dashes and underscores. So let's remove the "." character from the feature names.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># fix feature names</span>
+<span class="k">for</span> <span class="n">indx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">feature_names</span><span class="p">)):</span>
+    <span class="n">feature_names</span><span class="p">[</span><span class="n">indx</span><span class="p">]</span> <span class="o">=</span> <span class="n">feature_names</span><span class="p">[</span><span class="n">indx</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># corrected feature names</span>
+<span class="n">feature_names</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&#39;age&#39;,
+ &#39;job&#39;,
+ &#39;marital&#39;,
+ &#39;education&#39;,
+ &#39;default&#39;,
+ &#39;housing&#39;,
+ &#39;loan&#39;,
+ &#39;contact&#39;,
+ &#39;month&#39;,
+ &#39;day_of_week&#39;,
+ &#39;duration&#39;,
+ &#39;campaign&#39;,
+ &#39;pdays&#39;,
+ &#39;previous&#39;,
+ &#39;poutcome&#39;,
+ &#39;emp_var_rate&#39;,
+ &#39;cons_price_idx&#39;,
+ &#39;cons_conf_idx&#39;,
+ &#39;euribor3m&#39;,
+ &#39;nr_employed&#39;,
+ &#39;y&#39;,
+ &#39;FS_id&#39;,
+ &#39;FS_event_time&#39;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now we are ready to prepare JSON for feature definitions. JSON created should be of the following format.</p>
+
+<pre><code>[
+    {
+        "FeatureName": "age",
+        "FeatureType": "Integral"
+    }
+]</code></pre>
+<p>Let's prepare it.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df_features</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span><span class="s2">&quot;FeatureName&quot;</span><span class="p">:</span> <span class="n">feature_names</span><span class="p">,</span> <span class="s2">&quot;FeatureType&quot;</span><span class="p">:</span> <span class="n">feature_types</span><span class="p">})</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">df_features</span><span class="o">.</span><span class="n">to_json</span><span class="p">(</span><span class="n">orient</span><span class="o">=</span><span class="s2">&quot;records&quot;</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>[{&#34;FeatureName&#34;:&#34;age&#34;,&#34;FeatureType&#34;:&#34;Integral&#34;},{&#34;FeatureName&#34;:&#34;job&#34;,&#34;FeatureType&#34;:&#34;String&#34;},{&#34;FeatureName&#34;:&#34;marital&#34;,&#34;FeatureType&#34;:&#34;String&#34;},{&#34;FeatureName&#34;:&#34;education&#34;,&#34;FeatureType&#34;:&#34;String&#34;},{&#34;FeatureName&#34;:&#34;default&#34;,&#34;FeatureType&#34;:&#34;String&#34;},{&#34;FeatureName&#34;:&#34;housing&#34;,&#34;FeatureType&#34;:&#34;String&#34;},{&#34;FeatureName&#34;:&#34;loan&#34;,&#34;FeatureType&#34;:&#34;String&#34;},{&#34;FeatureName&#34;:&#34;contact&#34;,&#34;FeatureType&#34;:&#34;String&#34;},{&#34;FeatureName&#34;:&#34;month&#34;,&#34;FeatureType&#34;:&#34;String&#34;},{&#34;FeatureName&#34;:&#34;day_of_week&#34;,&#34;FeatureType&#34;:&#34;String&#34;},{&#34;FeatureName&#34;:&#34;duration&#34;,&#34;FeatureType&#34;:&#34;Integral&#34;},{&#34;FeatureName&#34;:&#34;campaign&#34;,&#34;FeatureType&#34;:&#34;Integral&#34;},{&#34;FeatureName&#34;:&#34;pdays&#34;,&#34;FeatureType&#34;:&#34;Integral&#34;},{&#34;FeatureName&#34;:&#34;previous&#34;,&#34;FeatureType&#34;:&#34;Integral&#34;},{&#34;FeatureName&#34;:&#34;poutcome&#34;,&#34;FeatureType&#34;:&#34;String&#34;},{&#34;FeatureName&#34;:&#34;emp_var_rate&#34;,&#34;FeatureType&#34;:&#34;Fractional&#34;},{&#34;FeatureName&#34;:&#34;cons_price_idx&#34;,&#34;FeatureType&#34;:&#34;Fractional&#34;},{&#34;FeatureName&#34;:&#34;cons_conf_idx&#34;,&#34;FeatureType&#34;:&#34;Fractional&#34;},{&#34;FeatureName&#34;:&#34;euribor3m&#34;,&#34;FeatureType&#34;:&#34;Fractional&#34;},{&#34;FeatureName&#34;:&#34;nr_employed&#34;,&#34;FeatureType&#34;:&#34;Fractional&#34;},{&#34;FeatureName&#34;:&#34;y&#34;,&#34;FeatureType&#34;:&#34;String&#34;},{&#34;FeatureName&#34;:&#34;FS_id&#34;,&#34;FeatureType&#34;:&#34;Integral&#34;},{&#34;FeatureName&#34;:&#34;FS_event_time&#34;,&#34;FeatureType&#34;:&#34;String&#34;}]
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Copy the JSON from the last cell output and past it in feature definition JSON input. Click <code>continue</code></p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-08-05-sagemaker-feature-store/feature-definition.PNG" alt="feature-definition.PNG"></p>
+<p>On the next page, it will ask for the required features.</p>
+<ul>
+<li>record identifier feature name : select <code>FS_ID</code></li>
+<li>event type feature name : select <code>FS_event_time</code></li>
+</ul>
+<p>Click <code>continue</code> and create the feature group.</p>
+<p><img src="/myblog/images/copied_from_nb/images/2022-08-05-sagemaker-feature-store/feature-group-created.PNG" alt="feature-group-created.PNG"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Create-feature-group-from-SageMaker-SDK">Create feature group from SageMaker SDK<a class="anchor-link" href="#Create-feature-group-from-SageMaker-SDK"> </a></h2><p>We have seen how we can create a feature group from SageMaker studio IDE. Let's also see how to create it using SageMaker SDK.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># define a feature group</span>
+<span class="kn">from</span> <span class="nn">sagemaker.feature_store.feature_group</span> <span class="kn">import</span> <span class="n">FeatureGroup</span>
+
+<span class="n">feature_group_name</span> <span class="o">=</span> <span class="s2">&quot;bank-marketing-sdk&quot;</span>
+<span class="n">feature_group</span> <span class="o">=</span> <span class="n">FeatureGroup</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">feature_group_name</span><span class="p">,</span> <span class="n">sagemaker_session</span><span class="o">=</span><span class="n">session</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>I have created a FeatureGroup, now we need to define its schema (FeatureDefinitions). When I check the <a href="https://sagemaker.readthedocs.io/en/stable/api/prep_data/feature_store.html">SageMaker Python SDK Feature Store APIs reference</a>, I could not find any method to provide <code>FeatureDefinitions</code> to a feature group. But feature store documentation examples <a href="https://sagemaker.readthedocs.io/en/stable/amazon_sagemaker_featurestore.html">amazon_sagemaker_featurestore</a> mention that we can use <code>feature_group.load_feature_definitions()</code> method to load the feature definitions from Pandas dataframe. When I checked the <code>sagemaker-python-sdk</code> GitHub page there is an <a href="https://github.com/aws/sagemaker-python-sdk/issues/2677">open issue</a> that says "The documentation does not include the load_feature_definitions() method for the FeatureGroup class", and is still open.</p>
+<p>To get more understanding of this method we can check the source code for sagemaker feature group class <a href="https://github.com/aws/sagemaker-python-sdk/blob/master/src/sagemaker/feature_store/feature_group.py">github.com/aws/sagemaker-python-sdk/blob/master/src/sagemaker/feature_store/feature_group.py</a>. If we check the signature and documentation for this method it says:</p>
+
+<pre><code>def load_feature_definitions(
+        self,
+        data_frame: DataFrame,
+    ) -&gt; Sequence[FeatureDefinition]:
+
+        """Load feature definitions from a Pandas DataFrame.
+        Column name is used as feature name. Feature type is inferred from the dtype
+        of the column. Dtype int_, int8, int16, int32, int64, uint8, uint16, uint32
+        and uint64 are mapped to Integral feature type. Dtype float_, float16, float32
+        and float64 are mapped to Fractional feature type. string dtype is mapped to
+        String feature type.
+        No feature definitions will be loaded if the given data_frame contains
+        unsupported dtypes.
+        Args:
+            data_frame (DataFrame):
+        Returns:
+            list of FeatureDefinition
+        """</code></pre>
+<p>That is</p>
+<ul>
+<li>It loads feature definitions from a Pandas DataFrame</li>
+<li>DataFrame column names are used as feature names</li>
+<li>Feature types are inferred from the dtype of columns<ul>
+<li>Dtype int_, int8, int16, int32, int64, uint8, uint16, uint32 and uint64 are mapped to <code>Integral</code> feature type</li>
+<li>Dtype float_, float16, float32 and float64 are mapped to <code>Fractional</code> feature type</li>
+<li>Dtype string is mapped to <code>String</code> feature type</li>
+<li>No feature definitions will be loaded if the given data_frame contains unsupported dtypes</li>
+</ul>
+</li>
+</ul>
+<p>In the last section, we have seen that our dataframe has <code>object</code> data types that are not supported. For backward compatibility reasons, Pandas DataFrame infers columns with strings as <code>object</code> data type. With Pandas 1.0 onwards we can explicitly use <code>string</code> type for such columns.</p>
+<p>Let's see what happens when we use unsupported data types for feature definition.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># load unsupported feature definitions. This will generate an error.</span>
+<span class="n">feature_group</span><span class="o">.</span><span class="n">load_feature_definitions</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ValueError</span>                                Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-24-f77a8abe3ce7&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">      1</span> <span class="ansi-red-fg">##</span>
+<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-red-fg"># load unsupported feature definitions. This will generate an error.</span>
+<span class="ansi-green-fg">----&gt; 3</span><span class="ansi-red-fg"> </span>feature_group<span class="ansi-blue-fg">.</span>load_feature_definitions<span class="ansi-blue-fg">(</span>data_frame<span class="ansi-blue-fg">=</span>df<span class="ansi-blue-fg">)</span>
+
+<span class="ansi-green-fg">/opt/conda/lib/python3.7/site-packages/sagemaker/feature_store/feature_group.py</span> in <span class="ansi-cyan-fg">load_feature_definitions</span><span class="ansi-blue-fg">(self, data_frame)</span>
+<span class="ansi-green-intense-fg ansi-bold">    570</span>             <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    571</span>                 raise ValueError(
+<span class="ansi-green-fg">--&gt; 572</span><span class="ansi-red-fg">                     </span><span class="ansi-blue-fg">f&#34;Failed to infer Feature type based on dtype {data_frame[column].dtype} &#34;</span>
+<span class="ansi-green-intense-fg ansi-bold">    573</span>                     <span class="ansi-blue-fg">f&#34;for column {column}.&#34;</span>
+<span class="ansi-green-intense-fg ansi-bold">    574</span>                 )
+
+<span class="ansi-red-fg">ValueError</span>: Failed to infer Feature type based on dtype object for column job.</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It throws an error, "ValueError: Failed to infer Feature type based on dtype object for column job."</p>
+<p>Okay, let's convet columns to proper data types.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># list of columns with `object` data type</span>
+<span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[&#39;job&#39;,
+ &#39;marital&#39;,
+ &#39;education&#39;,
+ &#39;default&#39;,
+ &#39;housing&#39;,
+ &#39;loan&#39;,
+ &#39;contact&#39;,
+ &#39;month&#39;,
+ &#39;day_of_week&#39;,
+ &#39;poutcome&#39;,
+ &#39;y&#39;,
+ &#39;FS_event_time&#39;]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># covert `object` columns to `string` data type</span>
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="s2">&quot;object&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">():</span>
+    <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;string&quot;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's verify the data types of all columns.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">dtypes</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>age                 int64
+job                string
+marital            string
+education          string
+default            string
+housing            string
+loan               string
+contact            string
+month              string
+day_of_week        string
+duration            int64
+campaign            int64
+pdays               int64
+previous            int64
+poutcome           string
+emp.var.rate      float64
+cons.price.idx    float64
+cons.conf.idx     float64
+euribor3m         float64
+nr.employed       float64
+y                  string
+FS_id               int64
+FS_event_time      string
+dtype: object</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+      <th>job</th>
+      <th>marital</th>
+      <th>education</th>
+      <th>default</th>
+      <th>housing</th>
+      <th>loan</th>
+      <th>contact</th>
+      <th>month</th>
+      <th>day_of_week</th>
+      <th>duration</th>
+      <th>campaign</th>
+      <th>pdays</th>
+      <th>previous</th>
+      <th>poutcome</th>
+      <th>emp.var.rate</th>
+      <th>cons.price.idx</th>
+      <th>cons.conf.idx</th>
+      <th>euribor3m</th>
+      <th>nr.employed</th>
+      <th>y</th>
+      <th>FS_id</th>
+      <th>FS_event_time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>56</td>
+      <td>housemaid</td>
+      <td>married</td>
+      <td>basic.4y</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>261</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>0</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>57</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>unknown</td>
+      <td>no</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>149</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>1</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>37</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>226</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>2</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>40</td>
+      <td>admin.</td>
+      <td>married</td>
+      <td>basic.6y</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>151</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>3</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>56</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>307</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>4</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's load the feature definitions again.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">feature_group</span><span class="o">.</span><span class="n">load_feature_definitions</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[FeatureDefinition(feature_name=&#39;age&#39;, feature_type=&lt;FeatureTypeEnum.INTEGRAL: &#39;Integral&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;job&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;marital&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;education&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;default&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;housing&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;loan&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;contact&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;month&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;day_of_week&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;duration&#39;, feature_type=&lt;FeatureTypeEnum.INTEGRAL: &#39;Integral&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;campaign&#39;, feature_type=&lt;FeatureTypeEnum.INTEGRAL: &#39;Integral&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;pdays&#39;, feature_type=&lt;FeatureTypeEnum.INTEGRAL: &#39;Integral&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;previous&#39;, feature_type=&lt;FeatureTypeEnum.INTEGRAL: &#39;Integral&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;poutcome&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;emp.var.rate&#39;, feature_type=&lt;FeatureTypeEnum.FRACTIONAL: &#39;Fractional&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;cons.price.idx&#39;, feature_type=&lt;FeatureTypeEnum.FRACTIONAL: &#39;Fractional&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;cons.conf.idx&#39;, feature_type=&lt;FeatureTypeEnum.FRACTIONAL: &#39;Fractional&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;euribor3m&#39;, feature_type=&lt;FeatureTypeEnum.FRACTIONAL: &#39;Fractional&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;nr.employed&#39;, feature_type=&lt;FeatureTypeEnum.FRACTIONAL: &#39;Fractional&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;y&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;FS_id&#39;, feature_type=&lt;FeatureTypeEnum.INTEGRAL: &#39;Integral&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;FS_event_time&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We have defined our feature group and its feature definitions, but it has not been created. To create it we need to call <code>create</code> method on the feature group. For this let's define s3 URI for our feature store offline data storage.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">fs_offline_bucket_sdk</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;s3://</span><span class="si">{</span><span class="n">bucket</span><span class="si">}</span><span class="s2">/</span><span class="si">{</span><span class="n">bucket_prefix</span><span class="si">}</span><span class="s2">/fs_offline/sdk&quot;</span>
+<span class="n">fs_offline_bucket_sdk</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;s3://sagemaker-us-east-1-801598032724/2022-08-05-sagemaker-feature-store/fs_offline/sdk&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Now create feature group</span>
+<span class="n">record_identifier_name</span> <span class="o">=</span> <span class="s2">&quot;FS_id&quot;</span>
+<span class="n">event_time_feature_name</span> <span class="o">=</span> <span class="s2">&quot;FS_event_time&quot;</span>
+<span class="n">description</span> <span class="o">=</span> <span class="s2">&quot;The data is related with direct marketing campaigns (phone calls) of a Portuguese banking institution&quot;</span>
+
+<span class="n">feature_group</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">record_identifier_name</span><span class="o">=</span><span class="n">record_identifier_name</span><span class="p">,</span>
+    <span class="n">event_time_feature_name</span><span class="o">=</span><span class="n">event_time_feature_name</span><span class="p">,</span>
+    <span class="n">enable_online_store</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">s3_uri</span><span class="o">=</span><span class="n">fs_offline_bucket_sdk</span><span class="p">,</span>
+    <span class="n">role_arn</span><span class="o">=</span><span class="n">role</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">ClientError</span>                               Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-31-178299eb6ab2&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">     11</span>     s3_uri<span class="ansi-blue-fg">=</span>fs_offline_bucket_sdk<span class="ansi-blue-fg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">     12</span>     role_arn<span class="ansi-blue-fg">=</span>role<span class="ansi-blue-fg">,</span>
+<span class="ansi-green-fg">---&gt; 13</span><span class="ansi-red-fg">     </span>description<span class="ansi-blue-fg">=</span>description<span class="ansi-blue-fg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">     14</span> )
+
+<span class="ansi-green-fg">/opt/conda/lib/python3.7/site-packages/sagemaker/feature_store/feature_group.py</span> in <span class="ansi-cyan-fg">create</span><span class="ansi-blue-fg">(self, s3_uri, record_identifier_name, event_time_feature_name, role_arn, online_store_kms_key_id, enable_online_store, offline_store_kms_key_id, disable_glue_table_creation, data_catalog_config, description, tags)</span>
+<span class="ansi-green-intense-fg ansi-bold">    519</span>             )
+<span class="ansi-green-intense-fg ansi-bold">    520</span> 
+<span class="ansi-green-fg">--&gt; 521</span><span class="ansi-red-fg">         </span><span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>sagemaker_session<span class="ansi-blue-fg">.</span>create_feature_group<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">**</span>create_feature_store_args<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    522</span> 
+<span class="ansi-green-intense-fg ansi-bold">    523</span>     <span class="ansi-green-fg">def</span> delete<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+
+<span class="ansi-green-fg">/opt/conda/lib/python3.7/site-packages/sagemaker/session.py</span> in <span class="ansi-cyan-fg">create_feature_group</span><span class="ansi-blue-fg">(self, feature_group_name, record_identifier_name, event_time_feature_name, feature_definitions, role_arn, online_store_config, offline_store_config, description, tags)</span>
+<span class="ansi-green-intense-fg ansi-bold">   4076</span>             Tags<span class="ansi-blue-fg">=</span>tags<span class="ansi-blue-fg">,</span>
+<span class="ansi-green-intense-fg ansi-bold">   4077</span>         )
+<span class="ansi-green-fg">-&gt; 4078</span><span class="ansi-red-fg">         </span><span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>sagemaker_client<span class="ansi-blue-fg">.</span>create_feature_group<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">**</span>kwargs<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">   4079</span> 
+<span class="ansi-green-intense-fg ansi-bold">   4080</span>     def describe_feature_group(
+
+<span class="ansi-green-fg">/opt/conda/lib/python3.7/site-packages/botocore/client.py</span> in <span class="ansi-cyan-fg">_api_call</span><span class="ansi-blue-fg">(self, *args, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    506</span>                 )
+<span class="ansi-green-intense-fg ansi-bold">    507</span>             <span class="ansi-red-fg"># The &#34;self&#34; in this scope is referring to the BaseClient.</span>
+<span class="ansi-green-fg">--&gt; 508</span><span class="ansi-red-fg">             </span><span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>_make_api_call<span class="ansi-blue-fg">(</span>operation_name<span class="ansi-blue-fg">,</span> kwargs<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    509</span> 
+<span class="ansi-green-intense-fg ansi-bold">    510</span>         _api_call<span class="ansi-blue-fg">.</span>__name__ <span class="ansi-blue-fg">=</span> str<span class="ansi-blue-fg">(</span>py_operation_name<span class="ansi-blue-fg">)</span>
+
+<span class="ansi-green-fg">/opt/conda/lib/python3.7/site-packages/botocore/client.py</span> in <span class="ansi-cyan-fg">_make_api_call</span><span class="ansi-blue-fg">(self, operation_name, api_params)</span>
+<span class="ansi-green-intense-fg ansi-bold">    913</span>             error_code <span class="ansi-blue-fg">=</span> parsed_response<span class="ansi-blue-fg">.</span>get<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;Error&#34;</span><span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">{</span><span class="ansi-blue-fg">}</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>get<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;Code&#34;</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    914</span>             error_class <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>exceptions<span class="ansi-blue-fg">.</span>from_code<span class="ansi-blue-fg">(</span>error_code<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-fg">--&gt; 915</span><span class="ansi-red-fg">             </span><span class="ansi-green-fg">raise</span> error_class<span class="ansi-blue-fg">(</span>parsed_response<span class="ansi-blue-fg">,</span> operation_name<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    916</span>         <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    917</span>             <span class="ansi-green-fg">return</span> parsed_response
+
+<span class="ansi-red-fg">ClientError</span>: An error occurred (ValidationException) when calling the CreateFeatureGroup operation: 4 validation errors detected: Value &#39;emp.var.rate&#39; at &#39;featureDefinitions.16.member.featureName&#39; failed to satisfy constraint: Member must satisfy regular expression pattern: ^[a-zA-Z0-9]([-_]*[a-zA-Z0-9]){0,63}; Value &#39;cons.price.idx&#39; at &#39;featureDefinitions.17.member.featureName&#39; failed to satisfy constraint: Member must satisfy regular expression pattern: ^[a-zA-Z0-9]([-_]*[a-zA-Z0-9]){0,63}; Value &#39;cons.conf.idx&#39; at &#39;featureDefinitions.18.member.featureName&#39; failed to satisfy constraint: Member must satisfy regular expression pattern: ^[a-zA-Z0-9]([-_]*[a-zA-Z0-9]){0,63}; Value &#39;nr.employed&#39; at &#39;featureDefinitions.20.member.featureName&#39; failed to satisfy constraint: Member must satisfy regular expression pattern: ^[a-zA-Z0-9]([-_]*[a-zA-Z0-9]){0,63}</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We got an error as we have not fixed feature names. Error is saying that the feature name should satisfy the regular expression pattern: <code>^[a-zA-Z0-9]([-_]*[a-zA-Z0-9]){0,63}</code>. Let's fix our column names.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">col_names</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="k">for</span> <span class="n">idx</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">col_names</span><span class="p">)):</span>
+    <span class="n">col_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span> <span class="o">=</span> <span class="n">col_names</span><span class="p">[</span><span class="n">idx</span><span class="p">]</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;_&quot;</span><span class="p">)</span>
+
+<span class="n">df</span><span class="o">.</span><span class="n">columns</span> <span class="o">=</span> <span class="n">col_names</span>
+<span class="n">df</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+      <th>job</th>
+      <th>marital</th>
+      <th>education</th>
+      <th>default</th>
+      <th>housing</th>
+      <th>loan</th>
+      <th>contact</th>
+      <th>month</th>
+      <th>day_of_week</th>
+      <th>duration</th>
+      <th>campaign</th>
+      <th>pdays</th>
+      <th>previous</th>
+      <th>poutcome</th>
+      <th>emp_var_rate</th>
+      <th>cons_price_idx</th>
+      <th>cons_conf_idx</th>
+      <th>euribor3m</th>
+      <th>nr_employed</th>
+      <th>y</th>
+      <th>FS_id</th>
+      <th>FS_event_time</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>56</td>
+      <td>housemaid</td>
+      <td>married</td>
+      <td>basic.4y</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>261</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>0</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>57</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>unknown</td>
+      <td>no</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>149</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>1</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>37</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>226</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>2</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>40</td>
+      <td>admin.</td>
+      <td>married</td>
+      <td>basic.6y</td>
+      <td>no</td>
+      <td>no</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>151</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>3</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>56</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>no</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>telephone</td>
+      <td>may</td>
+      <td>mon</td>
+      <td>307</td>
+      <td>1</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.1</td>
+      <td>93.994</td>
+      <td>-36.4</td>
+      <td>4.857</td>
+      <td>5191.0</td>
+      <td>no</td>
+      <td>4</td>
+      <td>2022-08-07T13:01:11.303Z</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>After updating feature names, load the feature group definitions again.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">feature_group</span><span class="o">.</span><span class="n">load_feature_definitions</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">df</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>[FeatureDefinition(feature_name=&#39;age&#39;, feature_type=&lt;FeatureTypeEnum.INTEGRAL: &#39;Integral&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;job&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;marital&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;education&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;default&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;housing&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;loan&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;contact&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;month&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;day_of_week&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;duration&#39;, feature_type=&lt;FeatureTypeEnum.INTEGRAL: &#39;Integral&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;campaign&#39;, feature_type=&lt;FeatureTypeEnum.INTEGRAL: &#39;Integral&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;pdays&#39;, feature_type=&lt;FeatureTypeEnum.INTEGRAL: &#39;Integral&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;previous&#39;, feature_type=&lt;FeatureTypeEnum.INTEGRAL: &#39;Integral&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;poutcome&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;emp_var_rate&#39;, feature_type=&lt;FeatureTypeEnum.FRACTIONAL: &#39;Fractional&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;cons_price_idx&#39;, feature_type=&lt;FeatureTypeEnum.FRACTIONAL: &#39;Fractional&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;cons_conf_idx&#39;, feature_type=&lt;FeatureTypeEnum.FRACTIONAL: &#39;Fractional&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;euribor3m&#39;, feature_type=&lt;FeatureTypeEnum.FRACTIONAL: &#39;Fractional&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;nr_employed&#39;, feature_type=&lt;FeatureTypeEnum.FRACTIONAL: &#39;Fractional&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;y&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;FS_id&#39;, feature_type=&lt;FeatureTypeEnum.INTEGRAL: &#39;Integral&#39;&gt;),
+ FeatureDefinition(feature_name=&#39;FS_event_time&#39;, feature_type=&lt;FeatureTypeEnum.STRING: &#39;String&#39;&gt;)]</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now create the feature group.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># create feature group</span>
+<span class="n">feature_group</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">record_identifier_name</span><span class="o">=</span><span class="n">record_identifier_name</span><span class="p">,</span>
+    <span class="n">event_time_feature_name</span><span class="o">=</span><span class="n">event_time_feature_name</span><span class="p">,</span>
+    <span class="n">enable_online_store</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">s3_uri</span><span class="o">=</span><span class="n">fs_offline_bucket_sdk</span><span class="p">,</span>
+    <span class="n">role_arn</span><span class="o">=</span><span class="n">role</span><span class="p">,</span>
+    <span class="n">description</span><span class="o">=</span><span class="n">description</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{&#39;FeatureGroupArn&#39;: &#39;arn:aws:sagemaker:us-east-1:801598032724:feature-group/bank-marketing-sdk&#39;,
+ &#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;708c6935-7238-44fb-b456-9cc424ebe8af&#39;,
+  &#39;HTTPStatusCode&#39;: 200,
+  &#39;HTTPHeaders&#39;: {&#39;x-amzn-requestid&#39;: &#39;708c6935-7238-44fb-b456-9cc424ebe8af&#39;,
+   &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
+   &#39;content-length&#39;: &#39;95&#39;,
+   &#39;date&#39;: &#39;Sun, 07 Aug 2022 13:04:23 GMT&#39;},
+  &#39;RetryAttempts&#39;: 0}}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Feature group creation is an async method, and you need to wait for its creation before ingesting any data into it. For this you can use <code>feature_group.describe</code> method to get feature store creation status.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">feature_group</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s1">&#39;FeatureGroupStatus&#39;</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;Creating&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can create a wrapper function around this method to wait till the feature group is ready.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
+
+<span class="k">def</span> <span class="nf">wait_for_feature_group_creation_complete</span><span class="p">(</span><span class="n">feature_group</span><span class="p">):</span>
+    <span class="n">status</span> <span class="o">=</span> <span class="n">feature_group</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;FeatureGroupStatus&quot;</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Initial status: </span><span class="si">{</span><span class="n">status</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">while</span> <span class="n">status</span> <span class="o">==</span> <span class="s2">&quot;Creating&quot;</span><span class="p">:</span>
+        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Waiting for feature group: </span><span class="si">{</span><span class="n">feature_group</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> to be created ...&quot;</span><span class="p">)</span>
+        <span class="n">time</span><span class="o">.</span><span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+        <span class="n">status</span> <span class="o">=</span> <span class="n">feature_group</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;FeatureGroupStatus&quot;</span><span class="p">)</span>
+
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;FeatureGroup </span><span class="si">{</span><span class="n">feature_group</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> was successfully created.&quot;</span><span class="p">)</span>
+
+
+<span class="n">wait_for_feature_group_creation_complete</span><span class="p">(</span><span class="n">feature_group</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>Initial status: Created
+FeatureGroup bank-marketing-sdk was successfully created.
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Ingest-data-to-feature-group">Ingest data to feature group<a class="anchor-link" href="#Ingest-data-to-feature-group"> </a></h1><p>Let's ingest our data frame into this feature group.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">feature_group</span><span class="o">.</span><span class="n">ingest</span><span class="p">(</span><span class="n">data_frame</span><span class="o">=</span><span class="n">df</span><span class="p">,</span> <span class="n">max_workers</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_processes</span> <span class="o">=</span> <span class="mi">1</span><span class="p">,</span> <span class="n">wait</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>IngestionManagerPandas(feature_group_name=&#39;bank-marketing-sdk&#39;, sagemaker_fs_runtime_client_config=&lt;botocore.config.Config object at 0x7f2ae3759710&gt;, max_workers=5, max_processes=1, profile_name=None, _async_result=&lt;multiprocess.pool.MapResult object at 0x7f2ae0c90f90&gt;, _processing_pool=&lt;pool ProcessPool(ncpus=1)&gt;, _failed_indices=[])</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>We can control the ingestion run time with <code>max_processes</code> and <code>max_workers</code> arguments.</p>
+<ul>
+<li><code>max_processes</code> defines the number of processes that will be created to ingest different partitions of the DataFrame in parallel</li>
+<li><code>max_workers</code> defines the number threads for each processor</li>
+</ul>
+<p>For large datasets, instead of using ingestion API we can place the data directly on feature group S3 bucket offline storage location. For a detailed discussion on this topic follow the post from <a href="https://www.linkedin.com/in/heikohotz/">Heiko Hotz</a>: <a href="https://towardsdatascience.com/ingesting-historical-feature-data-into-sagemaker-feature-store-5618e41a11e6">ingesting-historical-feature-data-into-sagemaker-feature-store</a></p>
+<h1 id="Accessing-features-from-feature-store">Accessing features from feature store<a class="anchor-link" href="#Accessing-features-from-feature-store"> </a></h1><p>Now that we have our data available in the feature repository, we can access it from online and offline feature stores.</p>
+<h2 id="Accessing-online-feature-store-from-SDK">Accessing online feature store from SDK<a class="anchor-link" href="#Accessing-online-feature-store-from-SDK"> </a></h2><p>Boto3 SDK <code>sagemaker-featurestore-runtime</code> allows us to interact with the online feature store. These are the available methods:</p>
+<ul>
+<li>batch_get_record()</li>
+<li>can_paginate()</li>
+<li>close()</li>
+<li>delete_record()</li>
+<li>get_paginator()</li>
+<li>get_record()</li>
+<li>get_waiter()</li>
+<li>put_record()</li>
+</ul>
+<p>To read more about them use <a href="https://boto3.amazonaws.com/v1/documentation/api/latest/reference/services/sagemaker-featurestore-runtime.html">Boto3 SageMakerFeatureStoreRuntime</a> documentation.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">featurestore_runtime_client</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">boto_session</span><span class="o">.</span><span class="n">client</span><span class="p">(</span>
+    <span class="s2">&quot;sagemaker-featurestore-runtime&quot;</span><span class="p">,</span> <span class="n">region_name</span><span class="o">=</span><span class="n">region</span>
+<span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># select any random id to query online store</span>
+<span class="n">sample_feature_id</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">sample</span><span class="p">()</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">values</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<span class="n">sample_feature_id</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;10030&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Now query the online store.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%time</span>it
+
+<span class="n">featurestore_runtime_client</span><span class="o">.</span><span class="n">get_record</span><span class="p">(</span><span class="n">FeatureGroupName</span><span class="o">=</span><span class="n">feature_group_name</span><span class="p">,</span> 
+                                                        <span class="n">RecordIdentifierValueAsString</span><span class="o">=</span><span class="n">sample_feature_id</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>8.7 ms ± 199 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">feature_record</span> <span class="o">=</span> <span class="n">featurestore_runtime_client</span><span class="o">.</span><span class="n">get_record</span><span class="p">(</span>
+    <span class="n">FeatureGroupName</span><span class="o">=</span><span class="n">feature_group_name</span><span class="p">,</span> <span class="n">RecordIdentifierValueAsString</span><span class="o">=</span><span class="n">sample_feature_id</span>
+<span class="p">)</span>
+
+<span class="n">feature_record</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;347d1e7b-3921-4d5f-86f6-0750dd0c4006&#39;,
+  &#39;HTTPStatusCode&#39;: 200,
+  &#39;HTTPHeaders&#39;: {&#39;x-amzn-requestid&#39;: &#39;347d1e7b-3921-4d5f-86f6-0750dd0c4006&#39;,
+   &#39;content-type&#39;: &#39;application/json&#39;,
+   &#39;content-length&#39;: &#39;1189&#39;,
+   &#39;date&#39;: &#39;Sun, 07 Aug 2022 13:11:10 GMT&#39;},
+  &#39;RetryAttempts&#39;: 0},
+ &#39;Record&#39;: [{&#39;FeatureName&#39;: &#39;age&#39;, &#39;ValueAsString&#39;: &#39;29&#39;},
+  {&#39;FeatureName&#39;: &#39;job&#39;, &#39;ValueAsString&#39;: &#39;services&#39;},
+  {&#39;FeatureName&#39;: &#39;marital&#39;, &#39;ValueAsString&#39;: &#39;married&#39;},
+  {&#39;FeatureName&#39;: &#39;education&#39;, &#39;ValueAsString&#39;: &#39;high.school&#39;},
+  {&#39;FeatureName&#39;: &#39;default&#39;, &#39;ValueAsString&#39;: &#39;no&#39;},
+  {&#39;FeatureName&#39;: &#39;housing&#39;, &#39;ValueAsString&#39;: &#39;yes&#39;},
+  {&#39;FeatureName&#39;: &#39;loan&#39;, &#39;ValueAsString&#39;: &#39;no&#39;},
+  {&#39;FeatureName&#39;: &#39;contact&#39;, &#39;ValueAsString&#39;: &#39;telephone&#39;},
+  {&#39;FeatureName&#39;: &#39;month&#39;, &#39;ValueAsString&#39;: &#39;jun&#39;},
+  {&#39;FeatureName&#39;: &#39;day_of_week&#39;, &#39;ValueAsString&#39;: &#39;thu&#39;},
+  {&#39;FeatureName&#39;: &#39;duration&#39;, &#39;ValueAsString&#39;: &#39;109&#39;},
+  {&#39;FeatureName&#39;: &#39;campaign&#39;, &#39;ValueAsString&#39;: &#39;2&#39;},
+  {&#39;FeatureName&#39;: &#39;pdays&#39;, &#39;ValueAsString&#39;: &#39;999&#39;},
+  {&#39;FeatureName&#39;: &#39;previous&#39;, &#39;ValueAsString&#39;: &#39;0&#39;},
+  {&#39;FeatureName&#39;: &#39;poutcome&#39;, &#39;ValueAsString&#39;: &#39;nonexistent&#39;},
+  {&#39;FeatureName&#39;: &#39;emp_var_rate&#39;, &#39;ValueAsString&#39;: &#39;1.4&#39;},
+  {&#39;FeatureName&#39;: &#39;cons_price_idx&#39;, &#39;ValueAsString&#39;: &#39;94.465&#39;},
+  {&#39;FeatureName&#39;: &#39;cons_conf_idx&#39;, &#39;ValueAsString&#39;: &#39;-41.8&#39;},
+  {&#39;FeatureName&#39;: &#39;euribor3m&#39;, &#39;ValueAsString&#39;: &#39;4.958&#39;},
+  {&#39;FeatureName&#39;: &#39;nr_employed&#39;, &#39;ValueAsString&#39;: &#39;5228.1&#39;},
+  {&#39;FeatureName&#39;: &#39;y&#39;, &#39;ValueAsString&#39;: &#39;no&#39;},
+  {&#39;FeatureName&#39;: &#39;FS_id&#39;, &#39;ValueAsString&#39;: &#39;10030&#39;},
+  {&#39;FeatureName&#39;: &#39;FS_event_time&#39;,
+   &#39;ValueAsString&#39;: &#39;2022-08-07T13:01:11.491Z&#39;}]}</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Accessing-offline-feature-store-from-SDK">Accessing offline feature store from SDK<a class="anchor-link" href="#Accessing-offline-feature-store-from-SDK"> </a></h2><p>Let's query the offline store to get the same data. For offline feature storage, SageMaker stages the data in S3 bucket and creates AWS Data Catalog on it. This catalog is registered in AWS Athena and we can use Athena APIs to query offline store.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query</span> <span class="o">=</span> <span class="n">feature_group</span><span class="o">.</span><span class="n">athena_query</span><span class="p">()</span>
+<span class="n">query</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>AthenaQuery(catalog=&#39;AwsDataCatalog&#39;, database=&#39;sagemaker_featurestore&#39;, table_name=&#39;bank-marketing-sdk-1659877463&#39;, sagemaker_session=&lt;sagemaker.session.Session object at 0x7f2ae69ceb90&gt;, _current_query_execution_id=None, _result_bucket=None, _result_file_prefix=None)</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">table_name</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">table_name</span>
+<span class="n">table_name</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;bank-marketing-sdk-1659877463&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">query_string</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;SELECT * FROM &quot;</span><span class="si">{</span><span class="n">table_name</span><span class="si">}</span><span class="s1">&quot; WHERE FS_id = </span><span class="si">{</span><span class="n">sample_feature_id</span><span class="si">}</span><span class="s1">&#39;</span>
+<span class="n">query_string</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>&#39;SELECT * FROM &#34;bank-marketing-sdk-1659877463&#34; WHERE FS_id = 10030&#39;</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">%%time</span>it
+<span class="n">query</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">query_string</span><span class="o">=</span><span class="n">query_string</span><span class="p">,</span><span class="n">output_location</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;s3://</span><span class="si">{</span><span class="n">bucket</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bucket_prefix</span><span class="si">}</span><span class="s1">/query_results/&#39;</span><span class="p">)</span>
+<span class="n">query</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>5.19 s ± 33.2 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Notice that the offline store has taken a much longer time to return the results compared to the online store.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">as_dataframe</span><span class="p">()</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+      <th>job</th>
+      <th>marital</th>
+      <th>education</th>
+      <th>default</th>
+      <th>housing</th>
+      <th>loan</th>
+      <th>contact</th>
+      <th>month</th>
+      <th>day_of_week</th>
+      <th>duration</th>
+      <th>campaign</th>
+      <th>pdays</th>
+      <th>previous</th>
+      <th>poutcome</th>
+      <th>emp_var_rate</th>
+      <th>cons_price_idx</th>
+      <th>cons_conf_idx</th>
+      <th>euribor3m</th>
+      <th>nr_employed</th>
+      <th>y</th>
+      <th>fs_id</th>
+      <th>fs_event_time</th>
+      <th>write_time</th>
+      <th>api_invocation_time</th>
+      <th>is_deleted</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>29</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>jun</td>
+      <td>thu</td>
+      <td>109</td>
+      <td>2</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.4</td>
+      <td>94.465</td>
+      <td>-41.8</td>
+      <td>4.958</td>
+      <td>5228.1</td>
+      <td>no</td>
+      <td>10030</td>
+      <td>2022-08-07T13:01:11.491Z</td>
+      <td>2022-08-07 13:10:33.295</td>
+      <td>2022-08-07 13:05:46.000</td>
+      <td>False</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>29</td>
+      <td>services</td>
+      <td>married</td>
+      <td>high.school</td>
+      <td>no</td>
+      <td>yes</td>
+      <td>no</td>
+      <td>telephone</td>
+      <td>jun</td>
+      <td>thu</td>
+      <td>109</td>
+      <td>2</td>
+      <td>999</td>
+      <td>0</td>
+      <td>nonexistent</td>
+      <td>1.4</td>
+      <td>94.465</td>
+      <td>-41.8</td>
+      <td>4.958</td>
+      <td>5228.1</td>
+      <td>no</td>
+      <td>10030</td>
+      <td>2022-08-07T13:01:11.491Z</td>
+      <td>2022-08-07 13:10:33.295</td>
+      <td>2022-08-07 13:06:32.000</td>
+      <td>False</td>
+    </tr>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h2 id="Accessing-offline-store-from-Athena">Accessing offline store from Athena<a class="anchor-link" href="#Accessing-offline-store-from-Athena"> </a></h2>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>This time lets query the offline feature store directly from AWS Athena service.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><img src="/myblog/images/copied_from_nb/images/2022-08-05-sagemaker-feature-store/feature_store_athena.PNG" alt="feature_store_athena.PNG"></p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Clean-up">Clean up<a class="anchor-link" href="#Clean-up"> </a></h1><p>Run the last cell to delete the feature store if no longer needed.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">feature_group</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
 </div>
  
 
