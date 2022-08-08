@@ -198,16 +198,16 @@ layout: notebook
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>--2022-08-07 13:00:30--  https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip
+<pre>--2022-08-08 06:05:57--  https://archive.ics.uci.edu/ml/machine-learning-databases/00222/bank-additional.zip
 Resolving archive.ics.uci.edu (archive.ics.uci.edu)... 128.195.10.252
 Connecting to archive.ics.uci.edu (archive.ics.uci.edu)|128.195.10.252|:443... connected.
 HTTP request sent, awaiting response... 200 OK
 Length: 444572 (434K) [application/x-httpd-php]
-Saving to: ‘./datasets/2022-08-05-sagemaker-feature-store/bank-additional.zip.7’
+Saving to: ‘./datasets/2022-08-05-sagemaker-feature-store/bank-additional.zip’
 
-bank-additional.zip 100%[===================&gt;] 434.15K  1.51MB/s    in 0.3s    
+bank-additional.zip 100%[===================&gt;] 434.15K  1.55MB/s    in 0.3s    
 
-2022-08-07 13:00:31 (1.51 MB/s) - ‘./datasets/2022-08-05-sagemaker-feature-store/bank-additional.zip.7’ saved [444572/444572]
+2022-08-08 06:05:58 (1.55 MB/s) - ‘./datasets/2022-08-05-sagemaker-feature-store/bank-additional.zip’ saved [444572/444572]
 
 </pre>
 </div>
@@ -247,7 +247,10 @@ bank-additional.zip 100%[===================&gt;] 434.15K  1.51MB/s    in 0.3s
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>Archive:  ./datasets/2022-08-05-sagemaker-feature-store/bank-additional.zip
+   creating: ./datasets/2022-08-05-sagemaker-feature-store/bank-additional/
   inflating: ./datasets/2022-08-05-sagemaker-feature-store/bank-additional/.DS_Store  
+   creating: ./datasets/2022-08-05-sagemaker-feature-store/__MACOSX/
+   creating: ./datasets/2022-08-05-sagemaker-feature-store/__MACOSX/bank-additional/
   inflating: ./datasets/2022-08-05-sagemaker-feature-store/__MACOSX/bank-additional/._.DS_Store  
   inflating: ./datasets/2022-08-05-sagemaker-feature-store/bank-additional/.Rhistory  
   inflating: ./datasets/2022-08-05-sagemaker-feature-store/bank-additional/bank-additional-full.csv  
@@ -623,7 +626,7 @@ bank-additional.zip 100%[===================&gt;] 434.15K  1.51MB/s    in 0.3s
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&#39;2022-08-07T13:01:10.333Z&#39;</pre>
+<pre>&#39;2022-08-08T06:06:07.059Z&#39;</pre>
 </div>
 
 </div>
@@ -748,7 +751,7 @@ bank-additional.zip 100%[===================&gt;] 434.15K  1.51MB/s    in 0.3s
       <td>5191.0</td>
       <td>no</td>
       <td>0</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
     <tr>
       <th>1</th>
@@ -774,7 +777,7 @@ bank-additional.zip 100%[===================&gt;] 434.15K  1.51MB/s    in 0.3s
       <td>5191.0</td>
       <td>no</td>
       <td>1</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
     <tr>
       <th>2</th>
@@ -800,7 +803,7 @@ bank-additional.zip 100%[===================&gt;] 434.15K  1.51MB/s    in 0.3s
       <td>5191.0</td>
       <td>no</td>
       <td>2</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
     <tr>
       <th>3</th>
@@ -826,7 +829,7 @@ bank-additional.zip 100%[===================&gt;] 434.15K  1.51MB/s    in 0.3s
       <td>5191.0</td>
       <td>no</td>
       <td>3</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
     <tr>
       <th>4</th>
@@ -852,7 +855,7 @@ bank-additional.zip 100%[===================&gt;] 434.15K  1.51MB/s    in 0.3s
       <td>5191.0</td>
       <td>no</td>
       <td>4</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
   </tbody>
 </table>
@@ -906,7 +909,7 @@ bank-additional.zip 100%[===================&gt;] 434.15K  1.51MB/s    in 0.3s
 
 <div class="output_subarea output_stream output_stdout output_text">
 <pre>sagemaker.__version__:  2.99.0
-Session:  &lt;sagemaker.session.Session object at 0x7f2ae69ceb90&gt;
+Session:  &lt;sagemaker.session.Session object at 0x7fb40934c890&gt;
 Role:  arn:aws:iam::801598032724:role/service-role/AmazonSageMaker-ExecutionRole-20220804T174502
 Bucket:  sagemaker-us-east-1-801598032724
 Region:  us-east-1
@@ -1600,7 +1603,7 @@ dtype: object</pre>
       <td>5191.0</td>
       <td>no</td>
       <td>0</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
     <tr>
       <th>1</th>
@@ -1626,7 +1629,7 @@ dtype: object</pre>
       <td>5191.0</td>
       <td>no</td>
       <td>1</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
     <tr>
       <th>2</th>
@@ -1652,7 +1655,7 @@ dtype: object</pre>
       <td>5191.0</td>
       <td>no</td>
       <td>2</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
     <tr>
       <th>3</th>
@@ -1678,7 +1681,7 @@ dtype: object</pre>
       <td>5191.0</td>
       <td>no</td>
       <td>3</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
     <tr>
       <th>4</th>
@@ -1704,7 +1707,7 @@ dtype: object</pre>
       <td>5191.0</td>
       <td>no</td>
       <td>4</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
   </tbody>
 </table>
@@ -1857,7 +1860,7 @@ dtype: object</pre>
 <pre>
 <span class="ansi-red-fg">---------------------------------------------------------------------------</span>
 <span class="ansi-red-fg">ClientError</span>                               Traceback (most recent call last)
-<span class="ansi-green-fg">&lt;ipython-input-31-178299eb6ab2&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-fg">&lt;ipython-input-31-5459ca8fa447&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
 <span class="ansi-green-intense-fg ansi-bold">     11</span>     s3_uri<span class="ansi-blue-fg">=</span>fs_offline_bucket_sdk<span class="ansi-blue-fg">,</span>
 <span class="ansi-green-intense-fg ansi-bold">     12</span>     role_arn<span class="ansi-blue-fg">=</span>role<span class="ansi-blue-fg">,</span>
 <span class="ansi-green-fg">---&gt; 13</span><span class="ansi-red-fg">     </span>description<span class="ansi-blue-fg">=</span>description<span class="ansi-blue-fg">,</span>
@@ -2002,7 +2005,7 @@ dtype: object</pre>
       <td>5191.0</td>
       <td>no</td>
       <td>0</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
     <tr>
       <th>1</th>
@@ -2028,7 +2031,7 @@ dtype: object</pre>
       <td>5191.0</td>
       <td>no</td>
       <td>1</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
     <tr>
       <th>2</th>
@@ -2054,7 +2057,7 @@ dtype: object</pre>
       <td>5191.0</td>
       <td>no</td>
       <td>2</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
     <tr>
       <th>3</th>
@@ -2080,7 +2083,7 @@ dtype: object</pre>
       <td>5191.0</td>
       <td>no</td>
       <td>3</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
     <tr>
       <th>4</th>
@@ -2106,7 +2109,7 @@ dtype: object</pre>
       <td>5191.0</td>
       <td>no</td>
       <td>4</td>
-      <td>2022-08-07T13:01:11.303Z</td>
+      <td>2022-08-08T06:06:07.524Z</td>
     </tr>
   </tbody>
 </table>
@@ -2221,12 +2224,12 @@ dtype: object</pre>
 
 <div class="output_text output_subarea output_execute_result">
 <pre>{&#39;FeatureGroupArn&#39;: &#39;arn:aws:sagemaker:us-east-1:801598032724:feature-group/bank-marketing-sdk&#39;,
- &#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;708c6935-7238-44fb-b456-9cc424ebe8af&#39;,
+ &#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;5c2afeb1-fa03-442b-a3ee-80b1b0ae1069&#39;,
   &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;x-amzn-requestid&#39;: &#39;708c6935-7238-44fb-b456-9cc424ebe8af&#39;,
+  &#39;HTTPHeaders&#39;: {&#39;x-amzn-requestid&#39;: &#39;5c2afeb1-fa03-442b-a3ee-80b1b0ae1069&#39;,
    &#39;content-type&#39;: &#39;application/x-amz-json-1.1&#39;,
    &#39;content-length&#39;: &#39;95&#39;,
-   &#39;date&#39;: &#39;Sun, 07 Aug 2022 13:04:23 GMT&#39;},
+   &#39;date&#39;: &#39;Mon, 08 Aug 2022 06:06:32 GMT&#39;},
   &#39;RetryAttempts&#39;: 0}}</pre>
 </div>
 
@@ -2318,7 +2321,11 @@ dtype: object</pre>
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>Initial status: Created
+<pre>Initial status: Creating
+Waiting for feature group: bank-marketing-sdk to be created ...
+Waiting for feature group: bank-marketing-sdk to be created ...
+Waiting for feature group: bank-marketing-sdk to be created ...
+Waiting for feature group: bank-marketing-sdk to be created ...
 FeatureGroup bank-marketing-sdk was successfully created.
 </pre>
 </div>
@@ -2359,7 +2366,7 @@ FeatureGroup bank-marketing-sdk was successfully created.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>IngestionManagerPandas(feature_group_name=&#39;bank-marketing-sdk&#39;, sagemaker_fs_runtime_client_config=&lt;botocore.config.Config object at 0x7f2ae3759710&gt;, max_workers=5, max_processes=1, profile_name=None, _async_result=&lt;multiprocess.pool.MapResult object at 0x7f2ae0c90f90&gt;, _processing_pool=&lt;pool ProcessPool(ncpus=1)&gt;, _failed_indices=[])</pre>
+<pre>IngestionManagerPandas(feature_group_name=&#39;bank-marketing-sdk&#39;, sagemaker_fs_runtime_client_config=&lt;botocore.config.Config object at 0x7fb406ab9450&gt;, max_workers=5, max_processes=1, profile_name=None, _async_result=&lt;multiprocess.pool.MapResult object at 0x7fb405669810&gt;, _processing_pool=&lt;pool ProcessPool(ncpus=1)&gt;, _failed_indices=[])</pre>
 </div>
 
 </div>
@@ -2438,7 +2445,7 @@ FeatureGroup bank-marketing-sdk was successfully created.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&#39;10030&#39;</pre>
+<pre>&#39;37156&#39;</pre>
 </div>
 
 </div>
@@ -2479,7 +2486,7 @@ FeatureGroup bank-marketing-sdk was successfully created.
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>8.7 ms ± 199 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
+<pre>8.37 ms ± 238 µs per loop (mean ± std. dev. of 7 runs, 100 loops each)
 </pre>
 </div>
 </div>
@@ -2516,37 +2523,37 @@ FeatureGroup bank-marketing-sdk was successfully created.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;347d1e7b-3921-4d5f-86f6-0750dd0c4006&#39;,
+<pre>{&#39;ResponseMetadata&#39;: {&#39;RequestId&#39;: &#39;946376b7-7745-4b25-9885-e93ba7a284a5&#39;,
   &#39;HTTPStatusCode&#39;: 200,
-  &#39;HTTPHeaders&#39;: {&#39;x-amzn-requestid&#39;: &#39;347d1e7b-3921-4d5f-86f6-0750dd0c4006&#39;,
+  &#39;HTTPHeaders&#39;: {&#39;x-amzn-requestid&#39;: &#39;946376b7-7745-4b25-9885-e93ba7a284a5&#39;,
    &#39;content-type&#39;: &#39;application/json&#39;,
    &#39;content-length&#39;: &#39;1189&#39;,
-   &#39;date&#39;: &#39;Sun, 07 Aug 2022 13:11:10 GMT&#39;},
+   &#39;date&#39;: &#39;Mon, 08 Aug 2022 06:08:49 GMT&#39;},
   &#39;RetryAttempts&#39;: 0},
- &#39;Record&#39;: [{&#39;FeatureName&#39;: &#39;age&#39;, &#39;ValueAsString&#39;: &#39;29&#39;},
-  {&#39;FeatureName&#39;: &#39;job&#39;, &#39;ValueAsString&#39;: &#39;services&#39;},
+ &#39;Record&#39;: [{&#39;FeatureName&#39;: &#39;age&#39;, &#39;ValueAsString&#39;: &#39;39&#39;},
+  {&#39;FeatureName&#39;: &#39;job&#39;, &#39;ValueAsString&#39;: &#39;blue-collar&#39;},
   {&#39;FeatureName&#39;: &#39;marital&#39;, &#39;ValueAsString&#39;: &#39;married&#39;},
-  {&#39;FeatureName&#39;: &#39;education&#39;, &#39;ValueAsString&#39;: &#39;high.school&#39;},
+  {&#39;FeatureName&#39;: &#39;education&#39;, &#39;ValueAsString&#39;: &#39;basic.9y&#39;},
   {&#39;FeatureName&#39;: &#39;default&#39;, &#39;ValueAsString&#39;: &#39;no&#39;},
-  {&#39;FeatureName&#39;: &#39;housing&#39;, &#39;ValueAsString&#39;: &#39;yes&#39;},
+  {&#39;FeatureName&#39;: &#39;housing&#39;, &#39;ValueAsString&#39;: &#39;no&#39;},
   {&#39;FeatureName&#39;: &#39;loan&#39;, &#39;ValueAsString&#39;: &#39;no&#39;},
-  {&#39;FeatureName&#39;: &#39;contact&#39;, &#39;ValueAsString&#39;: &#39;telephone&#39;},
-  {&#39;FeatureName&#39;: &#39;month&#39;, &#39;ValueAsString&#39;: &#39;jun&#39;},
-  {&#39;FeatureName&#39;: &#39;day_of_week&#39;, &#39;ValueAsString&#39;: &#39;thu&#39;},
-  {&#39;FeatureName&#39;: &#39;duration&#39;, &#39;ValueAsString&#39;: &#39;109&#39;},
-  {&#39;FeatureName&#39;: &#39;campaign&#39;, &#39;ValueAsString&#39;: &#39;2&#39;},
+  {&#39;FeatureName&#39;: &#39;contact&#39;, &#39;ValueAsString&#39;: &#39;cellular&#39;},
+  {&#39;FeatureName&#39;: &#39;month&#39;, &#39;ValueAsString&#39;: &#39;aug&#39;},
+  {&#39;FeatureName&#39;: &#39;day_of_week&#39;, &#39;ValueAsString&#39;: &#39;wed&#39;},
+  {&#39;FeatureName&#39;: &#39;duration&#39;, &#39;ValueAsString&#39;: &#39;394&#39;},
+  {&#39;FeatureName&#39;: &#39;campaign&#39;, &#39;ValueAsString&#39;: &#39;1&#39;},
   {&#39;FeatureName&#39;: &#39;pdays&#39;, &#39;ValueAsString&#39;: &#39;999&#39;},
   {&#39;FeatureName&#39;: &#39;previous&#39;, &#39;ValueAsString&#39;: &#39;0&#39;},
   {&#39;FeatureName&#39;: &#39;poutcome&#39;, &#39;ValueAsString&#39;: &#39;nonexistent&#39;},
-  {&#39;FeatureName&#39;: &#39;emp_var_rate&#39;, &#39;ValueAsString&#39;: &#39;1.4&#39;},
-  {&#39;FeatureName&#39;: &#39;cons_price_idx&#39;, &#39;ValueAsString&#39;: &#39;94.465&#39;},
-  {&#39;FeatureName&#39;: &#39;cons_conf_idx&#39;, &#39;ValueAsString&#39;: &#39;-41.8&#39;},
-  {&#39;FeatureName&#39;: &#39;euribor3m&#39;, &#39;ValueAsString&#39;: &#39;4.958&#39;},
-  {&#39;FeatureName&#39;: &#39;nr_employed&#39;, &#39;ValueAsString&#39;: &#39;5228.1&#39;},
-  {&#39;FeatureName&#39;: &#39;y&#39;, &#39;ValueAsString&#39;: &#39;no&#39;},
-  {&#39;FeatureName&#39;: &#39;FS_id&#39;, &#39;ValueAsString&#39;: &#39;10030&#39;},
+  {&#39;FeatureName&#39;: &#39;emp_var_rate&#39;, &#39;ValueAsString&#39;: &#39;-2.9&#39;},
+  {&#39;FeatureName&#39;: &#39;cons_price_idx&#39;, &#39;ValueAsString&#39;: &#39;92.201&#39;},
+  {&#39;FeatureName&#39;: &#39;cons_conf_idx&#39;, &#39;ValueAsString&#39;: &#39;-31.4&#39;},
+  {&#39;FeatureName&#39;: &#39;euribor3m&#39;, &#39;ValueAsString&#39;: &#39;0.884&#39;},
+  {&#39;FeatureName&#39;: &#39;nr_employed&#39;, &#39;ValueAsString&#39;: &#39;5076.2&#39;},
+  {&#39;FeatureName&#39;: &#39;y&#39;, &#39;ValueAsString&#39;: &#39;yes&#39;},
+  {&#39;FeatureName&#39;: &#39;FS_id&#39;, &#39;ValueAsString&#39;: &#39;37156&#39;},
   {&#39;FeatureName&#39;: &#39;FS_event_time&#39;,
-   &#39;ValueAsString&#39;: &#39;2022-08-07T13:01:11.491Z&#39;}]}</pre>
+   &#39;ValueAsString&#39;: &#39;2022-08-08T06:06:07.834Z&#39;}]}</pre>
 </div>
 
 </div>
@@ -2587,7 +2594,7 @@ FeatureGroup bank-marketing-sdk was successfully created.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>AthenaQuery(catalog=&#39;AwsDataCatalog&#39;, database=&#39;sagemaker_featurestore&#39;, table_name=&#39;bank-marketing-sdk-1659877463&#39;, sagemaker_session=&lt;sagemaker.session.Session object at 0x7f2ae69ceb90&gt;, _current_query_execution_id=None, _result_bucket=None, _result_file_prefix=None)</pre>
+<pre>AthenaQuery(catalog=&#39;AwsDataCatalog&#39;, database=&#39;sagemaker_featurestore&#39;, table_name=&#39;bank-marketing-sdk-1659938792&#39;, sagemaker_session=&lt;sagemaker.session.Session object at 0x7fb40934c890&gt;, _current_query_execution_id=None, _result_bucket=None, _result_file_prefix=None)</pre>
 </div>
 
 </div>
@@ -2621,7 +2628,7 @@ FeatureGroup bank-marketing-sdk was successfully created.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&#39;bank-marketing-sdk-1659877463&#39;</pre>
+<pre>&#39;bank-marketing-sdk-1659938792&#39;</pre>
 </div>
 
 </div>
@@ -2655,7 +2662,7 @@ FeatureGroup bank-marketing-sdk was successfully created.
 
 
 <div class="output_text output_subarea output_execute_result">
-<pre>&#39;SELECT * FROM &#34;bank-marketing-sdk-1659877463&#34; WHERE FS_id = 10030&#39;</pre>
+<pre>&#39;SELECT * FROM &#34;bank-marketing-sdk-1659938792&#34; WHERE FS_id = 37156&#39;</pre>
 </div>
 
 </div>
@@ -2688,7 +2695,7 @@ FeatureGroup bank-marketing-sdk was successfully created.
 <div class="output_area">
 
 <div class="output_subarea output_stream output_stdout output_text">
-<pre>5.19 s ± 33.2 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
+<pre>5.21 s ± 29.4 ms per loop (mean ± std. dev. of 7 runs, 1 loop each)
 </pre>
 </div>
 </div>
@@ -2775,62 +2782,127 @@ FeatureGroup bank-marketing-sdk was successfully created.
     </tr>
   </thead>
   <tbody>
+  </tbody>
+</table>
+</div>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Data in an online store becomes available immediately but it can take a few minutes to become available in an offline store. That is why we have not received any data in the last cell. Let's run the same query again after a few minutes.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># run query again</span>
+<span class="n">query</span><span class="o">.</span><span class="n">run</span><span class="p">(</span><span class="n">query_string</span><span class="o">=</span><span class="n">query_string</span><span class="p">,</span><span class="n">output_location</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;s3://</span><span class="si">{</span><span class="n">bucket</span><span class="si">}</span><span class="s1">/</span><span class="si">{</span><span class="n">bucket_prefix</span><span class="si">}</span><span class="s1">/query_results/&#39;</span><span class="p">)</span>
+<span class="n">query</span><span class="o">.</span><span class="n">wait</span><span class="p">()</span>
+
+<span class="c1"># get query response</span>
+<span class="n">dataset</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">as_dataframe</span><span class="p">()</span>
+<span class="n">dataset</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+<div class="output_html rendered_html output_subarea output_execute_result">
+<div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>age</th>
+      <th>job</th>
+      <th>marital</th>
+      <th>education</th>
+      <th>default</th>
+      <th>housing</th>
+      <th>loan</th>
+      <th>contact</th>
+      <th>month</th>
+      <th>day_of_week</th>
+      <th>duration</th>
+      <th>campaign</th>
+      <th>pdays</th>
+      <th>previous</th>
+      <th>poutcome</th>
+      <th>emp_var_rate</th>
+      <th>cons_price_idx</th>
+      <th>cons_conf_idx</th>
+      <th>euribor3m</th>
+      <th>nr_employed</th>
+      <th>y</th>
+      <th>fs_id</th>
+      <th>fs_event_time</th>
+      <th>write_time</th>
+      <th>api_invocation_time</th>
+      <th>is_deleted</th>
+    </tr>
+  </thead>
+  <tbody>
     <tr>
       <th>0</th>
-      <td>29</td>
-      <td>services</td>
+      <td>39</td>
+      <td>blue-collar</td>
       <td>married</td>
-      <td>high.school</td>
+      <td>basic.9y</td>
       <td>no</td>
-      <td>yes</td>
       <td>no</td>
-      <td>telephone</td>
-      <td>jun</td>
-      <td>thu</td>
-      <td>109</td>
-      <td>2</td>
+      <td>no</td>
+      <td>cellular</td>
+      <td>aug</td>
+      <td>wed</td>
+      <td>394</td>
+      <td>1</td>
       <td>999</td>
       <td>0</td>
       <td>nonexistent</td>
-      <td>1.4</td>
-      <td>94.465</td>
-      <td>-41.8</td>
-      <td>4.958</td>
-      <td>5228.1</td>
-      <td>no</td>
-      <td>10030</td>
-      <td>2022-08-07T13:01:11.491Z</td>
-      <td>2022-08-07 13:10:33.295</td>
-      <td>2022-08-07 13:05:46.000</td>
-      <td>False</td>
-    </tr>
-    <tr>
-      <th>1</th>
-      <td>29</td>
-      <td>services</td>
-      <td>married</td>
-      <td>high.school</td>
-      <td>no</td>
+      <td>-2.9</td>
+      <td>92.201</td>
+      <td>-31.4</td>
+      <td>0.884</td>
+      <td>5076.2</td>
       <td>yes</td>
-      <td>no</td>
-      <td>telephone</td>
-      <td>jun</td>
-      <td>thu</td>
-      <td>109</td>
-      <td>2</td>
-      <td>999</td>
-      <td>0</td>
-      <td>nonexistent</td>
-      <td>1.4</td>
-      <td>94.465</td>
-      <td>-41.8</td>
-      <td>4.958</td>
-      <td>5228.1</td>
-      <td>no</td>
-      <td>10030</td>
-      <td>2022-08-07T13:01:11.491Z</td>
-      <td>2022-08-07 13:10:33.295</td>
-      <td>2022-08-07 13:06:32.000</td>
+      <td>37156</td>
+      <td>2022-08-08T06:06:07.834Z</td>
+      <td>2022-08-08 06:13:03.665</td>
+      <td>2022-08-08 06:07:43.000</td>
       <td>False</td>
     </tr>
   </tbody>
