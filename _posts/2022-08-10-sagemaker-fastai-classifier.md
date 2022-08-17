@@ -325,12 +325,39 @@ layout: notebook
 
 <div class="output_area">
 
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansi-red-fg">---------------------------------------------------------------------------</span>
+<span class="ansi-red-fg">HTTP403ForbiddenError</span>                     Traceback (most recent call last)
+<span class="ansi-green-fg">&lt;ipython-input-11-b6ad68204f7a&gt;</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">      2</span> <span class="ansi-red-fg"># Step: Search an image URL for tennis balls</span>
+<span class="ansi-green-intense-fg ansi-bold">      3</span> 
+<span class="ansi-green-fg">----&gt; 4</span><span class="ansi-red-fg"> </span>urls <span class="ansi-blue-fg">=</span> search_images<span class="ansi-blue-fg">(</span>searches<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">&#39;tennis&#39;</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">,</span> max_images<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">1</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">      5</span> urls<span class="ansi-blue-fg">[</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">]</span>
 
+<span class="ansi-green-fg">&lt;ipython-input-6-fe2794013645&gt;</span> in <span class="ansi-cyan-fg">search_images</span><span class="ansi-blue-fg">(term, max_images)</span>
+<span class="ansi-green-intense-fg ansi-bold">     14</span>     urls<span class="ansi-blue-fg">,</span>data <span class="ansi-blue-fg">=</span> set<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span><span class="ansi-blue-fg">{</span><span class="ansi-blue-fg">&#39;next&#39;</span><span class="ansi-blue-fg">:</span><span class="ansi-cyan-fg">1</span><span class="ansi-blue-fg">}</span>
+<span class="ansi-green-intense-fg ansi-bold">     15</span>     <span class="ansi-green-fg">while</span> len<span class="ansi-blue-fg">(</span>urls<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">&lt;</span>max_images <span class="ansi-green-fg">and</span> <span class="ansi-blue-fg">&#39;next&#39;</span> <span class="ansi-green-fg">in</span> data<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">---&gt; 16</span><span class="ansi-red-fg">         </span>data <span class="ansi-blue-fg">=</span> urljson<span class="ansi-blue-fg">(</span>requestUrl<span class="ansi-blue-fg">,</span>data<span class="ansi-blue-fg">=</span>params<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     17</span>         urls<span class="ansi-blue-fg">.</span>update<span class="ansi-blue-fg">(</span>L<span class="ansi-blue-fg">(</span>data<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">&#39;results&#39;</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>itemgot<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#39;image&#39;</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">     18</span>         requestUrl <span class="ansi-blue-fg">=</span> url <span class="ansi-blue-fg">+</span> data<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">&#39;next&#39;</span><span class="ansi-blue-fg">]</span>
 
-<div class="output_text output_subarea output_execute_result">
-<pre>&#39;https://i5.walmartimages.com/asr/1f544b81-eb08-4e46-b577-d50feeaa624a.aa750ba4b04df4d9ded1d9cc454d84b3.png&#39;</pre>
+<span class="ansi-green-fg">/opt/conda/lib/python3.8/site-packages/fastcore/net.py</span> in <span class="ansi-cyan-fg">urljson</span><span class="ansi-blue-fg">(url, data, timeout)</span>
+<span class="ansi-green-intense-fg ansi-bold">    123</span> <span class="ansi-green-fg">def</span> urljson<span class="ansi-blue-fg">(</span>url<span class="ansi-blue-fg">,</span> data<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span> timeout<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+<span class="ansi-green-intense-fg ansi-bold">    124</span>     <span class="ansi-blue-fg">&#34;Retrieve `url` and decode json&#34;</span>
+<span class="ansi-green-fg">--&gt; 125</span><span class="ansi-red-fg">     </span>res <span class="ansi-blue-fg">=</span> urlread<span class="ansi-blue-fg">(</span>url<span class="ansi-blue-fg">,</span> data<span class="ansi-blue-fg">=</span>data<span class="ansi-blue-fg">,</span> timeout<span class="ansi-blue-fg">=</span>timeout<span class="ansi-blue-fg">)</span>
+<span class="ansi-green-intense-fg ansi-bold">    126</span>     <span class="ansi-green-fg">return</span> json<span class="ansi-blue-fg">.</span>loads<span class="ansi-blue-fg">(</span>res<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">if</span> res <span class="ansi-green-fg">else</span> <span class="ansi-blue-fg">{</span><span class="ansi-blue-fg">}</span>
+<span class="ansi-green-intense-fg ansi-bold">    127</span> 
+
+<span class="ansi-green-fg">/opt/conda/lib/python3.8/site-packages/fastcore/net.py</span> in <span class="ansi-cyan-fg">urlread</span><span class="ansi-blue-fg">(url, data, headers, decode, return_json, return_headers, timeout, **kwargs)</span>
+<span class="ansi-green-intense-fg ansi-bold">    113</span>         <span class="ansi-green-fg">with</span> urlopen<span class="ansi-blue-fg">(</span>url<span class="ansi-blue-fg">,</span> data<span class="ansi-blue-fg">=</span>data<span class="ansi-blue-fg">,</span> headers<span class="ansi-blue-fg">=</span>headers<span class="ansi-blue-fg">,</span> timeout<span class="ansi-blue-fg">=</span>timeout<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>kwargs<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">as</span> u<span class="ansi-blue-fg">:</span> res<span class="ansi-blue-fg">,</span>hdrs <span class="ansi-blue-fg">=</span> u<span class="ansi-blue-fg">.</span>read<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span>u<span class="ansi-blue-fg">.</span>headers
+<span class="ansi-green-intense-fg ansi-bold">    114</span>     <span class="ansi-green-fg">except</span> HTTPError <span class="ansi-green-fg">as</span> e<span class="ansi-blue-fg">:</span>
+<span class="ansi-green-fg">--&gt; 115</span><span class="ansi-red-fg">         </span><span class="ansi-green-fg">if</span> <span class="ansi-cyan-fg">400</span> <span class="ansi-blue-fg">&lt;=</span> e<span class="ansi-blue-fg">.</span>code <span class="ansi-blue-fg">&lt;</span> <span class="ansi-cyan-fg">500</span><span class="ansi-blue-fg">:</span> <span class="ansi-green-fg">raise</span> ExceptionsHTTP<span class="ansi-blue-fg">[</span>e<span class="ansi-blue-fg">.</span>code<span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">(</span>e<span class="ansi-blue-fg">.</span>url<span class="ansi-blue-fg">,</span> e<span class="ansi-blue-fg">.</span>hdrs<span class="ansi-blue-fg">,</span> e<span class="ansi-blue-fg">.</span>fp<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">from</span> <span class="ansi-green-fg">None</span>
+<span class="ansi-green-intense-fg ansi-bold">    116</span>         <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span> <span class="ansi-green-fg">raise</span>
+<span class="ansi-green-intense-fg ansi-bold">    117</span> 
+
+<span class="ansi-red-fg">HTTP403ForbiddenError</span>: HTTP Error 403: Forbidden</pre>
 </div>
-
 </div>
 
 </div>
@@ -385,11 +412,11 @@ layout: notebook
 <span class="kn">from</span> <span class="nn">fastai.vision.all</span> <span class="kn">import</span> <span class="o">*</span>
 <span class="kn">from</span> <span class="nn">fastdownload</span> <span class="kn">import</span> <span class="n">download_url</span>
 
-<span class="n">dest</span> <span class="o">=</span> <span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">local_path</span><span class="si">}</span><span class="s1">/sample/tennis_ball.jpg&#39;</span>
-<span class="n">download_url</span><span class="p">(</span><span class="n">urls</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">dest</span><span class="p">,</span> <span class="n">show_progress</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># dest = f&#39;{local_path}/sample/tennis_ball.jpg&#39;</span>
+<span class="c1"># download_url(urls[0], dest, show_progress=True)</span>
 
-<span class="n">im</span> <span class="o">=</span> <span class="n">Image</span><span class="o">.</span><span class="n">open</span><span class="p">(</span><span class="n">dest</span><span class="p">)</span>
-<span class="n">im</span><span class="o">.</span><span class="n">to_thumb</span><span class="p">(</span><span class="mi">256</span><span class="p">,</span><span class="mi">256</span><span class="p">)</span>
+<span class="c1"># im = Image.open(dest)</span>
+<span class="c1"># im.to_thumb(256,256)</span>
 </pre></div>
 
     </div>
@@ -1641,81 +1668,6 @@ Resize<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-y
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-<div class="output_subarea output_text output_error">
-<pre>
-<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
-<span class="ansi-red-intense-fg ansi-bold">TypeError</span>                                 Traceback (most recent call last)
-<span class="ansi-green-intense-fg ansi-bold">c:\MyWorkspace\gitrepos\myblog\myblog\_notebooks\2022-08-10-sagemaker-fastai-classifier.ipynb Cell 73</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
-<span class="ansi-green-fg">      &lt;a href=&#39;vscode-notebook-cell:/c%3A/MyWorkspace/gitrepos/myblog/myblog/_notebooks/2022-08-10-sagemaker-fastai-classifier.ipynb#X32sZmlsZQ%3D%3D?line=0&#39;&gt;1&lt;/a&gt;</span> ##
-<span class="ansi-green-fg">      &lt;a href=&#39;vscode-notebook-cell:/c%3A/MyWorkspace/gitrepos/myblog/myblog/_notebooks/2022-08-10-sagemaker-fastai-classifier.ipynb#X32sZmlsZQ%3D%3D?line=1&#39;&gt;2&lt;/a&gt;</span> # Step: Create a DataLoader
-<span class="ansi-green-intense-fg ansi-bold">----&gt; &lt;a href=&#39;vscode-notebook-cell:/c%3A/MyWorkspace/gitrepos/myblog/myblog/_notebooks/2022-08-10-sagemaker-fastai-classifier.ipynb#X32sZmlsZQ%3D%3D?line=3&#39;&gt;4&lt;/a&gt;</span> dls = balls.dataloaders(path)
-
-File <span class="ansi-green-intense-fg ansi-bold">c:\Users\HP\anaconda3\envs\myblog\lib\site-packages\fastai\data\block.py:155</span>, in <span class="ansi-cyan-fg">DataBlock.dataloaders</span><span class="ansi-blue-intense-fg ansi-bold">(self, source, path, verbose, **kwargs)</span>
-<span class="ansi-green-fg">    149</span> def dataloaders(self, 
-<span class="ansi-green-fg">    150</span>     source, # The data source
-<span class="ansi-green-fg">    151</span>     path:str=&#39;.&#39;, # Data source and default `Learner` path 
-<span class="ansi-green-fg">    152</span>     verbose:bool=False, # Show verbose messages
-<span class="ansi-green-fg">    153</span>     **kwargs
-<span class="ansi-green-fg">    154</span> ) -&gt; DataLoaders:
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 155</span>     dsets = self.datasets(source, verbose=verbose)
-<span class="ansi-green-fg">    156</span>     kwargs = {**self.dls_kwargs, **kwargs, &#39;verbose&#39;: verbose}
-<span class="ansi-green-fg">    157</span>     return dsets.dataloaders(path=path, after_item=self.item_tfms, after_batch=self.batch_tfms, **kwargs)
-
-File <span class="ansi-green-intense-fg ansi-bold">c:\Users\HP\anaconda3\envs\myblog\lib\site-packages\fastai\data\block.py:147</span>, in <span class="ansi-cyan-fg">DataBlock.datasets</span><span class="ansi-blue-intense-fg ansi-bold">(self, source, verbose)</span>
-<span class="ansi-green-fg">    145</span> splits = (self.splitter or RandomSplitter())(items)
-<span class="ansi-green-fg">    146</span> pv(f&#34;{len(splits)} datasets of sizes {&#39;,&#39;.join([str(len(s)) for s in splits])}&#34;, verbose)
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 147</span> return Datasets(items, tfms=self._combine_type_tfms(), splits=splits, dl_type=self.dl_type, n_inp=self.n_inp, verbose=verbose)
-
-File <span class="ansi-green-intense-fg ansi-bold">c:\Users\HP\anaconda3\envs\myblog\lib\site-packages\fastai\data\core.py:451</span>, in <span class="ansi-cyan-fg">Datasets.__init__</span><span class="ansi-blue-intense-fg ansi-bold">(self, items, tfms, tls, n_inp, dl_type, **kwargs)</span>
-<span class="ansi-green-fg">    442</span> def __init__(self, 
-<span class="ansi-green-fg">    443</span>     items:list=None, # List of items to create `Datasets`
-<span class="ansi-green-fg">    444</span>     tfms:list|Pipeline=None, # List of `Transform`(s) or `Pipeline` to apply
-<span class="ansi-green-intense-fg ansi-bold">   (...)</span>
-<span class="ansi-green-fg">    448</span>     **kwargs
-<span class="ansi-green-fg">    449</span> ):
-<span class="ansi-green-fg">    450</span>     super().__init__(dl_type=dl_type)
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 451</span>     self.tls = L(tls if tls else [TfmdLists(items, t, **kwargs) for t in L(ifnone(tfms,[None]))])
-<span class="ansi-green-fg">    452</span>     self.n_inp = ifnone(n_inp, max(1, len(self.tls)-1))
-
-File <span class="ansi-green-intense-fg ansi-bold">c:\Users\HP\anaconda3\envs\myblog\lib\site-packages\fastai\data\core.py:451</span>, in <span class="ansi-cyan-fg">&lt;listcomp&gt;</span><span class="ansi-blue-intense-fg ansi-bold">(.0)</span>
-<span class="ansi-green-fg">    442</span> def __init__(self, 
-<span class="ansi-green-fg">    443</span>     items:list=None, # List of items to create `Datasets`
-<span class="ansi-green-fg">    444</span>     tfms:list|Pipeline=None, # List of `Transform`(s) or `Pipeline` to apply
-<span class="ansi-green-intense-fg ansi-bold">   (...)</span>
-<span class="ansi-green-fg">    448</span>     **kwargs
-<span class="ansi-green-fg">    449</span> ):
-<span class="ansi-green-fg">    450</span>     super().__init__(dl_type=dl_type)
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 451</span>     self.tls = L(tls if tls else [TfmdLists(items, t, **kwargs) for t in L(ifnone(tfms,[None]))])
-<span class="ansi-green-fg">    452</span>     self.n_inp = ifnone(n_inp, max(1, len(self.tls)-1))
-
-File <span class="ansi-green-intense-fg ansi-bold">c:\Users\HP\anaconda3\envs\myblog\lib\site-packages\fastcore\foundation.py:98</span>, in <span class="ansi-cyan-fg">_L_Meta.__call__</span><span class="ansi-blue-intense-fg ansi-bold">(cls, x, *args, **kwargs)</span>
-<span class="ansi-green-fg">     96</span> def __call__(cls, x=None, *args, **kwargs):
-<span class="ansi-green-fg">     97</span>     if not args and not kwargs and x is not None and isinstance(x,cls): return x
-<span class="ansi-green-intense-fg ansi-bold">---&gt; 98</span>     return super().__call__(x, *args, **kwargs)
-
-File <span class="ansi-green-intense-fg ansi-bold">c:\Users\HP\anaconda3\envs\myblog\lib\site-packages\fastai\data\core.py:365</span>, in <span class="ansi-cyan-fg">TfmdLists.__init__</span><span class="ansi-blue-intense-fg ansi-bold">(self, items, tfms, use_list, do_setup, split_idx, train_setup, splits, types, verbose, dl_type)</span>
-<span class="ansi-green-fg">    363</span> if do_setup:
-<span class="ansi-green-fg">    364</span>     pv(f&#34;Setting up {self.tfms}&#34;, verbose)
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 365</span>     self.setup(train_setup=train_setup)
-
-File <span class="ansi-green-intense-fg ansi-bold">c:\Users\HP\anaconda3\envs\myblog\lib\site-packages\fastai\data\core.py:394</span>, in <span class="ansi-cyan-fg">TfmdLists.setup</span><span class="ansi-blue-intense-fg ansi-bold">(self, train_setup)</span>
-<span class="ansi-green-fg">    392</span>         x = f(x)
-<span class="ansi-green-fg">    393</span>     self.types.append(type(x))
-<span class="ansi-green-intense-fg ansi-bold">--&gt; 394</span> types = L(t if is_listy(t) else [t] for t in self.types).concat().unique()
-<span class="ansi-green-fg">    395</span> self.pretty_types = &#39;\n&#39;.join([f&#39;  - {t}&#39; for t in types])
-
-<span class="ansi-red-intense-fg ansi-bold">TypeError</span>: &#39;NoneType&#39; object is not iterable</pre>
-</div>
-</div>
-
-</div>
-</div>
-
 </div>
     {% endraw %}
 
@@ -1843,6 +1795,381 @@ Datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi
 <li><code>DataLoaders.train_ds</code>: Training Dataset</li>
 <li><code>DataLoaders.valid_ds</code>: Validation Dataset</li>
 </ul>
+<p>We can also check the data loader object's data type to confirm its class name and origin.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># dataloader object type</span>
+<span class="nb">type</span><span class="p">(</span><span class="n">dls</span><span class="p">)</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea output_execute_result">
+<pre>fastai.data.core.DataLoaders</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># check types for dataloaders.train and dataloaders.valid</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">dls</span><span class="o">.</span><span class="n">train</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">dls</span><span class="o">.</span><span class="n">valid</span><span class="p">))</span>
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre>&lt;class &#39;fastai.data.core.TfmdDL&#39;&gt;
+&lt;class &#39;fastai.data.core.TfmdDL&#39;&gt;
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Data type for <code>dls.train</code> and <code>dls.valid</code> are of a different class. Let's check the documentation for <code>TfmdDL</code> to get more clarity.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">??</span>TfmdDL
+</pre></div>
+
+    </div>
+</div>
+</div>
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea ">
+<pre><span class="ansi-red-fg">Init signature:</span>
+TfmdDL<span class="ansi-blue-fg">(</span>
+    dataset<span class="ansi-blue-fg">,</span>
+    bs<span class="ansi-blue-fg">:</span> <span class="ansi-blue-fg">&#39;int&#39;</span> <span class="ansi-blue-fg">=</span> <span class="ansi-cyan-fg">64</span><span class="ansi-blue-fg">,</span>
+    shuffle<span class="ansi-blue-fg">:</span> <span class="ansi-blue-fg">&#39;bool&#39;</span> <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span>
+    num_workers<span class="ansi-blue-fg">:</span> <span class="ansi-blue-fg">&#39;int&#39;</span> <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    verbose<span class="ansi-blue-fg">:</span> <span class="ansi-blue-fg">&#39;bool&#39;</span> <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span>
+    do_setup<span class="ansi-blue-fg">:</span> <span class="ansi-blue-fg">&#39;bool&#39;</span> <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">True</span><span class="ansi-blue-fg">,</span>
+    <span class="ansi-blue-fg">*</span><span class="ansi-blue-fg">,</span>
+    pin_memory<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span>
+    timeout<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">,</span>
+    batch_size<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    drop_last<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span>
+    indexed<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    n<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    device<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    persistent_workers<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span>
+    pin_memory_device<span class="ansi-blue-fg">=</span><span class="ansi-blue-fg">&#39;&#39;</span><span class="ansi-blue-fg">,</span>
+    wif<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    before_iter<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    after_item<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    before_batch<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    after_batch<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    after_iter<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    create_batches<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    create_item<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    create_batch<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    retain<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    get_idxs<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    sample<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    shuffle_fn<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    do_batch<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+<span class="ansi-blue-fg">)</span>
+<span class="ansi-red-fg">Source:</span>        
+<span class="ansi-green-fg">class</span> TfmdDL<span class="ansi-blue-fg">(</span>DataLoader<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+    <span class="ansi-blue-fg">&#34;Transformed `DataLoader`&#34;</span>
+    <span class="ansi-green-fg">def</span> __init__<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> 
+        dataset<span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Map- or iterable-style dataset from which to load the data</span>
+        bs<span class="ansi-blue-fg">:</span>int<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">64</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Size of batch</span>
+        shuffle<span class="ansi-blue-fg">:</span>bool<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Whether to shuffle data</span>
+        num_workers<span class="ansi-blue-fg">:</span>int<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Number of CPU cores to use in parallel (default: All available up to 16)</span>
+        verbose<span class="ansi-blue-fg">:</span>bool<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Whether to print verbose logs</span>
+        do_setup<span class="ansi-blue-fg">:</span>bool<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">True</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Whether to run `setup()` for batch transform(s)</span>
+        <span class="ansi-blue-fg">**</span>kwargs
+    <span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+        <span class="ansi-green-fg">if</span> num_workers <span class="ansi-green-fg">is</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">:</span> num_workers <span class="ansi-blue-fg">=</span> min<span class="ansi-blue-fg">(</span><span class="ansi-cyan-fg">16</span><span class="ansi-blue-fg">,</span> defaults<span class="ansi-blue-fg">.</span>cpus<span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">for</span> nm <span class="ansi-green-fg">in</span> _batch_tfms<span class="ansi-blue-fg">:</span> kwargs<span class="ansi-blue-fg">[</span>nm<span class="ansi-blue-fg">]</span> <span class="ansi-blue-fg">=</span> Pipeline<span class="ansi-blue-fg">(</span>kwargs<span class="ansi-blue-fg">.</span>get<span class="ansi-blue-fg">(</span>nm<span class="ansi-blue-fg">,</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
+        super<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>__init__<span class="ansi-blue-fg">(</span>dataset<span class="ansi-blue-fg">,</span> bs<span class="ansi-blue-fg">=</span>bs<span class="ansi-blue-fg">,</span> shuffle<span class="ansi-blue-fg">=</span>shuffle<span class="ansi-blue-fg">,</span> num_workers<span class="ansi-blue-fg">=</span>num_workers<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>kwargs<span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">if</span> do_setup<span class="ansi-blue-fg">:</span>
+            <span class="ansi-green-fg">for</span> nm <span class="ansi-green-fg">in</span> _batch_tfms<span class="ansi-blue-fg">:</span>
+                pv<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">f&#34;Setting up {nm}: {kwargs[nm]}&#34;</span><span class="ansi-blue-fg">,</span> verbose<span class="ansi-blue-fg">)</span>
+                kwargs<span class="ansi-blue-fg">[</span>nm<span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">.</span>setup<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">)</span>
+
+    <span class="ansi-green-fg">def</span> _one_pass<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+        b <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>do_batch<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">[</span>self<span class="ansi-blue-fg">.</span>do_item<span class="ansi-blue-fg">(</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">if</span> self<span class="ansi-blue-fg">.</span>device <span class="ansi-green-fg">is</span> <span class="ansi-green-fg">not</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">:</span> b <span class="ansi-blue-fg">=</span> to_device<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">,</span> self<span class="ansi-blue-fg">.</span>device<span class="ansi-blue-fg">)</span>
+        its <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>after_batch<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">)</span>
+        self<span class="ansi-blue-fg">.</span>_n_inp <span class="ansi-blue-fg">=</span> <span class="ansi-cyan-fg">1</span> <span class="ansi-green-fg">if</span> <span class="ansi-green-fg">not</span> isinstance<span class="ansi-blue-fg">(</span>its<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">(</span>list<span class="ansi-blue-fg">,</span>tuple<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">or</span> len<span class="ansi-blue-fg">(</span>its<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">==</span><span class="ansi-cyan-fg">1</span> <span class="ansi-green-fg">else</span> len<span class="ansi-blue-fg">(</span>its<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">-</span><span class="ansi-cyan-fg">1</span>
+        self<span class="ansi-blue-fg">.</span>_types <span class="ansi-blue-fg">=</span> explode_types<span class="ansi-blue-fg">(</span>its<span class="ansi-blue-fg">)</span>
+
+    <span class="ansi-green-fg">def</span> _retain_dl<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span>b<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+        <span class="ansi-green-fg">if</span> <span class="ansi-green-fg">not</span> getattr<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;_types&#39;</span><span class="ansi-blue-fg">,</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span> self<span class="ansi-blue-fg">.</span>_one_pass<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">return</span> retain_types<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">,</span> typs<span class="ansi-blue-fg">=</span>self<span class="ansi-blue-fg">.</span>_types<span class="ansi-blue-fg">)</span>
+
+    <span class="ansi-blue-fg">@</span>delegates<span class="ansi-blue-fg">(</span>DataLoader<span class="ansi-blue-fg">.</span>new<span class="ansi-blue-fg">)</span>
+    <span class="ansi-green-fg">def</span> new<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> 
+        dataset<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Map- or iterable-style dataset from which to load the data</span>
+        cls<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Class of the newly created `DataLoader` object</span>
+        <span class="ansi-blue-fg">**</span>kwargs
+    <span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+        res <span class="ansi-blue-fg">=</span> super<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>new<span class="ansi-blue-fg">(</span>dataset<span class="ansi-blue-fg">,</span> cls<span class="ansi-blue-fg">,</span> do_setup<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>kwargs<span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">if</span> <span class="ansi-green-fg">not</span> hasattr<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;_n_inp&#39;</span><span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">or</span> <span class="ansi-green-fg">not</span> hasattr<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;_types&#39;</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+            <span class="ansi-green-fg">try</span><span class="ansi-blue-fg">:</span>
+                self<span class="ansi-blue-fg">.</span>_one_pass<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
+                res<span class="ansi-blue-fg">.</span>_n_inp<span class="ansi-blue-fg">,</span>res<span class="ansi-blue-fg">.</span>_types <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>_n_inp<span class="ansi-blue-fg">,</span>self<span class="ansi-blue-fg">.</span>_types
+            <span class="ansi-green-fg">except</span> Exception <span class="ansi-green-fg">as</span> e<span class="ansi-blue-fg">:</span> 
+                print<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">&#34;Could not do one pass in your dataloader, there is something wrong in it. Please see the stack trace below:&#34;</span><span class="ansi-blue-fg">)</span>
+                <span class="ansi-green-fg">raise</span>
+        <span class="ansi-green-fg">else</span><span class="ansi-blue-fg">:</span> res<span class="ansi-blue-fg">.</span>_n_inp<span class="ansi-blue-fg">,</span>res<span class="ansi-blue-fg">.</span>_types <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>_n_inp<span class="ansi-blue-fg">,</span>self<span class="ansi-blue-fg">.</span>_types
+        <span class="ansi-green-fg">return</span> res
+
+    <span class="ansi-green-fg">def</span> before_iter<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+        super<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>before_iter<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
+        split_idx <span class="ansi-blue-fg">=</span> getattr<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>dataset<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;split_idx&#39;</span><span class="ansi-blue-fg">,</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">for</span> nm <span class="ansi-green-fg">in</span> _batch_tfms<span class="ansi-blue-fg">:</span>
+            f <span class="ansi-blue-fg">=</span> getattr<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span>nm<span class="ansi-blue-fg">)</span>
+            <span class="ansi-green-fg">if</span> isinstance<span class="ansi-blue-fg">(</span>f<span class="ansi-blue-fg">,</span>Pipeline<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span> f<span class="ansi-blue-fg">.</span>split_idx<span class="ansi-blue-fg">=</span>split_idx
+
+    <span class="ansi-green-fg">def</span> decode<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> 
+        b <span class="ansi-red-fg"># Batch to decode</span>
+    <span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+        <span class="ansi-green-fg">return</span> to_cpu<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>after_batch<span class="ansi-blue-fg">.</span>decode<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>_retain_dl<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
+    <span class="ansi-green-fg">def</span> decode_batch<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> 
+        b<span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Batch to decode</span>
+        max_n<span class="ansi-blue-fg">:</span>int<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">9</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Maximum number of items to decode</span>
+        full<span class="ansi-blue-fg">:</span>bool<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">True</span> <span class="ansi-red-fg"># Whether to decode all transforms. If `False`, decode up to the point the item knows how to show itself</span>
+    <span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span> 
+        <span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>_decode_batch<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>decode<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span> max_n<span class="ansi-blue-fg">,</span> full<span class="ansi-blue-fg">)</span>
+
+    <span class="ansi-green-fg">def</span> _decode_batch<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> b<span class="ansi-blue-fg">,</span> max_n<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">9</span><span class="ansi-blue-fg">,</span> full<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">True</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+        f <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>after_item<span class="ansi-blue-fg">.</span>decode
+        f1 <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>before_batch<span class="ansi-blue-fg">.</span>decode
+        f <span class="ansi-blue-fg">=</span> compose<span class="ansi-blue-fg">(</span>f1<span class="ansi-blue-fg">,</span> f<span class="ansi-blue-fg">,</span> partial<span class="ansi-blue-fg">(</span>getcallable<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>dataset<span class="ansi-blue-fg">,</span><span class="ansi-blue-fg">&#39;decode&#39;</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span> full <span class="ansi-blue-fg">=</span> full<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">return</span> L<span class="ansi-blue-fg">(</span>batch_to_samples<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">,</span> max_n<span class="ansi-blue-fg">=</span>max_n<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>map<span class="ansi-blue-fg">(</span>f<span class="ansi-blue-fg">)</span>
+
+    <span class="ansi-green-fg">def</span> _pre_show_batch<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> b<span class="ansi-blue-fg">,</span> max_n<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">9</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+        <span class="ansi-blue-fg">&#34;Decode `b` to be ready for `show_batch`&#34;</span>
+        b <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>decode<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">if</span> hasattr<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;show&#39;</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span> <span class="ansi-green-fg">return</span> b<span class="ansi-blue-fg">,</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span><span class="ansi-green-fg">None</span>
+        its <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>_decode_batch<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">,</span> max_n<span class="ansi-blue-fg">,</span> full<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">if</span> <span class="ansi-green-fg">not</span> is_listy<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span> b<span class="ansi-blue-fg">,</span>its <span class="ansi-blue-fg">=</span> <span class="ansi-blue-fg">[</span>b<span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">,</span>L<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">(</span>o<span class="ansi-blue-fg">,</span><span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">for</span> o <span class="ansi-green-fg">in</span> its<span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">return</span> detuplify<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span>self<span class="ansi-blue-fg">.</span>n_inp<span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span>detuplify<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">[</span>self<span class="ansi-blue-fg">.</span>n_inp<span class="ansi-blue-fg">:</span><span class="ansi-blue-fg">]</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span>its
+
+    <span class="ansi-green-fg">def</span> show_batch<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span>
+        b<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Batch to show</span>
+        max_n<span class="ansi-blue-fg">:</span>int<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">9</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Maximum number of items to show</span>
+        ctxs<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># List of `ctx` objects to show data. Could be matplotlib axis, DataFrame etc</span>
+        show<span class="ansi-blue-fg">:</span>bool<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">True</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Whether to display data</span>
+        unique<span class="ansi-blue-fg">:</span>bool<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Whether to show only one </span>
+        <span class="ansi-blue-fg">**</span>kwargs
+    <span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+        <span class="ansi-blue-fg">&#34;Show `max_n` input(s) and target(s) from the batch.&#34;</span>
+        <span class="ansi-green-fg">if</span> unique<span class="ansi-blue-fg">:</span>
+            old_get_idxs <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>get_idxs
+            self<span class="ansi-blue-fg">.</span>get_idxs <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">lambda</span><span class="ansi-blue-fg">:</span> Inf<span class="ansi-blue-fg">.</span>zeros
+        <span class="ansi-green-fg">if</span> b <span class="ansi-green-fg">is</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">:</span> b <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>one_batch<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">if</span> <span class="ansi-green-fg">not</span> show<span class="ansi-blue-fg">:</span> <span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>_pre_show_batch<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">,</span> max_n<span class="ansi-blue-fg">=</span>max_n<span class="ansi-blue-fg">)</span>
+        show_batch<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">*</span>self<span class="ansi-blue-fg">.</span>_pre_show_batch<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">,</span> max_n<span class="ansi-blue-fg">=</span>max_n<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">,</span> ctxs<span class="ansi-blue-fg">=</span>ctxs<span class="ansi-blue-fg">,</span> max_n<span class="ansi-blue-fg">=</span>max_n<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>kwargs<span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">if</span> unique<span class="ansi-blue-fg">:</span> self<span class="ansi-blue-fg">.</span>get_idxs <span class="ansi-blue-fg">=</span> old_get_idxs
+
+    <span class="ansi-green-fg">def</span> show_results<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> 
+        b<span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Batch to show results for</span>
+        out<span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Predicted output from model for the batch</span>
+        max_n<span class="ansi-blue-fg">:</span>int<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">9</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Maximum number of items to show</span>
+        ctxs<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># List of `ctx` objects to show data. Could be matplotlib axis, DataFrame etc</span>
+        show<span class="ansi-blue-fg">:</span>bool<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">True</span><span class="ansi-blue-fg">,</span> <span class="ansi-red-fg"># Whether to display data</span>
+        <span class="ansi-blue-fg">**</span>kwargs
+    <span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+        <span class="ansi-blue-fg">&#34;Show `max_n` results with input(s), target(s) and prediction(s).&#34;</span>
+        x<span class="ansi-blue-fg">,</span>y<span class="ansi-blue-fg">,</span>its <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>show_batch<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">,</span> max_n<span class="ansi-blue-fg">=</span>max_n<span class="ansi-blue-fg">,</span> show<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">)</span>
+        b_out <span class="ansi-blue-fg">=</span> type<span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">(</span>b<span class="ansi-blue-fg">[</span><span class="ansi-blue-fg">:</span>self<span class="ansi-blue-fg">.</span>n_inp<span class="ansi-blue-fg">]</span> <span class="ansi-blue-fg">+</span> <span class="ansi-blue-fg">(</span>tuple<span class="ansi-blue-fg">(</span>out<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">if</span> is_listy<span class="ansi-blue-fg">(</span>out<span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">else</span> <span class="ansi-blue-fg">(</span>out<span class="ansi-blue-fg">,</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
+        x1<span class="ansi-blue-fg">,</span>y1<span class="ansi-blue-fg">,</span>outs <span class="ansi-blue-fg">=</span> self<span class="ansi-blue-fg">.</span>show_batch<span class="ansi-blue-fg">(</span>b_out<span class="ansi-blue-fg">,</span> max_n<span class="ansi-blue-fg">=</span>max_n<span class="ansi-blue-fg">,</span> show<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">)</span>
+        res <span class="ansi-blue-fg">=</span> <span class="ansi-blue-fg">(</span>x<span class="ansi-blue-fg">,</span>x1<span class="ansi-blue-fg">,</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">)</span> <span class="ansi-green-fg">if</span> its <span class="ansi-green-fg">is</span> <span class="ansi-green-fg">None</span> <span class="ansi-green-fg">else</span> <span class="ansi-blue-fg">(</span>x<span class="ansi-blue-fg">,</span> y<span class="ansi-blue-fg">,</span> its<span class="ansi-blue-fg">,</span> outs<span class="ansi-blue-fg">.</span>itemgot<span class="ansi-blue-fg">(</span>slice<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>n_inp<span class="ansi-blue-fg">,</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">if</span> <span class="ansi-green-fg">not</span> show<span class="ansi-blue-fg">:</span> <span class="ansi-green-fg">return</span> res
+        show_results<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">*</span>res<span class="ansi-blue-fg">,</span> ctxs<span class="ansi-blue-fg">=</span>ctxs<span class="ansi-blue-fg">,</span> max_n<span class="ansi-blue-fg">=</span>max_n<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">**</span>kwargs<span class="ansi-blue-fg">)</span>
+
+    <span class="ansi-blue-fg">@</span>property
+    <span class="ansi-green-fg">def</span> n_inp<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">)</span> <span class="ansi-blue-fg">-&gt;</span> int<span class="ansi-blue-fg">:</span>
+        <span class="ansi-blue-fg">&#34;Number of elements in `Datasets` or `TfmdDL` tuple to be considered part of input.&#34;</span>
+        <span class="ansi-green-fg">if</span> hasattr<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">.</span>dataset<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;n_inp&#39;</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span> <span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>dataset<span class="ansi-blue-fg">.</span>n_inp
+        <span class="ansi-green-fg">if</span> <span class="ansi-green-fg">not</span> hasattr<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;_n_inp&#39;</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span> self<span class="ansi-blue-fg">.</span>_one_pass<span class="ansi-blue-fg">(</span><span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">return</span> self<span class="ansi-blue-fg">.</span>_n_inp
+
+    <span class="ansi-green-fg">def</span> to<span class="ansi-blue-fg">(</span>self<span class="ansi-blue-fg">,</span> 
+        device <span class="ansi-red-fg"># Device to put `DataLoader` and transforms</span>
+    <span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span>
+        self<span class="ansi-blue-fg">.</span>device <span class="ansi-blue-fg">=</span> device
+        <span class="ansi-green-fg">for</span> tfm <span class="ansi-green-fg">in</span> self<span class="ansi-blue-fg">.</span>after_batch<span class="ansi-blue-fg">.</span>fs<span class="ansi-blue-fg">:</span>
+            <span class="ansi-green-fg">for</span> a <span class="ansi-green-fg">in</span> L<span class="ansi-blue-fg">(</span>getattr<span class="ansi-blue-fg">(</span>tfm<span class="ansi-blue-fg">,</span> <span class="ansi-blue-fg">&#39;parameters&#39;</span><span class="ansi-blue-fg">,</span> <span class="ansi-green-fg">None</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">:</span> setattr<span class="ansi-blue-fg">(</span>tfm<span class="ansi-blue-fg">,</span> a<span class="ansi-blue-fg">,</span> getattr<span class="ansi-blue-fg">(</span>tfm<span class="ansi-blue-fg">,</span> a<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">.</span>to<span class="ansi-blue-fg">(</span>device<span class="ansi-blue-fg">)</span><span class="ansi-blue-fg">)</span>
+        <span class="ansi-green-fg">return</span> self
+<span class="ansi-red-fg">File:</span>           /opt/conda/lib/python3.8/site-packages/fastai/data/core.py
+<span class="ansi-red-fg">Type:</span>           type
+<span class="ansi-red-fg">Subclasses:</span>     TabDataLoader, WeightedDL, PartialDL
+</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+</p>
+    </details>
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It tells us that it is a class derived from <code>Dataloader</code> and calls it <strong>Transformed DataLoader</strong>. It is defined in fastai data module. Its purpose is defined as</p>
+<blockquote><p>A TfmdDL is a DataLoader that creates Pipeline from a list of Transforms for the callbacks after_item, before_batch and after_batch. As a result, it can decode or show a processed batch</p>
+</blockquote>
+<ul>
+<li>Documentation:<a href="https://docs.fast.ai/data.core.html#tfmddl">data.core.html#tfmddl</a>* Source code: <a href="https://github.com/fastai/fastai/blob/master/nbs/03_data.core.ipynb">03_data.core.ipynb</a></li>
+</ul>
+<p>To clarify, <code>DataLoaders</code> and <code>DataLoader</code> are two separate classes.</p>
+<ul>
+<li>our object "dls" is of <strong>DataLoaders</strong> origin. This class is a wrapper around several <code>DataLoader</code>s. We have checked this class doc before</li>
+<li>dls attributes "dls.train" and "dls.valid" are of <strong>DataLoader</strong> origin. <code>TfmdDL</code> (transformed data loader) is one of its kind, and we have seen its docs in the last cell.</li>
+</ul>
+<p>Let's also visit the documentation for the <code>DataLoader</code> class from which <code>TfmdDL</code> is derived.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">?</span>DataLoader
+</pre></div>
+
+    </div>
+</div>
+</div>
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+
+
+<div class="output_text output_subarea ">
+<pre><span class="ansi-red-fg">Init signature:</span>
+DataLoader<span class="ansi-blue-fg">(</span>
+    dataset<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    bs<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    num_workers<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">,</span>
+    pin_memory<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span>
+    timeout<span class="ansi-blue-fg">=</span><span class="ansi-cyan-fg">0</span><span class="ansi-blue-fg">,</span>
+    batch_size<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    shuffle<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span>
+    drop_last<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span>
+    indexed<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    n<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    device<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    persistent_workers<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span>
+    pin_memory_device<span class="ansi-blue-fg">=</span><span class="ansi-blue-fg">&#39;&#39;</span><span class="ansi-blue-fg">,</span>
+    <span class="ansi-blue-fg">*</span><span class="ansi-blue-fg">,</span>
+    wif<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    before_iter<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    after_item<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    before_batch<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    after_batch<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    after_iter<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    create_batches<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    create_item<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    create_batch<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    retain<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    get_idxs<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    sample<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    shuffle_fn<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    do_batch<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+<span class="ansi-blue-fg">)</span>
+<span class="ansi-red-fg">Docstring:</span>      API compatible with PyTorch DataLoader, with a lot more callbacks and flexibility
+<span class="ansi-red-fg">File:</span>           /opt/conda/lib/python3.8/site-packages/fastai/data/load.py
+<span class="ansi-red-fg">Type:</span>           type
+<span class="ansi-red-fg">Subclasses:</span>     TfmdDL
+</pre>
+</div>
+
+</div>
+
+</div>
+</div>
+</p>
+    </details>
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It tells us that it is an extension to PyTorch DataLoader with more flexibility (or functionality). This class is defined in fastai data module.</p>
+<ul>
+<li>Documentation: <a href="https://docs.fast.ai/data.load.html#dataloader">data.load.html#dataloader</a></li>
+<li>Source code: <a href="https://github.com/fastai/fastai/blob/master/nbs/02_data.load.ipynb">02_data.load.ipynb</a></li>
+</ul>
 <p>Let us continue with our work and visualize a small batch from our validation set.</p>
 
 </div>
@@ -1855,7 +2182,7 @@ Datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Step: Show a small batch</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Step: Show a small batch from validation set</span>
 <span class="n">dls</span><span class="o">.</span><span class="n">valid</span><span class="o">.</span><span class="n">show_batch</span><span class="p">(</span><span class="n">max_n</span><span class="o">=</span><span class="mi">9</span><span class="p">,</span> <span class="n">nrows</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
@@ -1901,6 +2228,13 @@ Datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><code>show_batch</code> is a very convenient function from fastai with which you can quickly verify a sample from the training dataset. You can also check that all the images are of the same size and have been appropriately labeled. Let's quickly review the docs for this function.</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -1908,30 +2242,97 @@ Datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="o">?</span>dls.valid.show_batch
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">?</span>TfmdDL.show_batch
 </pre></div>
 
     </div>
 </div>
 </div>
-
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
 <div class="output_wrapper">
 <div class="output">
 
 <div class="output_area">
 
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>Object `dls.valid.show_batch` not found.
+
+
+<div class="output_text output_subarea ">
+<pre><span class="ansi-red-fg">Signature:</span>
+TfmdDL<span class="ansi-blue-fg">.</span>show_batch<span class="ansi-blue-fg">(</span>
+    self<span class="ansi-blue-fg">,</span>
+    b<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    max_n<span class="ansi-blue-fg">:</span> <span class="ansi-blue-fg">&#39;int&#39;</span> <span class="ansi-blue-fg">=</span> <span class="ansi-cyan-fg">9</span><span class="ansi-blue-fg">,</span>
+    ctxs<span class="ansi-blue-fg">=</span><span class="ansi-green-fg">None</span><span class="ansi-blue-fg">,</span>
+    show<span class="ansi-blue-fg">:</span> <span class="ansi-blue-fg">&#39;bool&#39;</span> <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">True</span><span class="ansi-blue-fg">,</span>
+    unique<span class="ansi-blue-fg">:</span> <span class="ansi-blue-fg">&#39;bool&#39;</span> <span class="ansi-blue-fg">=</span> <span class="ansi-green-fg">False</span><span class="ansi-blue-fg">,</span>
+    <span class="ansi-blue-fg">**</span>kwargs<span class="ansi-blue-fg">,</span>
+<span class="ansi-blue-fg">)</span>
+<span class="ansi-red-fg">Docstring:</span> Show `b` (defaults to `one_batch`), a list of lists of pipeline outputs (i.e. output of a `DataLoader`)
+<span class="ansi-red-fg">File:</span>      /opt/conda/lib/python3.8/site-packages/fastai/data/core.py
+<span class="ansi-red-fg">Type:</span>      function
 </pre>
 </div>
+
 </div>
 
 </div>
 </div>
-
+</p>
+    </details>
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Summary of the functions used till now</strong></p>
+<ul>
+<li><code>DataBlock</code>: Is from fastai data module. It is a generic container to build <code>DataLoaders</code><ul>
+<li>Documentation: <a href="https://docs.fast.ai/data.block.html#datablock">data.block.html#datablock</a></li>
+<li>Source code: <a href="https://github.com/fastai/fastai/blob/master/nbs/06_data.block.ipynb">06_data.block.ipynb</a></li>
+</ul>
+</li>
+<li><code>DataBlock.dataloaders(Path)</code>: to create a <code>DataLoaders</code> object from <code>DataBlock</code></li>
+<li><code>DataLoaders</code>: Is from fastai library data module. It is a basic wrapper around several <code>DataLoader</code>s<ul>
+<li>Documentation: <a href="https://docs.fast.ai/data.core.html#dataloaders">data.core.html#dataloaders</a></li>
+<li>Source code: <a href="https://github.com/fastai/fastai/blob/master/nbs/03_data.core.ipynb">03_data.core.ipynb</a></li>
+</ul>
+</li>
+<li><code>DataLoader</code>: Is an extension to PyTorch DataLoader with more flexibility (or functionality). This class is defined in fastai data module.<ul>
+<li>Documentation: <a href="https://docs.fast.ai/data.load.html#dataloader">data.load.html#dataloader</a></li>
+<li>Source code: <a href="https://github.com/fastai/fastai/blob/master/nbs/02_data.load.ipynb">02_data.load.ipynb</a></li>
+</ul>
+</li>
+<li><code>TfmdDL</code>: A transformed DataLoader<ul>
+<li>Documentation: <a href="https://docs.fast.ai/data.core.html#tfmddl">data.core.html#tfmddl</a></li>
+<li>Source code: <a href="https://github.com/fastai/fastai/blob/master/nbs/03_data.core.ipynb">03_data.core.ipynb</a></li>
+</ul>
+</li>
+</ul>
+<p><strong>Summary of the steps till now</strong></p>
+<ul>
+<li>Created a DataBlock object</li>
+<li>Created a DataLoaders object</li>
+<li>Viewed a small batch using <code>show_batch</code> function</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Train-an-image-classifier">Train an image classifier<a class="anchor-link" href="#Train-an-image-classifier"> </a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>At this point, our data is ready for training. Let's train an image classifier on this data.</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -1939,42 +2340,8 @@ Datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span> 
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">import</span> <span class="nn">time</span>
-<span class="n">start_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
-</pre></div>
-
-    </div>
-</div>
-</div>
-
-</div>
-    {% endraw %}
-
-    {% raw %}
-    
-<div class="cell border-box-sizing code_cell rendered">
-<div class="input">
-
-<div class="inner_cell">
-    <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="n">learn</span> <span class="o">=</span> <span class="n">vision_learner</span><span class="p">(</span><span class="n">dls</span><span class="p">,</span> <span class="n">resnet18</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">error_rate</span><span class="p">)</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="c1"># Step: Train an image classifier</span>
+<span class="n">learn</span> <span class="o">=</span> <span class="n">vision_learner</span><span class="p">(</span><span class="n">dls</span><span class="p">,</span> <span class="n">resnet18</span><span class="p">,</span> <span class="n">metrics</span><span class="o">=</span><span class="n">error_rate</span><span class="p">)</span>
 <span class="n">learn</span><span class="o">.</span><span class="n">fine_tune</span><span class="p">(</span><span class="mi">3</span><span class="p">)</span>
 </pre></div>
 
@@ -2111,6 +2478,18 @@ Datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the last step, we have performed two steps:</p>
+<ol>
+<li>Created a vision learner using a <code>vision_learner()</code> method</li>
+<li>Then used the learner object <code>fine_tune()</code> method to train a model </li>
+</ol>
+<p>Let's deconstruct these two steps. First, check the documentation on the <code>vision_learner</code> function.</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -2118,7 +2497,166 @@ Datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;--- </span><span class="si">%s</span><span class="s2"> seconds ---&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="n">start_time</span><span class="p">))</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">?</span>vision_learner
+</pre></div>
+
+    </div>
+</div>
+</div>
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre><span class="ansi-red-intense-fg ansi-bold">Signature:</span>
+vision_learner<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    dls<span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    arch<span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    normalize<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">True</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    n_out<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    pretrained<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">True</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    loss_func<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    opt_func<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-yellow-intense-fg ansi-bold">&lt;</span>function Adam at <span class="ansi-cyan-intense-fg ansi-bold">0x00000249FAD14700</span><span class="ansi-yellow-intense-fg ansi-bold">&gt;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    lr<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">0.001</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    splitter<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    cbs<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    metrics<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    path<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    model_dir<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-blue-intense-fg ansi-bold">&#39;models&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    wd<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    wd_bn_bias<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">False</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    train_bn<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">True</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    moms<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-cyan-intense-fg ansi-bold">0.95</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-cyan-intense-fg ansi-bold">0.85</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-cyan-intense-fg ansi-bold">0.95</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    cut<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    init<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-yellow-intense-fg ansi-bold">&lt;</span>function kaiming_normal_ at <span class="ansi-cyan-intense-fg ansi-bold">0x00000249EEFCE430</span><span class="ansi-yellow-intense-fg ansi-bold">&gt;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    custom_head<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    concat_pool<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">True</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    pool<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">True</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    lin_ftrs<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    ps<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">0.5</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    first_bn<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">True</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    bn_final<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">False</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    lin_first<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">False</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    y_range<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    <span class="ansi-yellow-intense-fg ansi-bold">*</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    n_in<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">3</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-red-intense-fg ansi-bold">Docstring:</span> Build a vision learner from `dls` and `arch`
+<span class="ansi-red-intense-fg ansi-bold">File:</span>      c:\users\hp\anaconda3\envs\myblog\lib\site-packages\fastai\vision\learner.py
+<span class="ansi-red-intense-fg ansi-bold">Type:</span>      function
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+</p>
+    </details>
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>type</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It tells us that this method is from the fastai vision module, and the docstring says that its purpose is to "Build a vision learner from <code>dls</code> and <code>arch</code>". We are getting limited information here. So let's check the documentation pages <a href="https://docs.fast.ai/vision.learner.html#learner-convenience-functions">vision.learner.html#learner-convenience-functions</a>. From the documentation page, we get the following information</p>
+<ul>
+<li>It is a "convenience function" for <code>Learner</code> class objects</li>
+<li>fastai "vision learner" module purpose is defined as "All the functions necessary to build Learner suitable for transfer learning in computer vision"<ul>
+<li>The most essential functions of this module are <em>vision_learner</em> and <em>unet_learner</em>. </li>
+<li>They will help you define a <em>Learner</em> using a pre-trained model.</li>
+</ul>
+</li>
+<li>Arguments passed to this function<ul>
+<li><code>dls</code> refers to DataLoaders object</li>
+<li><code>arch</code> refers to model architecture to use</li>
+</ul>
+</li>
+</ul>
+<p>So basically, <code>vision_learner</code> is a helper function for <code>Learner</code> class to create its object. This means we need to understand the <code>Learner</code> concept to complete the picture.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">?</span>Learner
+</pre></div>
+
+    </div>
+</div>
+</div>
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre><span class="ansi-red-intense-fg ansi-bold">Init signature:</span>
+Learner<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    dls<span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    model<span class="ansi-yellow-intense-fg ansi-bold">:</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;callable&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    loss_func<span class="ansi-yellow-intense-fg ansi-bold">:</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;callable | None&#39;</span> <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    opt_func<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-yellow-intense-fg ansi-bold">&lt;</span>function Adam at <span class="ansi-cyan-intense-fg ansi-bold">0x00000249FAD14700</span><span class="ansi-yellow-intense-fg ansi-bold">&gt;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    lr<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">0.001</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    splitter<span class="ansi-yellow-intense-fg ansi-bold">:</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;callable&#39;</span> <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-yellow-intense-fg ansi-bold">&lt;</span>function trainable_params at <span class="ansi-cyan-intense-fg ansi-bold">0x00000249F8878040</span><span class="ansi-yellow-intense-fg ansi-bold">&gt;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    cbs<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    metrics<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    path<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    model_dir<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-blue-intense-fg ansi-bold">&#39;models&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    wd<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    wd_bn_bias<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">False</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    train_bn<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">True</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    moms<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-cyan-intense-fg ansi-bold">0.95</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-cyan-intense-fg ansi-bold">0.85</span><span class="ansi-yellow-intense-fg ansi-bold">,</span> <span class="ansi-cyan-intense-fg ansi-bold">0.95</span><span class="ansi-yellow-intense-fg ansi-bold">)</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    default_cbs<span class="ansi-yellow-intense-fg ansi-bold">:</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;bool&#39;</span> <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-green-intense-fg ansi-bold">True</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-red-intense-fg ansi-bold">Docstring:</span>      Group together a `model`, some `dls` and a `loss_func` to handle training
+<span class="ansi-red-intense-fg ansi-bold">File:</span>           c:\users\hp\anaconda3\envs\myblog\lib\site-packages\fastai\learner.py
+<span class="ansi-red-intense-fg ansi-bold">Type:</span>           type
+<span class="ansi-red-intense-fg ansi-bold">Subclasses:</span>     
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+</p>
+    </details>
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It tells us that a <strong>Learner</strong> "Group together a <code>model</code>, some <code>dls</code> and a <code>loss_func</code> to handle training". It is also a container that combines data, model, and a loss function into a single pipeline; we get this pipeline using a helper function <code>vision_learner</code>. Let's also check the type of our "learn" object.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="nb">type</span><span class="p">(</span><span class="n">learn</span><span class="p">)</span>
 </pre></div>
 
     </div>
@@ -2130,9 +2668,14 @@ Datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi
 
 <div class="output_area">
 
-<div class="output_subarea output_stream output_stdout output_text">
-<pre>--- 135.6511733531952 seconds ---
-</pre>
+<div class="output_subarea output_text output_error">
+<pre>
+<span class="ansi-red-intense-fg ansi-bold">---------------------------------------------------------------------------</span>
+<span class="ansi-red-intense-fg ansi-bold">NameError</span>                                 Traceback (most recent call last)
+<span class="ansi-green-intense-fg ansi-bold">c:\MyWorkspace\gitrepos\myblog\myblog\_notebooks\2022-08-10-sagemaker-fastai-classifier.ipynb Cell 96</span> in <span class="ansi-cyan-fg">&lt;module&gt;</span>
+<span class="ansi-green-intense-fg ansi-bold">----&gt; &lt;a href=&#39;vscode-notebook-cell:/c%3A/MyWorkspace/gitrepos/myblog/myblog/_notebooks/2022-08-10-sagemaker-fastai-classifier.ipynb#Y206sZmlsZQ%3D%3D?line=0&#39;&gt;1&lt;/a&gt;</span> type(learn)
+
+<span class="ansi-red-intense-fg ansi-bold">NameError</span>: name &#39;learn&#39; is not defined</pre>
 </div>
 </div>
 
@@ -2142,6 +2685,244 @@ Datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Okay, the concept of <code>vision_learner</code> is clear. Let's also discuss the arguments we have passed to it</p>
+
+<pre><code>learn = vision_learner(dls, resnet18, metrics=error_rate)</code></pre>
+<ul>
+<li><code>dls</code> we already know that is refers to DataLoaders object</li>
+<li><code>resnet18</code> we know that it is the <code>arch</code> or model architecture we want to use. But from which library/class we are using this object?</li>
+<li><code>error_rate</code> we know that it refers to the error metric we want to use for training. But again from which library/class we are using this object?</li>
+</ul>
+<p>Let's check <code>resnet18</code> first.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">?</span>resnet18
+</pre></div>
+
+    </div>
+</div>
+</div>
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre><span class="ansi-red-intense-fg ansi-bold">Signature:</span>
+resnet18<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    <span class="ansi-yellow-intense-fg ansi-bold">*</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    weights<span class="ansi-yellow-intense-fg ansi-bold">:</span> Union<span class="ansi-yellow-intense-fg ansi-bold">[</span>torchvision<span class="ansi-yellow-intense-fg ansi-bold">.</span>models<span class="ansi-yellow-intense-fg ansi-bold">.</span>resnet<span class="ansi-yellow-intense-fg ansi-bold">.</span>ResNet18_Weights<span class="ansi-yellow-intense-fg ansi-bold">,</span> NoneType<span class="ansi-yellow-intense-fg ansi-bold">]</span> <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    progress<span class="ansi-yellow-intense-fg ansi-bold">:</span> bool <span class="ansi-yellow-intense-fg ansi-bold">=</span> <span class="ansi-green-intense-fg ansi-bold">True</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    <span class="ansi-yellow-intense-fg ansi-bold">**</span>kwargs<span class="ansi-yellow-intense-fg ansi-bold">:</span> Any<span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span><span class="ansi-yellow-intense-fg ansi-bold">)</span> <span class="ansi-yellow-intense-fg ansi-bold">-&gt;</span> torchvision<span class="ansi-yellow-intense-fg ansi-bold">.</span>models<span class="ansi-yellow-intense-fg ansi-bold">.</span>resnet<span class="ansi-yellow-intense-fg ansi-bold">.</span>ResNet
+<span class="ansi-red-intense-fg ansi-bold">Docstring:</span>
+ResNet-18 from `Deep Residual Learning for Image Recognition &lt;https://arxiv.org/pdf/1512.03385.pdf&gt;`__.
+
+Args:
+    weights (:class:`~torchvision.models.ResNet18_Weights`, optional): The
+        pretrained weights to use. See
+        :class:`~torchvision.models.ResNet18_Weights` below for
+        more details, and possible values. By default, no pre-trained
+        weights are used.
+    progress (bool, optional): If True, displays a progress bar of the
+        download to stderr. Default is True.
+    **kwargs: parameters passed to the ``torchvision.models.resnet.ResNet``
+        base class. Please refer to the `source code
+        &lt;https://github.com/pytorch/vision/blob/main/torchvision/models/resnet.py&gt;`_
+        for more details about this class.
+
+.. autoclass:: torchvision.models.ResNet18_Weights
+    :members:
+<span class="ansi-red-intense-fg ansi-bold">File:</span>      c:\users\hp\anaconda3\envs\myblog\lib\site-packages\torchvision\models\resnet.py
+<span class="ansi-red-intense-fg ansi-bold">Type:</span>      function
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+</p>
+    </details>
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It tells us that this model architecture is defined in <code>torchvision</code> library or <strong>PyTorch vision</strong> module. From the docstring, we get that it is a pre-trained "ResNet-18 model for <code>Deep Residual Learning for Image Recognition</code>".</p>
+<p>Let's check the next argument, <code>error_rate</code>.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">?</span>error_rate
+</pre></div>
+
+    </div>
+</div>
+</div>
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre><span class="ansi-red-intense-fg ansi-bold">Signature:</span> error_rate<span class="ansi-yellow-intense-fg ansi-bold">(</span>inp<span class="ansi-yellow-intense-fg ansi-bold">,</span> targ<span class="ansi-yellow-intense-fg ansi-bold">,</span> axis<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-yellow-intense-fg ansi-bold">-</span><span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-red-intense-fg ansi-bold">Docstring:</span> 1 - `accuracy`
+<span class="ansi-red-intense-fg ansi-bold">File:</span>      c:\users\hp\anaconda3\envs\myblog\lib\site-packages\fastai\metrics.py
+<span class="ansi-red-intense-fg ansi-bold">Type:</span>      function
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+</p>
+    </details>
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It tells us that <strong>error_rate</strong> is defined in fastai library metrics module.</p>
+<p>Now let's go back to the image classifier training step and comprehend the second line.</p>
+
+<pre><code>learn.fine_tune(3)</code></pre>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">?</span>Learner.fine_tune
+</pre></div>
+
+    </div>
+</div>
+</div>
+<details class="description">
+      <summary class="btn btn-sm" data-open="Hide Output" data-close="Show Output"></summary>
+        <p>
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre><span class="ansi-red-intense-fg ansi-bold">Signature:</span>
+Learner<span class="ansi-yellow-intense-fg ansi-bold">.</span>fine_tune<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    self<span class="ansi-yellow-intense-fg ansi-bold">:</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;Learner&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    epochs<span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    base_lr<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">0.002</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    freeze_epochs<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">1</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    lr_mult<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">100</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    pct_start<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">0.3</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    div<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">5.0</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    <span class="ansi-yellow-intense-fg ansi-bold">*</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    lr_max<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    div_final<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">100000.0</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    wd<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    moms<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    cbs<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    reset_opt<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">False</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    start_epoch<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-cyan-intense-fg ansi-bold">0</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-red-intense-fg ansi-bold">Docstring:</span> Fine tune with `Learner.freeze` for `freeze_epochs`, then with `Learner.unfreeze` for `epochs`, using discriminative LR.
+<span class="ansi-red-intense-fg ansi-bold">File:</span>      c:\users\hp\anaconda3\envs\myblog\lib\site-packages\fastai\callback\schedule.py
+<span class="ansi-red-intense-fg ansi-bold">Type:</span>      function
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+</p>
+    </details>
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It tells us that it is from fastai callback module, and its purpose is defined as "Fine tune with <code>Learner.freeze</code> for <code>freeze_epochs</code>, then with <code>Learner.unfreeze</code> for <code>epochs</code>, using discriminative LR."</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p><strong>Summary of the functions used till now</strong></p>
+<ul>
+<li><code>vision_learner</code>: Is a helper function from the fastai <code>Learner</code> class. It is used to conveniently create a learner object<ul>
+<li>Documentation: <a href="https://docs.fast.ai/vision.learner.html#vision_learner">vision.learner.html#vision_learner</a></li>
+<li>Source code: <a href="https://github.com/fastai/fastai/blob/master/nbs/21_vision.learner.ipynb">21_vision.learner.ipynb</a></li>
+</ul>
+</li>
+<li><code>Learner</code>: Is a fastai class that combines data, model, and error function into a single pipeline.<ul>
+<li>Documentation: <a href="https://docs.fast.ai/learner.html#learner">learner.html#learner</a></li>
+<li>Source code: <a href="https://github.com/fastai/fastai/blob/master/nbs/21_vision.learner.ipynb">21_vision.learner.ipynb</a></li>
+</ul>
+</li>
+<li><code>resnet18</code>: Is a Pytorch pre-trained model with ResNet-18 architecture for image recognition.<ul>
+<li>Documentation: <a href="https://pytorch.org/vision/stable/index.html">pytorch.org/vision</a></li>
+</ul>
+</li>
+<li><code>error_rate</code>: Is a fastai metric function</li>
+<li><code>Learner.fine_tune</code>: Is a <em>Learner</em> class function that trains a model<ul>
+<li>Documentation: <a href="https://docs.fast.ai/callback.schedule.html#learner.fine_tune">callback.schedule.html#learner.fine_tune</a></li>
+<li>Source code: <a href="https://github.com/fastai/fastai/blob/master/nbs/14_callback.schedule.ipynb">14_callback.schedule.ipynb</a></li>
+</ul>
+</li>
+</ul>
+<p><strong>Summary of the steps till now</strong></p>
+<ul>
+<li>Create an image classifier <code>Learner</code> object</li>
+<li>Train a model using <code>Learner.fine_tune</code> method</li>
+</ul>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Interpret-the-trained-model">Interpret the trained model<a class="anchor-link" href="#Interpret-the-trained-model"> </a></h1>
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>In the last section, we trained an image classifier that can distinguish between 4 different ball images: cricket, tennis, soccer, and basketball. But how good is our model? A confusion matrix is the best tool to interpret a model for classification problems. It visualizes and summarizes the performance of a classification algorithm. Let's do it next.</p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -2245,6 +3026,66 @@ Datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Again, we would like to know more about class <code>ClassificationInterpretation</code> as to which library it belongs. For this, let's check the documentation.</p>
+
+</div>
+</div>
+</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
+
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="o">?</span>ClassificationInterpretation
+</pre></div>
+
+    </div>
+</div>
+</div>
+
+<div class="output_wrapper">
+<div class="output">
+
+<div class="output_area">
+
+<div class="output_subarea output_stream output_stdout output_text">
+<pre><span class="ansi-red-intense-fg ansi-bold">Init signature:</span>
+ClassificationInterpretation<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    learn<span class="ansi-yellow-intense-fg ansi-bold">:</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;Learner&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    dl<span class="ansi-yellow-intense-fg ansi-bold">:</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;DataLoader&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    losses<span class="ansi-yellow-intense-fg ansi-bold">:</span> <span class="ansi-blue-intense-fg ansi-bold">&#39;TensorBase&#39;</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span>    act<span class="ansi-yellow-intense-fg ansi-bold">=</span><span class="ansi-green-intense-fg ansi-bold">None</span><span class="ansi-yellow-intense-fg ansi-bold">,</span><span class="ansi-yellow-intense-fg ansi-bold">
+</span><span class="ansi-yellow-intense-fg ansi-bold">)</span>
+<span class="ansi-red-intense-fg ansi-bold">Docstring:</span>      Interpretation methods for classification models.
+<span class="ansi-red-intense-fg ansi-bold">File:</span>           c:\users\hp\anaconda3\envs\myblog\lib\site-packages\fastai\interpret.py
+<span class="ansi-red-intense-fg ansi-bold">Type:</span>           type
+<span class="ansi-red-intense-fg ansi-bold">Subclasses:</span>     
+</pre>
+</div>
+</div>
+
+</div>
+</div>
+
+</div>
+    {% endraw %}
+
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>It tells us that this method is from the fastai interpret module. Its purpose is defined as "Interpretation methods for classification models". We can check the module documentation <a href="https://docs.fast.ai/interpret.html#interpretation">interpret.html#interpretation</a> to get more details. There it says</p>
+<blockquote><p><code>Interpretation</code> is a helper base class for exploring predictions from trained models. It can be inherited for task specific interpretation classes, such as <code>ClassificationInterpretation</code>. Interpretation is memory efficient and should be able to process any sized dataset, provided the hardware could train the same model.</p>
+</blockquote>
+<p>And to get an <code>Interpretation</code> object we are <code>Interpretation.from_learner</code> method. Its purpose is to "Construct interpretation object from a learner". Read more about this method from docs <a href="https://docs.fast.ai/interpret.html#interpretation.from_learner">interpret.html#interpretation.from_learner</a>
+There are many useful functions in fastai <strong>Interpretation</strong> class, and I would encourage you to check them from the documentation. Once such method is <code>plot_top_losses</code>. Its purpose is "Show k largest(/smallest) preds and losses" from the validation set plot the data points where our model has the least confidence. Usually, a model makes a wrong prediction when it has low confidence (or model can be very confident in wrong prediction). So this function can be valuable in understanding model performance.</p>
+<p>Let's use this function next. You may read more about this function from docs <a href="https://docs.fast.ai/interpret.html#interpretation.plot_top_losses">interpret.html#interpretation.plot_top_losses</a></p>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -2313,6 +3154,38 @@ Datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi
 </div>
     {% endraw %}
 
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<p>Let's analyze the results from the last cell. It outputs model performance as "Prediction/Actual/Loss/Confidence"</p>
+<ul>
+<li>Prediction: What label has our model predicted for a given image</li>
+<li>Actual: What label does our validation data have for that image</li>
+<li>Loss: A quantitative measure of how wrong was the model prediction. Making a wrong prediction with high confidence gets a high score</li>
+<li>Confidence: The confidence/probability that the model thinks the given image has the predicted label</li>
+</ul>
+<p>Now let's check the output images.</p>
+<ul>
+<li>First image gets the highest loss. Our model thinks (very confidently) that this image is a tennis ball. But in our validation set, it is a cricket ball with green color. This makes sense because our model has learned that green balls are tennis balls.</li>
+<li>The second image model again thinks it is a tennis ball. It seems right as it looks like a tennis ball to the human eye. We can remove this image from validation if we are not sure about it.</li>
+<li>In the third image, our model thinks it is a cricket ball though it is a soccer ball. What do we learn from this? Our model has not seen soccer ball images before that have green and red colors in it. So we may include more soccer ball images with that color.</li>
+</ul>
+<p>Similarly, we can analyze the remaining results and take action accordingly.</p>
+
+</div>
+</div>
+</div>
+<div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
+<div class="text_cell_render border-box-sizing rendered_html">
+<h1 id="Export-and-load-a-trained-model">Export and load a trained model<a class="anchor-link" href="#Export-and-load-a-trained-model"> </a></h1><p>So we have trained our image classifier and are happy with the results. The next phase in ML work is to copy/transfer this artifact to a server that can be hosted for inference work. Remember, a trained model consists of the architecture and the trained parameters. So to store a model, we need to save both these parts, and no information is lost. For this, we can use <code>Learner.export</code> method to keep the model in a <code>pickle</code> binary format (default protocol version 2).</p>
+<ul>
+<li>You can learn more about <em>Learner.export</em> from documentation <a href="https://docs.fast.ai/learner.html#learner.export">learner.html#learner.export</a></li>
+<li>Source code: <a href="https://github.com/fastai/fastai/blob/master/nbs/13a_learner.ipynb">13a_learner.ipynb</a></li>
+<li>To read about <code>pickle</code> Python object serialization module check the official docs <a href="https://docs.python.org/3/library/pickle.html">pickle.html</a></li>
+</ul>
+
+</div>
+</div>
+</div>
     {% raw %}
     
 <div class="cell border-box-sizing code_cell rendered">
@@ -2320,87 +3193,28 @@ Datasets<span class="ansi-yellow-intense-fg ansi-bold">(</span><span class="ansi
 
 <div class="inner_cell">
     <div class="input_area">
-<div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">fastai.vision.widgets</span> <span class="kn">import</span> <span class="o">*</span>
-
-<span class="n">cleaner</span> <span class="o">=</span> <span class="n">ImageClassifierCleaner</span><span class="p">(</span><span class="n">learn</span><span class="p">)</span>
-<span class="n">cleaner</span>
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">export_file</span> <span class="o">=</span> <span class="n">local_path</span><span class="o">+</span><span class="s2">&quot;export_model.pkl&quot;</span>
+<span class="n">export_file</span>
 </pre></div>
 
     </div>
 </div>
 </div>
 
-<div class="output_wrapper">
-<div class="output">
-
-<div class="output_area">
-
-
-<div class="output_html rendered_html output_subarea ">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
-
 </div>
+    {% endraw %}
 
-</div>
+    {% raw %}
+    
+<div class="cell border-box-sizing code_cell rendered">
+<div class="input">
 
-<div class="output_area">
+<div class="inner_cell">
+    <div class="input_area">
+<div class=" highlight hl-ipython3"><pre><span></span><span class="n">learn</span><span class="o">.</span><span class="n">export</span><span class="p">(</span><span class="n">export_file</span><span class="p">)</span>
+</pre></div>
 
-
-<div class="output_html rendered_html output_subarea ">
-
-</div>
-
-</div>
-
-<div class="output_area">
-
-
-<div class="output_html rendered_html output_subarea ">
-
-<style>
-    /* Turns off some styling */
-    progress {
-        /* gets rid of default border in Firefox and Opera. */
-        border: none;
-        /* Needs to be in here for Safari polyfill so background images work as expected. */
-        background-size: auto;
-    }
-    progress:not([value]), progress:not([value])::-webkit-progress-bar {
-        background: repeating-linear-gradient(45deg, #7e7e7e, #7e7e7e 10px, #5c5c5c 10px, #5c5c5c 20px);
-    }
-    .progress-bar-interrupted, .progress-bar-interrupted::-webkit-progress-bar {
-        background: #F44336;
-    }
-</style>
-
-</div>
-
-</div>
-
-<div class="output_area">
-
-
-<div class="output_html rendered_html output_subarea ">
-
-</div>
-
-</div>
-
+    </div>
 </div>
 </div>
 
