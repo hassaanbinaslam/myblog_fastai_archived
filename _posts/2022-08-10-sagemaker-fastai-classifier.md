@@ -1,7 +1,7 @@
 ---
 keywords: fastai
 description: This is a practice notebook using the fastai library to build a simple image classifier for cricket, tennis, basketball, and soccer.
-title: Train a Simple Image Classifier using Fastai (Deep Dive Approach)
+title: Train an Image Classifier using Fastai (Deep Dive Analysis)
 toc: true 
 badges: true
 comments: true
