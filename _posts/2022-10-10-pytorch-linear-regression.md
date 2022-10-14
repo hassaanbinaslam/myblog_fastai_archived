@@ -59,7 +59,7 @@ layout: notebook
 <div class="inner_cell">
     <div class="input_area">
 <div class=" highlight hl-ipython3"><pre><span></span><span class="kn">from</span> <span class="nn">platform</span> <span class="kn">import</span> <span class="n">python_version</span>
-<span class="kn">import</span> <span class="nn">sklearn</span><span class="o">,</span> <span class="nn">numpy</span><span class="o">,</span> <span class="nn">matplotlib</span><span class="o">,</span> <span class="nn">pandas</span>
+<span class="kn">import</span> <span class="nn">sklearn</span><span class="o">,</span> <span class="nn">numpy</span><span class="o">,</span> <span class="nn">matplotlib</span><span class="o">,</span> <span class="nn">pandas</span><span class="o">,</span> <span class="nn">torch</span>
 
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;python==&quot;</span> <span class="o">+</span> <span class="n">python_version</span><span class="p">())</span>
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;sklearn==&quot;</span> <span class="o">+</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">__version__</span><span class="p">)</span>
@@ -96,7 +96,7 @@ matplotlib==3.2.2
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<h2 id="Credits">Credits<a class="anchor-link" href="#Credits"> </a></h2><p>This notebook takes inspiration from the book "Deep Learning with PyTorch Step-by-Step" by "Daniel Voigt Godoy". You can get the book from its website: <a href="https://pytorchstepbystep.com/">pytorchstepbystep</a>. The GitHub repository for this book has valuable notebooks and can be used independently: <a href="https://github.com/dvgodoy/PyTorchStepByStep">github.com/dvgodoy/PyTorchStepByStep</a>. Parts of the code you see in this notebook are taken <a href="https://colab.research.google.com/github/dvgodoy/PyTorchStepByStep/blob/master/Chapter02.ipynb">chapter 2 notebook</a> of the same book.</p>
+<h2 id="Credits">Credits<a class="anchor-link" href="#Credits"> </a></h2><p>This notebook takes inspiration from the book "Deep Learning with PyTorch Step-by-Step" by "Daniel Voigt Godoy". You can get the book from its website: <a href="https://pytorchstepbystep.com/">pytorchstepbystep</a>. In addition, the GitHub repository for this book has valuable notebooks and can be used independently: <a href="https://github.com/dvgodoy/PyTorchStepByStep">github.com/dvgodoy/PyTorchStepByStep</a>. Parts of the code you see in this notebook are taken from <a href="https://colab.research.google.com/github/dvgodoy/PyTorchStepByStep/blob/master/Chapter02.ipynb">chapter 2 notebook</a> of the same book.</p>
 
 </div>
 </div>
@@ -223,7 +223,7 @@ matplotlib==3.2.2
 
 <div class="cell border-box-sizing text_cell rendered"><div class="inner_cell">
 <div class="text_cell_render border-box-sizing rendered_html">
-<p>Now load the tensors into Dataset and DataLoader class. PyTorch Datasets are helper classes that contain data and labels as a list of tuples. DataLoader is another helper class to create batches from Dataset tuples. <code>batch_size</code> means the number of tuples we want in a single batch. We have used 16 here since our data is small. So each fetch from DataLoader will give us a list of 16 tuples.</p>
+<p>Now load the tensors into Dataset and DataLoader class. PyTorch Dataset is a helper class that converts data and labels into a list of tuples. DataLoader is another helper class to create batches from Dataset tuples. <code>batch_size</code> means the number of tuples we want in a single batch. We have used 16 here since our data is small. So each fetch from DataLoader will give us a list of 16 tuples.</p>
 
 </div>
 </div>
@@ -966,10 +966,10 @@ epoch: 199, train loss: 0.01018, valid loss: 0.00771
 
 
 
-<div id="69f8b7bf-1271-4c68-86bf-b1e2b33481f4"></div>
+<div id="5af06c64-6c5d-4fa0-bbca-73050d6f2032"></div>
 <div class="output_subarea output_javascript ">
 <script type="text/javascript">
-var element = $('#69f8b7bf-1271-4c68-86bf-b1e2b33481f4');
+var element = $('#5af06c64-6c5d-4fa0-bbca-73050d6f2032');
 
         (async () => {
             const url = new URL(await google.colab.kernel.proxyPort(6006, {'cache': true}));
