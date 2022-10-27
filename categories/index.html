@@ -36,6 +36,22 @@
 
 <link rel="shortcut icon" type="image/x-icon" href="/myblog/images/favicon.ico"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Primer/15.2.0/primer.css" integrity="sha512-xTz2ys4coGAOz8vuV1NcQBkgVmKhsSEtjbqyMJbBHRplFuvKIUo6xhLHpAyPt9mfR6twHJgn9OgVLuqOvjeBhg==" crossorigin="anonymous" />
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.14.0/css/all.min.css" integrity="sha512-1PKOgIY59xJ8Co8+NE6FZ+LOAZKjy+KY8iq0G4B3CyeY6wYHN3yt9PW0XpSriVlkMXe40PTKnXrLnZ9+fkDaog==" crossorigin="anonymous" /><script src="https://hypothes.is/embed.js" async></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.css" integrity="sha512-h7nl+xz8wgDlNM4NqKEM4F1NkIRS17M9+uJwIGwuo8vGqIl4BhuCKdxjWEINm+xyrUjNCnK5dCrhM0sj+wTIXw==" crossorigin="anonymous" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/katex.min.js" integrity="sha512-/CMIhXiDA3m2c9kzRyd97MTb3MC6OVnx4TElQ7fkkoRghwDf6gi41gaT1PwF270W6+J60uTmwgeRpNpJdRV6sg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.12.0/contrib/auto-render.min.js" integrity="sha512-Do7uJAaHZm5OLrIv/yN4w0iG1dbu01kzdMNnFfu/mAqgUk6Nniv2JYHcwH+cNwjqgLcqcuBBk+JRvprLVI8azg==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js" integrity="sha512-0doc9hKxR3PYwso42RD1p5ySZpzzuDiOwMrdCEh2WdJZCjcmFKc/wEnL+z8fBQrnHoiNWbo+3fiGkOYXBdQp4A==" crossorigin="anonymous"></script>
+    <script>
+    document.addEventListener("DOMContentLoaded", function() {
+        renderMathInElement( document.body, {
+        delimiters: [
+            {left: "$$", right: "$$", display: true},
+            {left: "[%", right: "%]", display: true},
+            {left: "$", right: "$", display: false}
+        ]}
+        );
+    });
+    </script>
+
 
 <script>
 function wrap_img(fn) {
@@ -100,6 +116,8 @@ window.onload = wrap_img;
     <li><a href="#cloudwatch">cloudwatch</a></li>
   
     <li><a href="#datasync">datasync</a></li>
+  
+    <li><a href="#dl">dl</a></li>
   
     <li><a href="#docker">docker</a></li>
   
@@ -255,6 +273,15 @@ window.onload = wrap_img;
       
         <article class="archive-item">
           <p class="post-meta post-meta-title"><a class="page-meta" href="/myblog/aws/lambda/efs/s3/synchonization/datasync/2022/03/29/efs-s3-datasync.html">AWS EFS Sync to S3 Using DataSync</a>  • Mar 29, 2022</p>
+        </article>
+        
+      
+  
+      <h3 id ="dl"><i class="fas fa-tags category-tags-icon"></i></i> dl</h3>
+      <a name="dl"></a>
+      
+        <article class="archive-item">
+          <p class="post-meta post-meta-title"><a class="page-meta" href="/myblog/pytorch/dl/2022/10/23/pytorch-vanishing-gradients-deep-neural-networks.html">Detect Vanishing Gradients in Deep Neural Networks by Plotting Gradient Distributions</a>  • Oct 23, 2022</p>
         </article>
         
       
@@ -482,6 +509,11 @@ window.onload = wrap_img;
   
       <h3 id ="pytorch"><i class="fas fa-tags category-tags-icon"></i></i> pytorch</h3>
       <a name="pytorch"></a>
+      
+        <article class="archive-item">
+          <p class="post-meta post-meta-title"><a class="page-meta" href="/myblog/pytorch/dl/2022/10/23/pytorch-vanishing-gradients-deep-neural-networks.html">Detect Vanishing Gradients in Deep Neural Networks by Plotting Gradient Distributions</a>  • Oct 23, 2022</p>
+        </article>
+        
       
         <article class="archive-item">
           <p class="post-meta post-meta-title"><a class="page-meta" href="/myblog/pytorch/2022/10/18/pytorch-mnist-convolutional-neural-networks.html">Convolutional Neural Networks Filters and Feature Maps with PyTorch</a>  • Oct 18, 2022</p>
